@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This module contains the entry point of the
-command interpreter for UnibenEngVault console.
+Command-line interface for managing UnibenEngVault objects via FileStorage.
 """
 
 from cmd import Cmd
@@ -13,9 +12,8 @@ import logging
 from models import storage
 from models.basemodel import BaseModel
 from models.admin import Admin, Permission, AdminPermission
-from models.course import Course, CourseAssignment
+from models.course import Course
 from models.department import Department
-from models.faculty import Faculty
 from models.feedback import Feedback
 from models.file import File
 from models.help import Help
@@ -39,9 +37,8 @@ if disable_logging:
 
 
 class UnibenEngVaultCommand(Cmd):
-    """
-    Defines the command interpreter for UnibenEngVault
-    """
+    """Interactive command-line interpreter for UnibenEngVault."""
+
     prompt = "(UnibenEngVault) "
     classes: dict[str, Any] = {
         "BaseModel": BaseModel,
@@ -49,9 +46,7 @@ class UnibenEngVaultCommand(Cmd):
         "Permission": Permission,
         "AdminPermission": AdminPermission,
         "Course": Course,
-        "CourseAssignment": CourseAssignment,
         "Department": Department,
-        "Faculty": Faculty,
         "Feedback": Feedback,
         "File": File,
         "Help": Help,
@@ -59,50 +54,55 @@ class UnibenEngVaultCommand(Cmd):
         "Notification": Notification,
         "Report": Report,
         "TutorialLink": TutorialLink,
-        "User": User
+        "User": User,
     }
 
     def preloop(self) -> None:
-        """
-        Executes the welcome message before the start of the program.
-        """
-        print("""\n\tWelcome to UnibenEngVault command line.
-              Enter these commands:
-                    all
-                    count
-                    create
-                    destroy
-                    show
-                    update\n""")
+        """Display welcome message before the program starts."""
+
+        print(
+            """
+
+            \tWelcome to the UnibenEngVault Command Line Interface (CLI).
+
+                UnibenEngVault is a centralized platform for
+                engineering students at the University of Benin
+                to access and manage course materials.
+
+                Available commands:
+
+                all       - Display all objects or all objects of a class
+                count     - Show the number of objects of a class
+                create    - Create a new object
+                destroy   - Delete an object
+                show      - Display details of an object
+                update    - Update attributes of an object
+
+                Type 'quit' or press Ctrl+D to exit.
+
+            """
+        )
 
     def postloop(self) -> None:
-        """
-        Executed once before the end of the program.
-        """
+        """Display exit message after the program ends."""
         print("\n\n\tBye!\n")
 
     def emptyline(self) -> bool:
-        """
-        Overrides default emptyline method.
-        Ensures nothing is printed when an emptyline is entered.
-        """
+        """Do nothing when an empty line is entered."""
         return False
 
     def default(self, line: str) -> None:
+        """Handle invalid or unknown commands."""
         return super().default(line)
 
     def do_EOF(self, arg: str) -> bool:
-        """
-        Exits the program.
-        """
+        """Exit the program on EOF signal (Ctrl+D / Ctrl+Z)."""
         return True
-    
+
     def do_quit(self, arg: str) -> bool:
-        """
-        Exits the program
-        """
+        """Exits the program."""
         return True
-    
+
     def do_all(self, args: str) -> None:
         """
         Returns all objects of a given class or objects of all classes
@@ -117,11 +117,11 @@ class UnibenEngVaultCommand(Cmd):
             for obj in all_objects.values():
                 print(obj)
             return
-        
+
         parts = args.split()
         cls_name = parts[0].strip()
         if cls_name not in self.classes:
-            print("** class doesn't exist **") 
+            print("** class doesn't exist **")
             return
 
         cls_objects = storage.all(cls_name)
@@ -141,17 +141,16 @@ class UnibenEngVaultCommand(Cmd):
             all_objects_count = storage.count()
             print(all_objects_count)
             return
-        
+
         parts = args.split()
         cls_name = parts[0].strip()
         if cls_name not in self.classes:
-            print("** class doesn't exist **") 
+            print("** class doesn't exist **")
             return
 
         cls_objects_count = storage.count(cls_name)
         print(cls_objects_count)
-        
-    
+
     def do_create(self, args: str) -> None:
         """
         Creates an object of a class in UnibenEngVault and
@@ -165,7 +164,7 @@ class UnibenEngVaultCommand(Cmd):
         if not args:
             print("** class name missing **")
             return
-        
+
         parts = args.split()
         cls_name = parts[0].strip()
         if cls_name not in self.classes:
@@ -176,7 +175,7 @@ class UnibenEngVaultCommand(Cmd):
             obj.save()
             print(obj.id)
             return
-        
+
         params = parts[1:]
         kwargs = {}
         for param in params:
@@ -188,7 +187,7 @@ class UnibenEngVaultCommand(Cmd):
             if isinstance(value, str):
                 value = value.replace("_", " ")
             kwargs[attr] = value
-        
+
         if kwargs:
             obj = self.classes[cls_name](**kwargs)
             obj.save()
@@ -205,17 +204,17 @@ class UnibenEngVaultCommand(Cmd):
         if not args:
             print("** class name missing **")
             return
-        
+
         parts = args.split()
         cls_name = parts[0].strip()
         if cls_name not in self.classes:
             print("** class doesn't exist **")
             return
-        
+
         if len(parts) < 2:
             print("** instance id missing **")
             return
-        
+
         obj_id = parts[1]
         all_objects = storage.all()
         cls_id = f"{cls_name}.{obj_id}"
@@ -232,22 +231,22 @@ class UnibenEngVaultCommand(Cmd):
         based on class and id.
 
         Usage:
-            - (UnibenEngVault) show BaseModel 1234-1234-1234            
+            - (UnibenEngVault) show BaseModel 1234-1234-1234
         """
         if not args:
             print("** class name missing **")
             return
-        
+
         parts = args.split()
         cls_name = parts[0].strip()
         if cls_name not in self.classes:
             print("** class doesn't exist **")
             return
-        
+
         if len(parts) < 2:
             print("** instance id missing **")
             return
-        
+
         obj_id = parts[1]
         all_objects = storage.all()
         cls_id = f"{cls_name}.{obj_id}"
@@ -257,32 +256,33 @@ class UnibenEngVaultCommand(Cmd):
         obj = all_objects[cls_id]
         print(obj)
 
-    def do_update(self, args:str) -> None:
+    def do_update(self, args: str) -> None:
         """
-        Updates the attributes of an object and saves to UnibenEngVault storage.
+        Updates the attributes of an object and saves
+        to UnibenEngVault storage.
 
         Usage:
-        - (UnibenEngVault) update User 1234-1234-1234 department "electrical engineering"
-        - (UnibenEngVault) update User 1235-1235-1235 {"name": "Eng", "level": 100}
+        - (UnibenEngVault) update User 1234 department "marine engineering"
+        - (UnibenEngVault) update User 1235 {"name": "Eng", "level": 100}
         """
         if not args:
             print("** class name missing **")
             return
-        
+
         parts = args.partition(" ")
         cls_name = parts[0].strip()
         if cls_name not in self.classes:
             print("** class doesn't exist **")
             return
-        
-        obj_id, _, params = parts[2]. partition(" ")
+
+        obj_id, _, params = parts[2].partition(" ")
         if not obj_id:
             print("** instance id missing **")
             return
         if not params:
             print("** attribute name missing **")
             return
-        
+
         all_objects = storage.all()
         cls_id = f"{cls_name}.{obj_id}"
         if cls_id not in all_objects:
@@ -292,7 +292,7 @@ class UnibenEngVaultCommand(Cmd):
             parsed_data = ast.literal_eval(params)
         except Exception:
             parsed_data = None
-        
+
         obj = all_objects[cls_id]
         if isinstance(parsed_data, dict):
             attr_dict = cast(dict[str, Any], parsed_data)
@@ -302,7 +302,7 @@ class UnibenEngVaultCommand(Cmd):
             logging.debug(f"{obj}")
             logging.debug(f"{obj.to_dict()}")
             return
-        
+
         attr_parts = params.split()
         if len(attr_parts) < 2:
             print("** value missing **")
@@ -322,7 +322,6 @@ class UnibenEngVaultCommand(Cmd):
         logging.debug(f"{obj.to_dict()}")
         print(f"{cls_name} updated")
 
-        
 
 if __name__ == "__main__":
     UnibenEngVaultCommand().cmdloop()
