@@ -11,13 +11,10 @@ from typing import Any, Optional
 import json
 import os
 
-load_dotenv()
-
 from models.basemodel import BaseModel
 from models.admin import Admin, Permission, AdminPermission
-from models.course import Course, CourseAssignment
+from models.course import Course
 from models.department import Department
-from models.faculty import Faculty
 from models.feedback import Feedback
 from models.file import File
 from models.help import Help
@@ -26,6 +23,8 @@ from models.notification import Notification
 from models.report import Report
 from models.tutoriallink import TutorialLink
 from models.user import User
+
+load_dotenv()
 
 
 class FileStorage:
@@ -37,9 +36,7 @@ class FileStorage:
         "Permission": Permission,
         "AdminPermission": AdminPermission,
         "Course": Course,
-        "CourseAssignment": CourseAssignment,
         "Department": Department,
-        "Faculty": Faculty,
         "Feedback": Feedback,
         "File": File,
         "Help": Help,
@@ -47,18 +44,20 @@ class FileStorage:
         "Notification": Notification,
         "Report": Report,
         "TutorialLink": TutorialLink,
-        "User": User
+        "User": User,
     }
 
-    def all(self, cls: Optional[str]=None) -> dict[str, Any]:
+    def all(self, cls: Optional[str] = None) -> dict[str, Any]:
+        """Returns the objects of a class or all objects in storage"""
         objects = deepcopy(self.__objects)
         if cls in self.__classes:
             cls_objects = {
-                cls_id: obj for cls_id, obj in self.__objects.items() if cls in cls_id
-                }
+                cls_id: obj
+                for cls_id, obj in self.__objects.items() if cls in cls_id
+            }
             return cls_objects
         return objects
-    
+
     def count(self, cls: Optional[str]=None) -> int:
         """
         Returns the total number of objects of a given class or
@@ -69,30 +68,34 @@ class FileStorage:
             for _ in self.__objects:
                 count += 1
             return count
-        
+
         for cls_id in self.__objects:
             if cls in cls_id:
                 count += 1
         return count
 
     def delete(self, obj: BaseModel) -> None:
+        """Deletes object from storage"""
         if obj:
             key = f"{obj.__class__.__name__}.{obj.id}"
             self.__objects.pop(key, None)
 
     def new(self, obj: BaseModel) -> None:
+        """Adds object to storage"""
         if obj:
             key = f"{obj.__class__.__name__}.{obj.id}"
             self.__objects[key] = obj
 
     def save(self) -> None:
+        """Saves object to storage"""
         obj_dict = {
             cls_id: obj.to_dict() for cls_id, obj in self.__objects.items()
-            }
+        }
         with open(self.__filestorage, "w", encoding="utf-8") as f:
-            json.dump(obj_dict, f, indent=4) 
+            json.dump(obj_dict, f, indent=4)
 
     def reload(self) -> None:
+        """Reloads all objects from storage"""
         all_objects: dict[str, Any] = {}
         try:
             with open(self.__filestorage, "r") as f:
