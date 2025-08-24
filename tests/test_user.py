@@ -17,14 +17,17 @@ from models.basemodel import BaseModel
 
 
 load_dotenv()
+
+
 class TestUser(unittest.TestCase):
     """
     Implements test cases for User class.
     """
+
     def setUp(self) -> None:
         self.user = User()
         self.user.save()
-        
+
         self.user_objects: dict[str, Any] = {}
         self.filepath: str = os.getenv("FILE_PATH", "storage.json")
         try:
@@ -32,11 +35,11 @@ class TestUser(unittest.TestCase):
                 self.user_objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         self.user.delete()
         self.user.save()
-    
+
     def test_instance_type(self):
         """
         Test that object of User is an instance of User and BaseModel.
@@ -52,7 +55,7 @@ class TestUser(unittest.TestCase):
         self.assertIn("id", self.user.__dict__)
         self.assertIn("created_at", self.user.__dict__)
         self.assertIn("updated_at", self.user.__dict__)
-    
+
     def test_class_attributes(self):
         self.assertIn("email", User.__dict__)
         self.assertIn("password", User.__dict__)
@@ -64,8 +67,10 @@ class TestUser(unittest.TestCase):
         self.assertIn("suspensions_count", User.__dict__)
 
     def test_str_method(self):
-        return_value = (f"[{self.user.__class__.__name__}.{self.user.id}] "
-                        f"({self.user.__dict__})")
+        return_value = (
+            f"[{self.user.__class__.__name__}.{self.user.id}] "
+            f"({self.user.__dict__})"
+        )
         self.assertEqual(return_value, str(self.user))
 
     def test_save_method(self):
