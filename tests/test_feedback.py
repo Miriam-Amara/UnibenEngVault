@@ -17,14 +17,17 @@ from models.basemodel import BaseModel
 
 
 load_dotenv()
+
+
 class TestFeedback(unittest.TestCase):
     """
     Implements test cases for Feedback class.
     """
+
     def setUp(self) -> None:
         self.feedback = Feedback()
         self.feedback.save()
-        
+
         self.feedback_objects: dict[str, Any] = {}
         self.filepath: str = os.getenv("FILE_PATH", "storage.json")
         try:
@@ -32,11 +35,11 @@ class TestFeedback(unittest.TestCase):
                 self.feedback_objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         self.feedback.delete()
         self.feedback.save()
-    
+
     def test_instance_type(self):
         """
         Test that object of Feedback is an instance of Feedback and BaseModel.
@@ -46,22 +49,24 @@ class TestFeedback(unittest.TestCase):
 
     def test_instance_attributes(self):
         """
-        Test that Feedback class has instance attributes from BaseModel (parent)
-        class.
+        Test that Feedback class has instance attributes
+        from BaseModel (parent) class.
         """
         self.assertIn("id", self.feedback.__dict__)
         self.assertIn("created_at", self.feedback.__dict__)
         self.assertIn("updated_at", self.feedback.__dict__)
-    
+
     def test_class_attributes(self):
         self.assertIn("message", Feedback.__dict__)
         self.assertIn("status", Feedback.__dict__)
         self.assertIn("added_by", Feedback.__dict__)
         self.assertIn("reviewed_by", Feedback.__dict__)
-    
+
     def test_str_method(self):
-        return_value = (f"[{self.feedback.__class__.__name__}.{self.feedback.id}] "
-                        f"({self.feedback.__dict__})")
+        return_value = (
+            f"[{self.feedback.__class__.__name__}.{self.feedback.id}] "
+            f"({self.feedback.__dict__})"
+        )
         self.assertEqual(return_value, str(self.feedback))
 
     def test_save_method(self):
