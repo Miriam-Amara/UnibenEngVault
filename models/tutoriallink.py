@@ -1,17 +1,63 @@
 #!/usr/bin/env python3
 
-"""
-This module contains TutorialLink class for UnibenEngVault.
-"""
-
-from models.basemodel import BaseModel
+"""Defines the TutorialLink model for the system."""
 
 
-class TutorialLink(BaseModel):
-    course: str = ""
-    url: str = ""
-    title: str = ""
-    content_type: str = ""
-    status: str = ""
-    added_by: str = ""
-    approved_by: str = ""
+from sqlalchemy import String, ForeignKey, Enum
+from sqlalchemy.orm import mapped_column, relationship
+import enum
+
+from models.basemodel import BaseModel, Base
+
+
+class Status(enum.Enum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+
+
+class Scope(enum.Enum):
+    general = "general"
+    departmental = "departmental"
+
+
+class ContentType(enum.Enum):
+    video = "video"
+    blog = "blog"
+    article = "article"
+    pdf = "pdf"
+    audio = "audio"
+    other = "other"
+
+
+class TutorialLink(BaseModel, Base):
+    """
+    Represents an external tutorial resource linked to a course.
+
+    Inherits from:
+        BaseModel: Provides id, created_at, updated_at, and common methods.
+        Base: SQLAlchemy declarative base for ORM mapping.
+
+    Attributes:
+        (class attributes specific to TutorialLink, e.g., url, course_id, etc.)
+    """
+
+    __tablename__ = "tutorial_links"
+
+    course_id = mapped_column(
+        String(36), ForeignKey("courses.id"), nullable=False
+    )
+    url = mapped_column(String(1024), nullable=False)
+    title = mapped_column(String(200), nullable=False)
+    content_type = mapped_column(Enum(ContentType), nullable=False)
+    scope = mapped_column(Enum(Scope), nullable=False, default="departmental")
+    status = mapped_column(Enum(Status), nullable=False, default="pending")
+    user_id = mapped_column(String(36), ForeignKey("users.id"))
+    admin_id = mapped_column(String(36), ForeignKey("admins.id"))
+
+    added_by = relationship(
+        "User", back_populates="tutorial_links_added", viewonly=True
+    )
+    approved_by = relationship(
+        "Admin", back_populates="tutorial_links_approved", viewonly=True
+    )
