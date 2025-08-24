@@ -17,14 +17,17 @@ from models.basemodel import BaseModel
 
 
 load_dotenv()
+
+
 class TestLevel(unittest.TestCase):
     """
     Implements test cases for Level class.
     """
+
     def setUp(self) -> None:
         self.level = Level()
         self.level.save()
-        
+
         self.level_objects: dict[str, Any] = {}
         self.filepath: str = os.getenv("FILE_PATH", "storage.json")
         try:
@@ -32,11 +35,11 @@ class TestLevel(unittest.TestCase):
                 self.level_objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         self.level.delete()
         self.level.save()
-    
+
     def test_instance_type(self):
         """
         Test that object of Level is an instance of Level and BaseModel.
@@ -52,14 +55,16 @@ class TestLevel(unittest.TestCase):
         self.assertIn("id", self.level.__dict__)
         self.assertIn("created_at", self.level.__dict__)
         self.assertIn("updated_at", self.level.__dict__)
-    
+
     def test_class_attributes(self):
         self.assertIn("name", Level.__dict__)
         self.assertIn("registered_by", Level.__dict__)
-        
+
     def test_str_method(self):
-        return_value = (f"[{self.level.__class__.__name__}.{self.level.id}] "
-                        f"({self.level.__dict__})")
+        return_value = (
+            f"[{self.level.__class__.__name__}.{self.level.id}] "
+            f"({self.level.__dict__})"
+        )
         self.assertEqual(return_value, str(self.level))
 
     def test_save_method(self):
