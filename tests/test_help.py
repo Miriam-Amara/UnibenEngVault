@@ -17,14 +17,17 @@ from models.basemodel import BaseModel
 
 
 load_dotenv()
+
+
 class TestHelp(unittest.TestCase):
     """
     Implements test cases for Help class.
     """
+
     def setUp(self) -> None:
         self.help = Help()
         self.help.save()
-        
+
         self.help_objects: dict[str, Any] = {}
         self.filepath: str = os.getenv("FILE_PATH", "storage.json")
         try:
@@ -32,11 +35,11 @@ class TestHelp(unittest.TestCase):
                 self.help_objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         self.help.delete()
         self.help.save()
-    
+
     def test_instance_type(self):
         """
         Test that object of Help is an instance of Help and BaseModel.
@@ -52,7 +55,7 @@ class TestHelp(unittest.TestCase):
         self.assertIn("id", self.help.__dict__)
         self.assertIn("created_at", self.help.__dict__)
         self.assertIn("updated_at", self.help.__dict__)
-    
+
     def test_class_attributes(self):
         self.assertIn("topic", Help.__dict__)
         self.assertIn("message", Help.__dict__)
@@ -62,10 +65,12 @@ class TestHelp(unittest.TestCase):
         self.assertIn("response", Help.__dict__)
         self.assertIn("sent_by", Help.__dict__)
         self.assertIn("reviewed_by", Help.__dict__)
-        
+
     def test_str_method(self):
-        return_value = (f"[{self.help.__class__.__name__}.{self.help.id}] "
-                        f"({self.help.__dict__})")
+        return_value = (
+            f"[{self.help.__class__.__name__}.{self.help.id}] "
+            f"({self.help.__dict__})"
+        )
         self.assertEqual(return_value, str(self.help))
 
     def test_save_method(self):
