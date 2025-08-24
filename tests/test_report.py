@@ -17,14 +17,17 @@ from models.basemodel import BaseModel
 
 
 load_dotenv()
+
+
 class TestReport(unittest.TestCase):
     """
     Implements test cases for Report class.
     """
+
     def setUp(self) -> None:
         self.report = Report()
         self.report.save()
-        
+
         self.report_objects: dict[str, Any] = {}
         self.filepath: str = os.getenv("FILE_PATH", "storage.json")
         try:
@@ -32,11 +35,11 @@ class TestReport(unittest.TestCase):
                 self.report_objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         self.report.delete()
         self.report.save()
-    
+
     def test_instance_type(self):
         """
         Test that object of Report is an instance of Report and BaseModel.
@@ -52,7 +55,7 @@ class TestReport(unittest.TestCase):
         self.assertIn("id", self.report.__dict__)
         self.assertIn("created_at", self.report.__dict__)
         self.assertIn("updated_at", self.report.__dict__)
-    
+
     def test_class_attributes(self):
         self.assertIn("topic", Report.__dict__)
         self.assertIn("message", Report.__dict__)
@@ -63,10 +66,12 @@ class TestReport(unittest.TestCase):
         self.assertIn("reported_by", Report.__dict__)
         self.assertIn("response", Report.__dict__)
         self.assertIn("reviewed_by", Report.__dict__)
-        
+
     def test_str_method(self):
-        return_value = (f"[{self.report.__class__.__name__}.{self.report.id}] "
-                        f"({self.report.__dict__})")
+        return_value = (
+            f"[{self.report.__class__.__name__}.{self.report.id}] "
+            f"({self.report.__dict__})"
+        )
         self.assertEqual(return_value, str(self.report))
 
     def test_save_method(self):
