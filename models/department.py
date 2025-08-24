@@ -1,15 +1,45 @@
 #!/usr/bin/env python3
 
 """
-This module contains Department class for UnibenEngVault.
+Defines the Department model for the system.
 """
 
-from models.basemodel import BaseModel
+from sqlalchemy import String
+from sqlalchemy.orm import mapped_column, relationship
+
+from models.basemodel import BaseModel, Base
 
 
-class Department(BaseModel):
-    name: str = ""
-    code: str = ""
-    faculty: str = ""
-    course_assignments: list[str] = []
-    registered_by: str = ""
+class Department(BaseModel, Base):
+    """
+    Represents a department within a faculty.
+
+    Inherits from:
+        BaseModel: Provides id, created_at, updated_at, and common methods.
+        Base: SQLAlchemy declarative base for ORM mapping.
+
+    Attributes:
+        (class attributes specific to Department, e.g., dept_name, etc.)
+    """
+
+    __tablename__ = "departments"
+
+    dept_name = mapped_column(String(200), unique=True, nullable=False)
+    dept_code = mapped_column(String(20), unique=True, nullable=False)
+
+    users = relationship(
+        "User", back_populates="department",
+        viewonly=True, cascade="all, delete-orphan"
+    )
+    courses = relationship(
+        "Course",
+        back_populates="department",
+        viewonly=True,
+        cascade="all, delete-orphan",
+    )
+    admin_permissions = relationship(
+        "AdminPermission",
+        back_populates="departments",
+        viewonly=True,
+        cascade="all, delete-orphan",
+    )
