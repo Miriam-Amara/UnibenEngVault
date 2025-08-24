@@ -17,14 +17,17 @@ from models.basemodel import BaseModel
 
 
 load_dotenv()
+
+
 class TestDepartment(unittest.TestCase):
     """
     Implements test cases for Department class.
     """
+
     def setUp(self) -> None:
         self.department = Department()
         self.department.save()
-        
+
         self.department_objects: dict[str, Any] = {}
         self.filepath: str = os.getenv("FILE_PATH", "storage.json")
         try:
@@ -32,36 +35,39 @@ class TestDepartment(unittest.TestCase):
                 self.department_objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         self.department.delete()
         self.department.save()
-    
+
     def test_instance_type(self):
         """
-        Test that object of Department is an instance of Department and BaseModel.
+        Test that object of Department is an instance of
+        Department and BaseModel.
         """
         self.assertIsInstance(self.department, Department)
         self.assertIsInstance(self.department, BaseModel)
 
     def test_instance_attributes(self):
         """
-        Test that Department class has instance attributes from BaseModel (parent)
-        class.
+        Test that Department class has instance attributes
+        from BaseModel (parent) class.
         """
         self.assertIn("id", self.department.__dict__)
         self.assertIn("created_at", self.department.__dict__)
         self.assertIn("updated_at", self.department.__dict__)
-    
+
     def test_class_attributes(self):
         self.assertIn("name", Department.__dict__)
         self.assertIn("code", Department.__dict__)
         self.assertIn("course_assignments", Department.__dict__)
         self.assertIn("registered_by", Department.__dict__)
-    
+
     def test_str_method(self):
-        return_value = (f"[{self.department.__class__.__name__}.{self.department.id}] "
-                        f"({self.department.__dict__})")
+        return_value = (
+            f"[{self.department.__class__.__name__}.{self.department.id}] "
+            f"({self.department.__dict__})"
+        )
         self.assertEqual(return_value, str(self.department))
 
     def test_save_method(self):
