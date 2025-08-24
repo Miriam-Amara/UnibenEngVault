@@ -17,14 +17,17 @@ from models.basemodel import BaseModel
 
 
 load_dotenv()
+
+
 class TestFile(unittest.TestCase):
     """
     Implements test cases for File class.
     """
+
     def setUp(self) -> None:
         self.file = File()
         self.file.save()
-        
+
         self.file_objects: dict[str, Any] = {}
         self.filepath: str = os.getenv("FILE_PATH", "storage.json")
         try:
@@ -32,11 +35,11 @@ class TestFile(unittest.TestCase):
                 self.file_objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         self.file.delete()
         self.file.save()
-    
+
     def test_instance_type(self):
         """
         Test that object of File is an instance of File and BaseModel.
@@ -52,7 +55,7 @@ class TestFile(unittest.TestCase):
         self.assertIn("id", self.file.__dict__)
         self.assertIn("created_at", self.file.__dict__)
         self.assertIn("updated_at", self.file.__dict__)
-    
+
     def test_class_attributes(self):
         self.assertIn("name", File.__dict__)
         self.assertIn("course", File.__dict__)
@@ -65,10 +68,12 @@ class TestFile(unittest.TestCase):
         self.assertIn("filepath", File.__dict__)
         self.assertIn("added_by", File.__dict__)
         self.assertIn("approved_by", File.__dict__)
-    
+
     def test_str_method(self):
-        return_value = (f"[{self.file.__class__.__name__}.{self.file.id}] "
-                        f"({self.file.__dict__})")
+        return_value = (
+            f"[{self.file.__class__.__name__}.{self.file.id}] "
+            f"({self.file.__dict__})"
+        )
         self.assertEqual(return_value, str(self.file))
 
     def test_save_method(self):
