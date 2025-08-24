@@ -28,10 +28,13 @@ if disable_logging:
     logging.disable(logging.CRITICAL)
 
 load_dotenv()
+
+
 class TestBaseModel(unittest.TestCase):
     """
     Implements test cases for attributes and methods of BaseModel class.
     """
+
     def setUp(self) -> None:
         """
         Creates an object of BaseModel class for every test case.
@@ -46,14 +49,14 @@ class TestBaseModel(unittest.TestCase):
                 self.objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         """
         Removes objects from storage.
         """
         self.basemodel.delete()
         self.basemodel.save()
-    
+
     def test_instance_attributes(self):
         """
         Test presence of instance attributes
@@ -69,15 +72,13 @@ class TestBaseModel(unittest.TestCase):
         self.assertIsInstance(UUID(self.basemodel.id), UUID)
         self.assertIsInstance(self.basemodel.created_at, datetime)
         self.assertIsInstance(self.basemodel.updated_at, datetime)
-    
+
     def test_instance_creation_with_args(self):
-        new_basemodel = BaseModel(
-            name="Peter", faculty="Engineering"
-        )
+        new_basemodel = BaseModel(name="Peter", faculty="Engineering")
         self.assertIn("name", new_basemodel.__dict__)
         self.assertIn("faculty", new_basemodel.__dict__)
         new_basemodel.delete()
-    
+
     def test_instance_recreation(self):
         """
         Test that a basemodel instance can be recreated.
@@ -87,14 +88,16 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(new_basemodel.id, self.basemodel.id)
         self.assertEqual(new_basemodel.created_at, self.basemodel.created_at)
         self.assertEqual(new_basemodel.updated_at, self.basemodel.updated_at)
-    
+
     def test_str_method(self):
         """
         Test that __str__ method returns a string representation
         of basemodel instance.
         """
-        return_value = (f"[{self.basemodel.__class__.__name__}.{self.basemodel.id}] "
-                        f"({self.basemodel.__dict__})")
+        return_value = (
+            f"[{self.basemodel.__class__.__name__}.{self.basemodel.id}] "
+            f"({self.basemodel.__dict__})"
+        )
         self.assertEqual(return_value, str(self.basemodel))
 
     def test_delete_method(self):
@@ -129,4 +132,3 @@ class TestBaseModel(unittest.TestCase):
         basemodel_dict["__class__"] = self.basemodel.__class__.__name__
         basemodel_dict.pop("_sa_instance_state", None)
         self.assertEqual(basemodel_dict, self.basemodel.to_dict())
- 
