@@ -17,14 +17,17 @@ from models.basemodel import BaseModel
 
 
 load_dotenv()
+
+
 class TestCourse(unittest.TestCase):
     """
     Implements test cases for Course class.
     """
+
     def setUp(self) -> None:
         self.course = Course()
         self.course.save()
-        
+
         self.course_objects: dict[str, Any] = {}
         self.filepath: str = os.getenv("FILE_PATH", "storage.json")
         try:
@@ -32,11 +35,11 @@ class TestCourse(unittest.TestCase):
                 self.course_objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         self.course.delete()
         self.course.save()
-    
+
     def test_instance_type(self):
         """
         Test that object of Course is an instance of Course and BaseModel.
@@ -52,7 +55,7 @@ class TestCourse(unittest.TestCase):
         self.assertIn("id", self.course.__dict__)
         self.assertIn("created_at", self.course.__dict__)
         self.assertIn("updated_at", self.course.__dict__)
-    
+
     def test_class_attributes(self):
         self.assertIn("course_code", Course.__dict__)
         self.assertIn("semester", Course.__dict__)
@@ -66,10 +69,12 @@ class TestCourse(unittest.TestCase):
         self.assertIn("department", Course.__dict__)
         self.assertIn("level", Course.__dict__)
         self.assertIn("registered_by", Course.__dict__)
-    
+
     def test_str_method(self):
-        return_value = (f"[{self.course.__class__.__name__}.{self.course.id}] "
-                        f"({self.course.__dict__})")
+        return_value = (
+            f"[{self.course.__class__.__name__}.{self.course.id}] "
+            f"({self.course.__dict__})"
+        )
         self.assertEqual(return_value, str(self.course))
 
     def test_save_method(self):
