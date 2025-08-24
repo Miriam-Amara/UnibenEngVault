@@ -17,14 +17,17 @@ from models.basemodel import BaseModel
 
 
 load_dotenv()
+
+
 class TestAdmin(unittest.TestCase):
     """
     Implements test cases for Admin class.
     """
+
     def setUp(self) -> None:
         self.admin = Admin()
         self.admin.save()
-        
+
         self.admin_objects: dict[str, Any] = {}
         self.filepath: str = os.getenv("FILE_PATH", "storage.json")
         try:
@@ -32,11 +35,11 @@ class TestAdmin(unittest.TestCase):
                 self.admin_objects = json.load(f)
         except Exception as e:
             logging.debug(f"{e}")
-    
+
     def tearDown(self) -> None:
         self.admin.delete()
         self.admin.save()
-    
+
     def test_instance_type(self):
         """
         Test that object of Admin is an instance of Admin and BaseModel.
@@ -52,15 +55,17 @@ class TestAdmin(unittest.TestCase):
         self.assertIn("id", self.admin.__dict__)
         self.assertIn("created_at", self.admin.__dict__)
         self.assertIn("updated_at", self.admin.__dict__)
-    
+
     def test_class_attributes(self):
         self.assertIn("is_super_admin", Admin.__dict__)
         self.assertIn("user", Admin.__dict__)
         self.assertIn("admin_permissions", Admin.__dict__)
-    
+
     def test_str_method(self):
-        return_value = (f"[{self.admin.__class__.__name__}.{self.admin.id}] "
-                        f"({self.admin.__dict__})")
+        return_value = (
+            f"[{self.admin.__class__.__name__}.{self.admin.id}] "
+            f"({self.admin.__dict__})"
+        )
         self.assertEqual(return_value, str(self.admin))
 
     def test_save_method(self):
