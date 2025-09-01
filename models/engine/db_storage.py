@@ -48,7 +48,6 @@ class DBStorage:
     __port = os.getenv("UNIBENENGVAULT_POSTGRES_PORT")
     __db = os.getenv("UNIBENENGVAULT_POSTGRES_DB")
     __classes: dict[str, Any] = {
-        "BaseModel": BaseModel,
         "Admin": Admin,
         "Permission": Permission,
         "AdminPermission": AdminPermission,
@@ -71,12 +70,12 @@ class DBStorage:
             f"@{self.__host}:{self.__port}/{self.__db}"
         )
         self.__engine = create_engine(
-            self.__url, pool_pre_ping=True, echo=True
+            self.__url, pool_pre_ping=True, echo=False
         )
 
     def all(
         self, page_size: int, page_num: int, cls: Optional[str] = None
-    ) -> Optional[dict[str, Any]]:
+    ) -> Optional[list[dict[str, Any]]]:
         """Return all objects or objects of a given class with pagination."""
         assert self.__session is not None, "Session has not been initialized"
 
@@ -88,22 +87,18 @@ class DBStorage:
             raise ValueError(f"{page_num} should be greater than zero")
         if not isinstance(page_num, int):  # type: ignore
             raise TypeError(f"{page_num} should be a valid integer.")
-        if not self.__session:
-            logging.error(f"No session found")
-            return
+        assert self.__session is not None, "Session has not been initialized"
 
         if cls in self.__classes:
-            result = self.__session.scalars(
+            cls_objects = self.__session.scalars(
                 select(self.__classes[cls])
                 .offset((page_num - 1) * page_size)
                 .limit(page_size)
             )
-            cls_objects = {
-                f"{obj.__class__.__name__}.{obj.id}": obj for obj in result
-            }
-            return cls_objects
+            cls_objects_dicts = [cls_obj.to_dict() for cls_obj in cls_objects]
+            return cls_objects_dicts
 
-        objects_list: list[Any] = []
+        objects: list[Any] = []
         for cls_name in self.__classes.values():
             cls_objects = (
                 self.__session.scalars(
@@ -112,12 +107,10 @@ class DBStorage:
                     .limit(page_size)
                 )
             ).all()
-            objects_list.append(cls_objects)
+            objects.extend(cls_objects)
 
-        all_objects_dict = {
-            f"{obj.__class__.__name__}.{obj.id}": obj for obj in objects_list
-        }
-        return all_objects_dict
+        all_objects = [obj.to_dict() for obj in objects]
+        return all_objects
 
     def close(self) -> None:
         """Close the current database session."""
