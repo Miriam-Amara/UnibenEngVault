@@ -151,6 +151,21 @@ class DBStorage:
         except Exception as e:
             logging.error(f"DB operation failed: {e}")
             raise
+    
+    def get(self, cls: str, id: str) -> Optional[BaseModel]:
+        """
+        Returns the object based on the class and its ID, or None if not found.
+        """
+        assert self.__session is not None, "Session has not been initialized"
+        if cls not in self.__classes:
+            return
+        if not isinstance(id, str): # type: ignore
+            return
+        
+        obj = self.__session.scalars(
+            select(self.__classes[cls]).where(self.__classes[cls].id == id)
+        ).one_or_none()
+        return obj
 
     def new(self, obj: BaseModel) -> Optional[str]:
         """Add a new object to the current session."""
