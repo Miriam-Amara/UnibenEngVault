@@ -26,15 +26,8 @@ from models.user import User
 
 load_dotenv()
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(filename)s - %(message)s",
-    filename="models/engine/storage.log",
-)
-
-disable_logging: bool = False
-if disable_logging:
-    logging.disable(logging.CRITICAL)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class DBStorage:
@@ -75,7 +68,7 @@ class DBStorage:
 
     def all(
         self, page_size: int, page_num: int, cls: Optional[str] = None
-    ) -> Optional[list[dict[str, Any]]]:
+    ) -> Optional[Any]:
         """Return all objects or objects of a given class with pagination."""
         assert self.__session is not None, "Session has not been initialized"
 
@@ -95,10 +88,9 @@ class DBStorage:
                 .offset((page_num - 1) * page_size)
                 .limit(page_size)
             )
-            cls_objects_dicts = [cls_obj.to_dict() for cls_obj in cls_objects]
-            return cls_objects_dicts
+            return cls_objects
 
-        objects: list[Any] = []
+        all_objects: list[Any] = []
         for cls_name in self.__classes.values():
             cls_objects = (
                 self.__session.scalars(
@@ -107,9 +99,7 @@ class DBStorage:
                     .limit(page_size)
                 )
             ).all()
-            objects.extend(cls_objects)
-
-        all_objects = [obj.to_dict() for obj in objects]
+            all_objects.extend(cls_objects)
         return all_objects
 
     def close(self) -> None:
@@ -118,7 +108,7 @@ class DBStorage:
         try:
             self.__session.close()
         except Exception as e:
-            logging.error(f"DB operation failed: {e}")
+            logger.error(f"DB operation failed: {e}")
             raise
 
     def count(self, cls: Optional[str] = None) -> Optional[int]:
@@ -149,7 +139,7 @@ class DBStorage:
         try:
             self.__session.delete(obj)
         except Exception as e:
-            logging.error(f"DB operation failed: {e}")
+            logger.error(f"DB operation failed: {e}")
             raise
     
     def get(self, cls: str, id: str) -> Optional[BaseModel]:
@@ -174,7 +164,7 @@ class DBStorage:
             self.__session.add(obj)
             return obj.id
         except Exception as e:
-            logging.error(f"DB operation failed: {e}")
+            logger.error(f"DB operation failed: {e}")
             raise
 
     def save(self) -> None:
@@ -184,7 +174,7 @@ class DBStorage:
             self.__session.commit()
         except Exception as e:
             self.__session.rollback()
-            logging.error(f"DB operation failed: {e}")
+            logger.error(f"DB operation failed: {e}")
             raise
 
     def reload(self) -> None:
@@ -193,7 +183,7 @@ class DBStorage:
         try:
             Base.metadata.create_all(self.__engine)
         except Exception as e:
-            logging.critical(f"DB table creation failed: {e}")
+            logger.critical(f"DB table creation failed: {e}")
             raise
 
         self.__session = scoped_session(
