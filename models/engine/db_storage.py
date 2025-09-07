@@ -23,11 +23,12 @@ from models.notification import Notification
 from models.report import Report
 from models.tutoriallink import TutorialLink
 from models.user import User
+from models.department_level_courses import DepartmentLevelCourses
 
 load_dotenv()
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 
 class DBStorage:
@@ -54,6 +55,7 @@ class DBStorage:
         "Report": Report,
         "TutorialLink": TutorialLink,
         "User": User,
+        "DepartmentLevelCourses": DepartmentLevelCourses
     }
 
     def __init__(self) -> None:
@@ -111,7 +113,7 @@ class DBStorage:
             logger.error(f"DB operation failed: {e}")
             raise
 
-    def count(self, cls: Optional[str] = None) -> Optional[int]:
+    def count(self, cls: Optional[str] = None) -> int | dict[str, int] | None:
         """
         Return the total number of objects of a class
         or all classes in storage.
@@ -124,14 +126,14 @@ class DBStorage:
             )
             return cls_objects_count
 
-        count = 0
+        all_obj_count: dict[str, int] = {}
         for cls_name in self.__classes.values():
             cls_objects_count = self.__session.scalar(
                 select(func.count()).select_from(cls_name)
             )
             if cls_objects_count:
-                count += cls_objects_count
-        return count
+                all_obj_count[cls_name] = cls_objects_count
+        return all_obj_count
 
     def delete(self, obj: BaseModel) -> None:
         """Delete an object from the current session."""
