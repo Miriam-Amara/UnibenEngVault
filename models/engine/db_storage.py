@@ -5,8 +5,8 @@ Database storage engine for managing ORM operations with SQLAlchemy.
 """
 
 from dotenv import load_dotenv
-from typing import Any, Optional
-from sqlalchemy import Engine, create_engine, select, func
+from typing import Any, Optional, Sequence
+from sqlalchemy import Engine, create_engine, select, and_, func
 from sqlalchemy.orm import Session, sessionmaker, scoped_session
 import os
 import logging
@@ -28,7 +28,6 @@ from models.department_level_courses import DepartmentLevelCourses
 load_dotenv()
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
 
 
 class DBStorage:
@@ -127,12 +126,12 @@ class DBStorage:
             return cls_objects_count
 
         all_obj_count: dict[str, int] = {}
-        for cls_name in self.__classes.values():
+        for cls_name_str, cls_name in self.__classes.items():
             cls_objects_count = self.__session.scalar(
                 select(func.count()).select_from(cls_name)
             )
             if cls_objects_count:
-                all_obj_count[cls_name] = cls_objects_count
+                all_obj_count[cls_name_str] = cls_objects_count
         return all_obj_count
 
     def delete(self, obj: BaseModel) -> None:
@@ -158,6 +157,30 @@ class DBStorage:
             select(self.__classes[cls]).where(self.__classes[cls].id == id)
         ).one_or_none()
         return obj
+    
+    def get_by_department_and_level(
+            self, cls: str,
+            department_id: str, level_id: str,
+            page_size:int, page_num:int,
+        ) -> Optional[Sequence[BaseModel]]:
+        """
+        """
+        assert self.__session is not None, "Session has not been initialized"
+        if cls not in self.__classes:
+            return
+        if not isinstance(department_id, str) or not isinstance(level_id, str): # type: ignore
+            return
+        
+        objects = self.__session.scalars(
+            select(self.__classes[cls]).where(
+                and_(self.__classes[cls].department_id == department_id,
+                     self.__classes[cls].level_id == level_id
+                    )
+                )
+            .offset((page_num - 1) * page_size)
+            .limit(page_size)
+        ).all()
+        return objects
 
     def new(self, obj: BaseModel) -> Optional[str]:
         """Add a new object to the current session."""
@@ -178,6 +201,18 @@ class DBStorage:
             self.__session.rollback()
             logger.error(f"DB operation failed: {e}")
             raise
+    
+    def search_by_email(self, email: str) -> Optional[User]:
+        """
+        """
+        assert self.__session is not None, "Session has not been initialized"
+        if not isinstance(email, str): # type: ignore
+            return
+        
+        user = self.__session.scalars(
+            select(User).where(User.email == email)
+        ).one_or_none()
+        return user
 
     def reload(self) -> None:
         """Create database tables and initialize the session factory."""
