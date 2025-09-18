@@ -24,9 +24,11 @@ class Admin(BaseModel, Base):
     __tablename__ = "admins"
 
     is_super_admin = mapped_column(Boolean, nullable=False, default=False)
-    user_id = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    user_id = mapped_column(
+        String(36), ForeignKey("users.id"), unique=True, nullable=False
+    )
 
-    user = relationship("User", back_populates="admin")
+    user = relationship("User", back_populates="admin", uselist=False)
     user_warnings_issued = relationship(
         "UserWarning", back_populates="issued_by"
     )
@@ -92,7 +94,7 @@ class AdminPermission(BaseModel, Base):
     __tablename__ = "admin_permissions"
 
     admin_id = mapped_column(
-        String(36), ForeignKey("admins.id"), primary_key=True, nullable=False
+        String(36), ForeignKey("admins.id"), unique=True, nullable=False
     )
     department_id = mapped_column(
         String(36), ForeignKey("departments.id"),
