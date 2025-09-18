@@ -8,12 +8,13 @@ from dotenv import load_dotenv
 from typing import Any, Optional, Sequence
 from sqlalchemy import Engine, create_engine, select, and_, func
 from sqlalchemy.orm import Session, sessionmaker, scoped_session
+from sqlalchemy.sql.schema import Table
 import os
 import logging
 
 from models.basemodel import BaseModel, Base
 from models.admin import Admin, Permission, AdminPermission
-from models.course import Course
+from models.course import Course, course_departments
 from models.department import Department
 from models.feedback import Feedback
 from models.file import File
@@ -23,7 +24,7 @@ from models.notification import Notification
 from models.report import Report
 from models.tutoriallink import TutorialLink
 from models.user import User
-from models.department_level_courses import DepartmentLevelCourses
+from models.user_session import UserSession
 
 load_dotenv()
 
@@ -54,7 +55,7 @@ class DBStorage:
         "Report": Report,
         "TutorialLink": TutorialLink,
         "User": User,
-        "DepartmentLevelCourses": DepartmentLevelCourses
+        "UserSession": UserSession
     }
 
     def __init__(self) -> None:
@@ -64,7 +65,7 @@ class DBStorage:
             f"@{self.__host}:{self.__port}/{self.__db}"
         )
         self.__engine = create_engine(
-            self.__url, pool_pre_ping=True, echo=False
+            self.__url, pool_pre_ping=True, echo=True
         )
 
     def all(
@@ -133,6 +134,65 @@ class DBStorage:
             if cls_objects_count:
                 all_obj_count[cls_name_str] = cls_objects_count
         return all_obj_count
+    
+    def count_course_departments(
+            self, course_id: str,
+        ) -> Optional[int]:
+        """
+        """
+        assert self.__session is not None, "Session has not been initialized"
+
+        course_department_count = self.__session.scalar(
+                select(func.count())
+                .select_from(course_departments)
+                .where(course_departments.c.course_id == course_id)
+            )
+        return course_department_count
+
+    
+    # def count_courses_by_department_and_level(
+    #         self, level_id: str, semester: str
+    #     ) -> Optional[Sequence[Any]]:
+    #     """
+    #     """
+    #     assert self.__session is not None, "Session has not been initialized"
+
+    #     total_departments = self.count("Department")
+    #     if not total_departments:
+    #         return
+        
+    #     course_dept_counts = (
+    #         select(
+    #             course_departments.c.course_id,
+    #             func.count(course_departments.c.department_id).label("dept_count")
+    #         )
+    #         .group_by(course_departments.c.course_id)
+    #         .subquery()
+    #     )
+
+    #     stmt = (
+    #         select(
+    #             func.count().filter(
+    #                 course_dept_counts.c.dept_count == 1
+    #             ).label("department_specific"),
+    #             func.count().filter(
+    #                 (course_dept_counts.c.dept_count > 1) &
+    #                 (course_dept_counts.c.dept_count < total_departments)
+    #             ).label("shared"),
+    #             func.count().filter(
+    #                 course_dept_counts.c.dept_count == total_departments
+    #             ).label("general"),
+    #         )
+    #         .select_from(Course)
+    #         .join(course_dept_counts, Course.id == course_dept_counts.c.course_id) # type: ignore
+    #         .where(
+    #             Course.level_id == level_id,
+    #             Course.semester == semester
+    #         )
+    #     )
+    #     courses_count = self.__session.scalars(stmt).all()
+    #     return courses_count
+
 
     def delete(self, obj: BaseModel) -> None:
         """Delete an object from the current session."""
@@ -158,6 +218,18 @@ class DBStorage:
         ).one_or_none()
         return obj
     
+    def course_department(
+            self, course_departments: Table, course_id: str
+        ) -> Any | None:
+        """
+        """
+        assert self.__session is not None, "Session has not been initialized"
+        row = self.__session.execute(
+            select(course_departments)
+            .where(course_departments.c.course_id == course_id)
+        ).first()
+        return row
+    
     def get_by_department_and_level(
             self, cls: str,
             department_id: str, level_id: str,
@@ -181,6 +253,34 @@ class DBStorage:
             .limit(page_size)
         ).all()
         return objects
+    
+    def get_courses_by_department_and_level(
+            self, 
+            department_id: str, level_id: str,
+            semester: Optional[str]=None
+        ) -> Optional[Sequence[BaseModel]]:
+        """
+        """
+        assert self.__session is not None, "Session has not been initialized"
+        if semester and not isinstance(semester, str): # type: ignore
+           return
+        
+        if not isinstance(department_id, str) or not isinstance(level_id, str): # type: ignore
+            return
+        
+        stmt = (
+            select(Course)
+            .join(course_departments, Course.id == course_departments.c.course_id) # type: ignore
+            .where(
+                Course.level_id == level_id,
+                course_departments.c.department_id == department_id
+            )
+        )
+        if semester:
+            stmt = stmt.where(Course.semester == semester)
+        
+        courses = self.__session.scalars(stmt).all()
+        return courses
 
     def new(self, obj: BaseModel) -> Optional[str]:
         """Add a new object to the current session."""
@@ -213,11 +313,24 @@ class DBStorage:
             select(User).where(User.email == email)
         ).one_or_none()
         return user
+    
+    def search_by_course_code(self, course_code: str) -> Optional[Course]:
+        """
+        """
+        assert self.__session is not None, "Session has not been initialized"
+        if not isinstance(course_code, str) or len(course_code) != 6: # type: ignore
+            return
+        
+        course = self.__session.scalars(
+            select(Course).where(Course.course_code == course_code)
+        ).one_or_none()
+        return course
 
     def reload(self) -> None:
         """Create database tables and initialize the session factory."""
         assert self.__engine is not None, "Engine has not been initialized"
         try:
+            # Base.metadata.drop_all(self.__engine)
             Base.metadata.create_all(self.__engine)
         except Exception as e:
             logger.critical(f"DB table creation failed: {e}")
