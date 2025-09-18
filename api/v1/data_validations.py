@@ -5,7 +5,7 @@
 """
 
 from enum import Enum
-from flask import abort, jsonify
+from flask import abort
 from pydantic import BaseModel, ValidationError, EmailStr
 from pydantic import model_validator, field_validator, constr, conint
 from psycopg2.errors import UniqueViolation
@@ -14,6 +14,7 @@ from typing import Any, Optional
 import logging
 
 from api.v1.utils import get_request_data
+from models import storage
 
 
 logger = logging.getLogger(__name__)
@@ -23,36 +24,47 @@ class Role(str, Enum):
     student = "student"
     admin = "admin"
 
+class Semester(str, Enum):
+    first_semester = "first"
+    second_semester = "second"
+
+class FileStatus(Enum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+
 class CourseCreate(BaseModel):
     """
     """
     course_code: constr(pattern=r'^[a-z]{3}\d{3}$', min_length=6, max_length=6, strip_whitespace=True) # type: ignore
-    semester: str
+    semester: Semester
     credit_load: conint(ge=1, le=6) # type: ignore
     title: constr(min_length=3, max_length=500) # type: ignore
-    outline: constr(min_length=10, max_length=2000) # type: ignore
+    outline: constr(min_length=5, max_length=2000) # type: ignore
     is_active: bool = True
-    department_id: str
-    level_id: str
 
     @model_validator(mode="before")
-    def set_to_lowercase(cls, v: Any):
-        return v.lower() if isinstance(v, str) else v
+    def set_to_lowercase(cls, request_data: Any):
+        for attr, value in request_data.items():
+            if isinstance(value, str):
+                request_data[attr] = value.lower()
+        return request_data
 
 
 class CourseUpdate(BaseModel):
     course_code: Optional[constr(pattern=r'^[a-z]{3}\d{3}$', min_length=6, max_length=6, strip_whitespace=True)] = None # type: ignore
-    semester: Optional[str] = None
+    semester: Optional[Semester] = None
     credit_load: Optional[conint(ge=1, le=6)] = None # type: ignore
     title: Optional[constr(min_length=3, max_length=500)] = None # type: ignore
-    outline: Optional[constr(min_length=10, max_length=2000)] = None # type: ignore
-    is_active: Optional[bool] = True
-    department_id: Optional[str] = None
-    level_id: Optional[str] = None
+    outline: Optional[constr(min_length=5, max_length=2000)] = None # type: ignore
+    is_active: Optional[bool] = None
 
     @model_validator(mode="before")
-    def set_to_lowercase(cls, v: Any):
-        return v.lower() if isinstance(v, str) else v
+    def set_to_lowercase(cls, request_data: Any):
+        for attr, value in request_data.items():
+            if isinstance(value, str):
+                request_data[attr] = value.lower()
+        return request_data
 
 
 class DepartmentCreate(BaseModel):
@@ -62,8 +74,11 @@ class DepartmentCreate(BaseModel):
     dept_code: constr(min_length=3, max_length=3, strip_whitespace=True) # type: ignore
 
     @model_validator(mode="before")
-    def set_to_lowercase(cls, v: Any):
-        return v.lower() if isinstance(v, str) else v
+    def set_to_lowercase(cls, request_data: Any):
+        for attr, value in request_data.items():
+            if isinstance(value, str):
+                request_data[attr] = value.lower()
+        return request_data
 
 
 class DepartmentUpdate(BaseModel):
@@ -73,8 +88,20 @@ class DepartmentUpdate(BaseModel):
     dept_code: Optional[constr(min_length=3, max_length=3, strip_whitespace=True)] = None # type: ignore
 
     @model_validator(mode="before")
-    def set_to_lowercase(cls, v: Any):
-        return v.lower() if isinstance(v, str) else v
+    def set_to_lowercase(cls, request_data: Any):
+        for attr, value in request_data.items():
+            if isinstance(value, str):
+                request_data[attr] = value.lower()
+        return request_data
+
+
+class FileUpdate(BaseModel):
+    """
+    """
+    file_type: Optional[constr(min_length=5, max_length=200, to_lower=True, strip_whitespace=True)] = None # type: ignore
+    session: Optional[constr(pattern=r"^\d{4}/\d{4}$", strip_whitespace=True)] = None # type: ignore
+    status: Optional[FileStatus] = None
+    rejection_reason: Optional[constr(min_length=5, max_length=2000, to_lower=True, strip_whitespace=True)] = None # type: ignore
 
 
 class LevelCreate(BaseModel):
@@ -94,6 +121,10 @@ class UserCreate(BaseModel):
     department_id: constr(min_length=36, max_length=36, strip_whitespace=True) # type: ignore
     level_id: constr(min_length=36, max_length=36, strip_whitespace=True) # type: ignore
 
+    @field_validator("email")
+    def lowercase_email(cls, v: EmailStr) -> EmailStr:
+        return v.lower()
+    
     @field_validator("password")
     def check_complexity(cls, v: Any):
         if not any(c.isupper() for c in v):
@@ -102,16 +133,24 @@ class UserCreate(BaseModel):
             raise ValueError("must contain a digit")
         return v
 
-    @model_validator(mode="before")
-    def set_to_lowercase(cls, v: Any):
-        return v.lower() if isinstance(v, str) else v
-
 
 class UserUpdate(BaseModel):
     role: Optional[Role] = None
     department_id: Optional[str] = None
     level_id: Optional[str] = None
 
+
+class UserWarningCreate(BaseModel):
+    """
+    """
+    reason: constr(max_length=1024, strip_whitespace=True, to_lower=True) # type: ignore
+
+
+class UserWarningUpdate(BaseModel):
+    """
+    """
+    reason: Optional[constr(max_length=1024, strip_whitespace=True, to_lower=True)] = None# type: ignore
+    user_id: Optional[str] = None
 
 class ValidateData:
     """
@@ -125,6 +164,8 @@ class ValidateData:
         "CourseUpdate": CourseUpdate,
         "UserCreate": UserCreate,
         "UserUpdate": UserUpdate,
+        "UserWarningCreate": UserWarningCreate,
+        "UserWarningUpdate": UserWarningUpdate,
     }
 
     def validate_request_data(self, validation_cls: str) -> dict[str, Any] | None:
@@ -142,7 +183,7 @@ class ValidateData:
                 {"field": ".".join(str(loc) for loc in err["loc"]), "message": err["msg"]}
                 for err in e.errors()
             ]
-            abort(jsonify({"errors": friendly_errors}), 400)
+            abort(400, description={"errors": friendly_errors})
         
         if validation_cls == "UserCreate" or validation_cls == "UserUpdate":
             return valid_data.model_dump(exclude_none=True) 
@@ -161,13 +202,22 @@ class DatabaseOp:
         except IntegrityError as e:
             if isinstance(e.orig, UniqueViolation):
                 detail = e.orig.diag.message_detail
-                abort(400, description=detail)
+                abort(409, description=detail)
             else:
-                logger.error(f"{e}")
-                abort(400, description="Database operation failed.")
+                logger.error(f"Database operation failed: {e}")
+                abort(500)
         except Exception as e:
-            logger.error(f"{e}")
-            abort(400, description="Database operation failed.")
+            logger.error(f"Database operation failed: {e}")
+            abort(500)
+    
+    def commit(self):
+        """
+        """
+        try:
+            storage.save()
+        except Exception as e:
+            logger.error(f"Database operation failed: {e}")
+            abort(500)
 
     def delete(self, obj: BaseModel):
         """
