@@ -5,14 +5,16 @@
 """
 
 
-from flask import abort, jsonify
+from flask import g, abort, jsonify
 from typing import Any, cast
 import logging
 
 from api.v1.views import app_views
+from api.v1.auth.authorization import admin_only
 from api.v1.utils import get_obj
 from api.v1.data_validations import ValidateData, DatabaseOp
 from models.user import User
+from models.admin import Admin
 from models.department import Department
 from models.level import Level
 
@@ -21,7 +23,7 @@ from models.level import Level
 logger = logging.getLogger(__name__)
 
 
-@app_views.route("/users", strict_slashes=False, methods=["POST"])
+@app_views.route("/register", strict_slashes=False, methods=["POST"])
 def register_users():
     """
     """
@@ -35,27 +37,38 @@ def register_users():
 
     department = get_obj("Department", validated_data["department_id"])
     level = get_obj("Level", validated_data["level_id"])
-    if not department or not level:
-        abort(404)
+    if not department:
+        abort(404, description="department does not exists.")
+    if not level:
+        abort(404, description="level does not exist.")
     
     validated_data["password"] = (
         bcrypt
         .generate_password_hash(validated_data["password"]) # type: ignore
         .decode("utf-8")
     )
-    logger.debug(f"{validated_data}")
+
     validated_data["role"] = validated_data["role"].value
     user = User(**validated_data)
-
     db = DatabaseOp()
     db.save(user)
-    return user.to_dict(), 201
+
+    if validated_data["role"] == "admin":
+        admin = Admin()
+        user.admin = admin
+        db.save(user)
+    user_dict = user.to_dict()
+    logger.debug(f"{user_dict}")
+    user_dict.pop("admin", None)
+    logger.debug(f"{user_dict}")
+    return jsonify(user_dict), 201
 
 # allow only admins
 @app_views.route(
-        "/admin/users/<department_id>/<level_id>/<int:page_size>/<int:page_num>",
+        "/admins/users/<department_id>/<level_id>/<int:page_size>/<int:page_num>",
         strict_slashes=False, methods=["GET"]
     )
+@admin_only
 def get_users_by_department_and_level(
     department_id: str, level_id:str,
     page_size: int, page_num: int
@@ -64,33 +77,36 @@ def get_users_by_department_and_level(
     """
     department = cast(Department, get_obj("Department", department_id))
     level = cast(Level, get_obj("Level", level_id))
-    if not department or not level:
-        abort(404)
+    if not department:
+        abort(404, description="department does not exist.")
+    if not level:
+        abort(404, description="level does not exist")
 
-    user_objects = cast(list[User], User.get_users_by_deparment_and_level(
+    users = cast(list[User], User.get_users_by_deparment_and_level(
         department.id, level.id, page_size, page_num)
     )
-    if not user_objects:
-        abort(404)
+    if not users:
+        abort(404, description="no user found for the department and level.")
     
-    users: list[dict[str, Any]] = []
-    for user in user_objects:
-        user_data = user.to_dict()
-        user_data["role"] = user_data["role"].value
-        users.append(user_data)
-    return users, 200
+    users_dicts: list[dict[str, Any]] = [user.to_dict() for user in users]
+    return jsonify(users_dicts), 200
 
 @app_views.route("/users/<user_id>", strict_slashes=False, methods=["GET"])
 def get_user(user_id: str):
     """
     """
-    user = get_obj("User", user_id)
-    if not user:
+    if user_id == "me" and g.current_user == None:
         abort(404)
     
-    user_data = user.to_dict()
-    user_data["role"] = user_data["role"].value
-    return user_data, 200
+    if user_id == "me" and g.current_user:
+        user = g.current_user
+    else:
+        user = get_obj("User", user_id)
+        if not user:
+            abort(404)
+    
+    authenticated_user = user.to_dict()
+    return jsonify(authenticated_user), 200
 
 @app_views.route("/users/<user_id>", strict_slashes=False, methods=["PUT"])
 def update_user(user_id: str):
@@ -101,24 +117,28 @@ def update_user(user_id: str):
     if not validated_data:
         logger.error("Invalid validation class name.")
         abort(500)
-    
-    if validated_data.get("role"):
-        validated_data["role"] = validated_data["role"].value
-    logger.debug(f"{validated_data}")
+
     user = cast(User, get_obj("User", user_id))
     if not user:
-        abort(404)
+        abort(404, description="user does not exist.")
     
     for attr, value in validated_data.items():
         setattr(user, attr, value)
     db = DatabaseOp()
     db.save(user)
-    user_data = user.to_dict()
-    user_data["role"] = user_data["role"].value
-    return user_data, 200
+
+    logger.debug(f"{user.role}")
+    if user.role.value == "admin":
+        admin = Admin(user_id=user.id)
+        db.save(admin)
+    
+    user_dict = user.to_dict()
+    logger.debug(f"{user_dict}")
+    return jsonify(user_dict), 200
 
 # allow only admins
-@app_views.route("/users/<user_id>", strict_slashes=False, methods=["DELETE"])
+@app_views.route("/admins/users/<user_id>", strict_slashes=False, methods=["DELETE"])
+@admin_only
 def delete_user(user_id: str):
     """
     """
@@ -128,5 +148,5 @@ def delete_user(user_id: str):
     
     db = DatabaseOp()
     db.delete(user)
-    db.save(user)
+    db.commit()
     return jsonify({}), 200
