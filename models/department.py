@@ -28,14 +28,18 @@ class Department(BaseModel, Base):
     dept_code = mapped_column(String(20), unique=True, nullable=False)
 
     users = relationship(
-        "User", back_populates="department",
-        viewonly=True, cascade="all, delete-orphan"
-    )
-    courses = relationship(
-        "Course",
+        "User",
         back_populates="department",
         viewonly=True,
-        cascade="all, delete-orphan",
+        cascade="all, delete-orphan"
+    )
+    from models.course import course_departments
+    courses = relationship(
+        "Course",
+        secondary="course_departments",
+        back_populates="departments",
+        viewonly=False,
+        uselist=True
     )
     admin_permissions = relationship(
         "AdminPermission",
