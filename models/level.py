@@ -22,15 +22,19 @@ class Level(BaseModel, Base):
 
     __tablename__ = "levels"
 
-    name = mapped_column(Integer, unique=True, nullable=False, default=0)
+    name = mapped_column(Integer, unique=True, nullable=False)
 
     users = relationship(
-        "User", back_populates="level",
-        viewonly=True, cascade="all, delete-orphan"
+        "User",
+        back_populates="level",
+        viewonly=True,
+        cascade="all, delete-orphan"
     )
     courses = relationship(
-        "Course", back_populates="level",
-        viewonly=True, cascade="all, delete-orphan"
+        "Course",
+        back_populates="level",
+        viewonly=True,
+        cascade="all, delete-orphan"
     )
     admin_permissions = relationship(
         "AdminPermission",
