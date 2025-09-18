@@ -3,12 +3,17 @@
 """Defines user-related models for the system."""
 
 
-from sqlalchemy import String, ForeignKey, Enum, Boolean, Integer
-from sqlalchemy.orm import mapped_column, relationship
+from datetime import datetime
+from sqlalchemy import String, ForeignKey, Enum, Boolean, Integer, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import Sequence, cast
 import enum
+import logging
 
 from models.basemodel import BaseModel, Base
 
+
+logger = logging.getLogger(__name__)
 
 class Role(enum.Enum):
     student = "student"
@@ -33,7 +38,8 @@ class User(BaseModel, Base):
 
     email = mapped_column(String(100), unique=True, nullable=False)
     password = mapped_column(String(200), nullable=False)
-    role = mapped_column(Enum(Role), nullable=False)
+    role = mapped_column(Enum(Role), nullable=False, default=Role.student)
+    email_verified = mapped_column(Boolean, nullable=False, default=False)
     is_active = mapped_column(Boolean, nullable=False, default=True)
     warnings_count = mapped_column(Integer, nullable=False, default=0)
     suspensions_count = mapped_column(Integer, nullable=False, default=0)
@@ -49,11 +55,11 @@ class User(BaseModel, Base):
     warnings = relationship(
         "UserWarning", back_populates="issued_to", viewonly=True
     )
-    suspensions = relationship(
-        "UserSuspension", back_populates="issued_to", viewonly=True
+    suspension = relationship(
+        "UserSuspension", back_populates="issued_to", viewonly=False, uselist=False
     )
     admin = relationship(
-        "Admin", back_populates="user", cascade="all, delete-orphan"
+        "Admin", back_populates="user", cascade="all, delete-orphan", uselist=False
     )
     course_files_added = relationship(
         "File", back_populates="added_by", viewonly=True
@@ -70,6 +76,30 @@ class User(BaseModel, Base):
     reports_added = relationship(
         "Report", back_populates="added_by", viewonly=True
     )
+
+    @classmethod
+    def get_users_by_deparment_and_level(
+        cls,
+        department_id: str, level_id: str,
+        page_size: int, page_num: int
+    ):
+        """
+        """
+        from models import storage
+        user_objects: Sequence[User] | None = cast(Sequence[User], storage.get_by_department_and_level(
+            "User",
+            department_id, level_id,
+            page_size, page_num
+        ))
+        return user_objects
+    
+    @classmethod
+    def search(cls, email: str):
+        """
+        """
+        from models import storage
+        return storage.search_by_email(email)
+        
 
 
 class UserWarning(BaseModel, Base):
@@ -92,7 +122,9 @@ class UserWarning(BaseModel, Base):
         String(36), ForeignKey("admins.id"), nullable=False
     )
 
-    issued_to = relationship("User", back_populates="warnings", viewonly=True)
+    issued_to: Mapped[User] = relationship(
+        "User", back_populates="warnings", viewonly=False, uselist=False
+    )
     issued_by = relationship(
         "Admin", back_populates="user_warnings_issued", viewonly=True
     )
@@ -113,8 +145,13 @@ class UserSuspension(BaseModel, Base):
     __tablename__ = "user_suspensions"
 
     duration_days = mapped_column(Integer, nullable=False, default=0)
-    user_id = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    expires_at = mapped_column(
+        DateTime, nullable=False, default=datetime.now, sort_order=-2
+    )
+    user_id = mapped_column(
+        String(36), ForeignKey("users.id"), unique=True, nullable=False
+    )
 
     issued_to = relationship(
-        "User", back_populates="suspensions", viewonly=True
+        "User", back_populates="suspension", viewonly=True
     )
