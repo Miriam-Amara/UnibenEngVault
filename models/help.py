@@ -48,9 +48,11 @@ class Help(BaseModel, Base):
     priority = mapped_column(Enum(HelpPriority), nullable=False, default="low")
     status = mapped_column(Enum(HelpStatus), nullable=False, default="pending")
     response = mapped_column(String(2000))
-    user_id = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    user_id = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL")
+    )
     admin_id = mapped_column(
-        String(36), ForeignKey("admins.id"), nullable=False
+        String(36), ForeignKey("admins.id", ondelete="SET NULL")
     )
 
     added_by = relationship(
