@@ -28,31 +28,49 @@ class Admin(BaseModel, Base):
         String(36), ForeignKey("users.id"), unique=True, nullable=False
     )
 
-    user = relationship("User", back_populates="admin", uselist=False)
+    user = relationship(
+        "User",
+        back_populates="admin",
+        uselist=False
+    )
     user_warnings_issued = relationship(
-        "UserWarning", back_populates="issued_by"
+        "UserWarning",
+        back_populates="issued_by"
     )
     admin_permissions = relationship(
         "AdminPermission",
-        back_populates="admins", cascade="all, delete-orphan"
+        back_populates="admins",
+        cascade="all, delete-orphan"
     )
     courses_registered = relationship(
-        "Course", back_populates="registered_by", viewonly=True
+        "Course",
+        back_populates="registered_by",
+        viewonly=True
     )
-    approved_files = relationship(
-        "File", back_populates="approved_by", viewonly=True
+    files_approved = relationship(
+        "File",
+        back_populates="approved_by",
+        viewonly=True
     )
     tutorial_links_approved = relationship(
-        "TutorialLink", back_populates="approved_by", viewonly=True
+        "TutorialLink",
+        back_populates="approved_by",
+        viewonly=True
     )
     feedbacks_reviewed = relationship(
-        "Feedback", back_populates="reviewed_by", viewonly=True
+        "Feedback",
+        back_populates="reviewed_by",
+        viewonly=True
     )
     helps_reviewed = relationship(
-        "Help", back_populates="reviewed_by", viewonly=True
+        "Help",
+        back_populates="reviewed_by",
+        viewonly=True
     )
     reports_reviewed = relationship(
-        "Report", back_populates="reviewed_by", viewonly=True
+        "Report",
+        back_populates="reviewed_by",
+        viewonly=True
     )
 
 
