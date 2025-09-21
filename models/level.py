@@ -27,18 +27,15 @@ class Level(BaseModel, Base):
     users = relationship(
         "User",
         back_populates="level",
-        viewonly=True,
         cascade="all, delete-orphan"
     )
     courses = relationship(
         "Course",
         back_populates="level",
-        viewonly=True,
         cascade="all, delete-orphan"
     )
     admin_permissions = relationship(
         "AdminPermission",
         back_populates="levels",
-        viewonly=True,
         cascade="all, delete-orphan",
     )
