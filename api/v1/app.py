@@ -7,21 +7,53 @@
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt # type: ignore
 from flask_cors import CORS
-from flask import Flask, g, request, abort
-from typing import Optional
+from flask import Flask, g, request, abort, current_app
+from typing import Optional, cast
 from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
 import os
 
 from api.v1.views import app_views
 from api.v1.auth.session_db_auth import SessionDBAuth
-from models import storage
+from models.engine.db_storage import DBStorage
 
 
 load_dotenv()
 
-app = Flask(__name__)
+
+class MyFlask(Flask):
+    """Prevents pylance error."""
+    storage: DBStorage
+
+def create_app(config_name: str | None=None) -> MyFlask:
+    """
+    """
+    app = MyFlask(__name__)
+    
+    if config_name == "testing":
+        app.config.from_mapping(
+            DATABASE_URL= os.getenv("DATABASE_URL_TEST"),
+            TESTING=True
+        )
+    elif config_name == "production":
+        app.config.from_mapping(
+            DATABASE_URL=os.getenv("DATABASE_URL_PRO"),
+            TESTING=False
+        )
+    else:
+        app.config.from_mapping(
+            DATABASE_URL=os.getenv("DATABASE_URL_DEV"),
+            TESTING=False
+        )
+
+    database_url: str = cast(str, app.config["DATABASE_URL"])
+    app.storage = DBStorage(database_url)
+    app.storage.reload()
+    
+    return app
+
+app = create_app()
 app.register_blueprint(app_views)
-app.config["MAX_CONTENT_LENGTH"] = os.getenv("MAX_CONTENT_LENGTH")
+app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH", 3600))
 bcrypt = Bcrypt(app)
 
 CORS(app, resources={r"/api/v1/*": {"origins": "0.0.0.0"}})
@@ -52,7 +84,10 @@ def verify_auth():
 
 @app.teardown_appcontext
 def close_db(exception: Optional[BaseException]) -> None:
-    storage.close()
+    """
+    """
+    app = cast(MyFlask, current_app)
+    app.storage.close()
 
 @app.errorhandler(400)
 def bad_request(error: HTTPException):
