@@ -30,7 +30,6 @@ class Department(BaseModel, Base):
     users = relationship(
         "User",
         back_populates="department",
-        viewonly=True,
         cascade="all, delete-orphan"
     )
     from models.course import course_departments
@@ -38,12 +37,9 @@ class Department(BaseModel, Base):
         "Course",
         secondary="course_departments",
         back_populates="departments",
-        viewonly=False,
-        uselist=True
     )
     admin_permissions = relationship(
         "AdminPermission",
         back_populates="departments",
-        viewonly=True,
         cascade="all, delete-orphan",
     )
