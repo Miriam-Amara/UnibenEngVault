@@ -18,11 +18,6 @@ class NotificationType(enum.Enum):
     user = "user"
 
 
-class SentBy(enum.Enum):
-    system = "system"
-    admin = "admin"
-
-
 class Notification(BaseModel, Base):
     """
     Represents a notification sent to a user.
@@ -39,8 +34,15 @@ class Notification(BaseModel, Base):
 
     notification_type = mapped_column(Enum(NotificationType), nullable=False)
     message = mapped_column(String(2000), nullable=False)
-    sent_by = mapped_column(Enum(SentBy), nullable=False)
-    department_id = mapped_column(String(36), ForeignKey("departments.id"))
-    level_id = mapped_column(String(36), ForeignKey("levels.id"))
-    user_id = mapped_column(String(36), ForeignKey("users.id"))
-    admin_id = mapped_column(String(36), ForeignKey("admins.id"))  # sent_by
+    department_id = mapped_column(
+        String(36), ForeignKey("departments.id", ondelete="SET NULL")
+    )
+    level_id = mapped_column(
+        String(36), ForeignKey("levels.id", ondelete="SET NULL")
+    )
+    user_id = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    admin_id = mapped_column(
+        String(36), ForeignKey("admins.id", ondelete="SET NULL")
+    )
