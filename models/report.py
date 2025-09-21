@@ -10,7 +10,7 @@ from models.basemodel import BaseModel, Base
 
 
 class ReportType(enum.Enum):
-    file = "technical"
+    file = "file"
     tutorial_link = "tutorial link"
     content = "content"
     other = "other"
@@ -49,17 +49,27 @@ class Report(BaseModel, Base):
     status = mapped_column(
         Enum(ReportStatus), nullable=False, default="pending"
     )
-    file_id = mapped_column(String(36), ForeignKey("files.id"), nullable=True)
-    tutorial_link_id = mapped_column(
-        String(36), ForeignKey("tutorial_links.id"), nullable=True
-    )
     response = mapped_column(String(2000))
-    user_id = mapped_column(String(36), ForeignKey("users.id"))
-    admin_id = mapped_column(String(36), ForeignKey("admins.id"))
+    file_id = mapped_column(
+        String(36), ForeignKey("files.id", ondelete="SET NULL")
+    )
+    tutorial_link_id = mapped_column(
+        String(36), ForeignKey("tutorial_links.id", ondelete="SET NULL")
+    )
+    user_id = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    admin_id = mapped_column(
+        String(36), ForeignKey("admins.id", ondelete="SET NULL")
+    )
 
     added_by = relationship(
-        "User", back_populates="reports_added", viewonly=True
+        "User",
+        back_populates="reports_added",
+        viewonly=True
     )
     reviewed_by = relationship(
-        "Admin", back_populates="reports_reviewed", viewonly=True
+        "Admin",
+        back_populates="reports_reviewed",
+        viewonly=True
     )
