@@ -36,7 +36,6 @@ class File(BaseModel, Base):
 
     file_name = mapped_column(String(200), nullable=False)
     file_type = mapped_column(String(100), nullable=False)
-    scope = mapped_column(Enum(Scope), nullable=False, default="departmental")
     file_format = mapped_column(String(10), nullable=False)
     session = mapped_column(String(20))
     size = mapped_column(Integer, nullable=False)  # in kilobytes
@@ -46,13 +45,21 @@ class File(BaseModel, Base):
     course_id = mapped_column(
         String(36), ForeignKey("courses.id"), nullable=False
     )
-    user_id = mapped_column(String(36), ForeignKey("users.id"))
-    admin_id = mapped_column(String(36), ForeignKey("admins.id"))
+    user_id = mapped_column(String(36), ForeignKey("users.id", ondelete="SET NULL"))
+    admin_id = mapped_column(String(36), ForeignKey("admins.id", ondelete="SET NULL"))
 
-    course = relationship("Course", back_populates="files", viewonly=True)
+    course = relationship(
+        "Course",
+        back_populates="files",
+        viewonly=True
+    )
     added_by = relationship(
-        "User", back_populates="course_files_added", viewonly=True
+        "User",
+        back_populates="course_files_added",
+        viewonly=True
     )
     approved_by = relationship(
-        "Admin", back_populates="approved_files", viewonly=True
+        "Admin",
+        back_populates="files_approved",
+        viewonly=True
     )
