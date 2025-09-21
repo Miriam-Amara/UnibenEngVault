@@ -18,8 +18,18 @@ class Semester(enum.Enum):
 course_departments = Table(
     "course_departments",
     Base.metadata,
-    Column("course_id", String(36), ForeignKey("courses.id"), primary_key=True),
-    Column("department_id", String(36), ForeignKey("departments.id"), primary_key=True)
+    Column(
+        "course_id",
+        String(36),
+        ForeignKey("courses.id", ondelete="CASCADE"),
+        primary_key=True
+    ),
+    Column(
+        "department_id",
+        String(36),
+        ForeignKey("departments.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
 )
 
 class Course(BaseModel, Base):
@@ -36,14 +46,14 @@ class Course(BaseModel, Base):
 
     __tablename__ = "courses"
 
-    course_code = mapped_column(String(36), nullable=False, unique=True)
+    course_code = mapped_column(String(6), nullable=False, unique=True)
     semester = mapped_column(Enum(Semester), nullable=False)
     credit_load = mapped_column(Integer, nullable=False)
     title = mapped_column(String(500), nullable=False)
     outline = mapped_column(String(2000), nullable=False)
     is_active = mapped_column(Boolean, nullable=False, default=True)
     level_id = mapped_column(ForeignKey("levels.id"), nullable=False)
-    admin_id = mapped_column(ForeignKey("admins.id"))
+    admin_id = mapped_column(ForeignKey("admins.id", ondelete="SET NULL"))
 
     level = relationship(
         "Level",
@@ -58,7 +68,6 @@ class Course(BaseModel, Base):
     files = relationship(
         "File",
         back_populates="course",
-        viewonly=True,
         cascade="all, delete-orphan"
     )
     departments = relationship(
@@ -66,7 +75,6 @@ class Course(BaseModel, Base):
         secondary="course_departments",
         back_populates="courses",
         viewonly=False,
-        uselist=True
     )
 
     @classmethod
