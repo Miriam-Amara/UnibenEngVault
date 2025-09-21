@@ -33,8 +33,12 @@ class Feedback(BaseModel, Base):
     status = mapped_column(
         Enum(FeedbackStatus), nullable=False, default="pending"
     )
-    user_id = mapped_column(String(36), ForeignKey("users.id"))
-    admin_id = mapped_column(String(36), ForeignKey("admins.id"))
+    user_id = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    admin_id = mapped_column(
+        String(36), ForeignKey("admins.id", ondelete="SET NULL")
+    )
 
     added_by = relationship(
         "User", back_populates="feedbacks_added", viewonly=True
