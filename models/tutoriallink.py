@@ -50,10 +50,14 @@ class TutorialLink(BaseModel, Base):
     url = mapped_column(String(1024), nullable=False)
     title = mapped_column(String(200), nullable=False)
     content_type = mapped_column(Enum(ContentType), nullable=False)
-    scope = mapped_column(Enum(Scope), nullable=False, default="departmental")
     status = mapped_column(Enum(Status), nullable=False, default="pending")
-    user_id = mapped_column(String(36), ForeignKey("users.id"))
-    admin_id = mapped_column(String(36), ForeignKey("admins.id"))
+    level_id = mapped_column(ForeignKey("levels.id"), nullable=False)
+    user_id = mapped_column(String(36), ForeignKey(
+        "users.id", ondelete="SET NULL")
+    )
+    admin_id = mapped_column(
+        String(36), ForeignKey("admins.id", ondelete="SET NULL")
+    )
 
     added_by = relationship(
         "User", back_populates="tutorial_links_added", viewonly=True
