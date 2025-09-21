@@ -5,7 +5,7 @@ Database storage engine for managing ORM operations with SQLAlchemy.
 """
 
 from dotenv import load_dotenv
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, Sequence, cast
 from sqlalchemy import Engine, create_engine, select, and_, func
 from sqlalchemy.orm import Session, sessionmaker, scoped_session
 from sqlalchemy.sql.schema import Table
@@ -36,11 +36,6 @@ class DBStorage:
 
     __engine: Optional[Engine] = None
     __session: Optional[scoped_session[Session]] = None
-    __user = os.getenv("UNIBENENGVAULT_POSTGRES_USER")
-    __password = os.getenv("UNIBENENGVAULT_POSTGRES_PWD")
-    __host = os.getenv("UNIBENENGVAULT_POSTGRES_HOST")
-    __port = os.getenv("UNIBENENGVAULT_POSTGRES_PORT")
-    __db = os.getenv("UNIBENENGVAULT_POSTGRES_DB")
     __classes: dict[str, Any] = {
         "Admin": Admin,
         "Permission": Permission,
@@ -58,16 +53,19 @@ class DBStorage:
         "UserSession": UserSession
     }
 
-    def __init__(self) -> None:
+    def __init__(self, database_url: Optional[str]=None) -> None:
         """Initialize the database engine."""
-        self.__url = (
-            f"postgresql+psycopg2://{self.__user}:{self.__password}"
-            f"@{self.__host}:{self.__port}/{self.__db}"
-        )
-        self.__engine = create_engine(
-            self.__url, pool_pre_ping=True, echo=True
-        )
 
+        if not database_url:
+            database_url = cast(str, os.getenv("DATABASE_URL_DEV"))
+        
+        self.__engine = create_engine(
+            database_url, pool_pre_ping=True, echo=False
+        )
+        
+        if os.getenv("UNIBENENGVAULT_ENV") == "test":
+            Base.metadata.drop_all(self.__engine)
+    
     def all(
         self, page_size: int, page_num: int, cls: Optional[str] = None
     ) -> Optional[Any]:
