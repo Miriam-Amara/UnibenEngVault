@@ -78,8 +78,6 @@ def setup_logging() -> None:
     os.makedirs("logs", exist_ok=True)
 
     debug_mode = os.getenv("DEBUG_MODE", "False")
-    if not debug_mode:
-        raise ValueError("No environment variable for debug mode.")
     
     log_level = "DEBUG" if debug_mode == "True" else "WARNING"
     for logger in LOGGING_CONFIG["loggers"].values():
