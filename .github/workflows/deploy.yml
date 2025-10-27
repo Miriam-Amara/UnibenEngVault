@@ -9,6 +9,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      working-directory: backend
+      ENV: test
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: testdb
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+
     services:
       postgres:
         image: postgres:15
@@ -47,12 +56,6 @@ jobs:
 
     - name: Run tests
       working-directory: backend
-      env:
-        ENV: test
-        POSTGRES_USER: testuser
-        POSTGRES_PASSWORD: testpass
-        POSTGRES_DB: testdb
-        POSTGRES_HOST: localhost
-        POSTGRES_PORT: 5432
       run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)
         pytest
