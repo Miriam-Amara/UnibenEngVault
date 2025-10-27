@@ -50,11 +50,11 @@ def setup_production_database() -> str:
 def setup_test_database() -> str:
     """
     """
-    test_database_user = os.getenv("TEST_DATABASE_USER")
-    test_database_password = os.getenv("TEST_DATABASE_PASSWORD")
-    test_database_name = os.getenv("TEST_DATABASE_NAME")
-    test_database_host = os.getenv("TEST_DATABASE_HOST")
-    test_database_port = os.getenv("TEST_DATABASE_PORT")
+    test_database_user = os.getenv("POSTGRES_USER")
+    test_database_password = os.getenv("POSTGRES_PASSWORD")
+    test_database_name = os.getenv("POSTGRES_DB")
+    test_database_host = os.getenv("POSTGRES_HOST")
+    test_database_port = os.getenv("POSTGRES_PORT")
 
     if not test_database_user:
         raise ValueError(
