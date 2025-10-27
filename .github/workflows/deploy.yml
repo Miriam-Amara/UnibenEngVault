@@ -21,6 +21,8 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      SESSION_NAME: ${{ secrets.SESSION_NAME }}
+      SESSION_DURATION: ${{ secrets.SESSION_DURATION }}
 
     services:
       postgres:
