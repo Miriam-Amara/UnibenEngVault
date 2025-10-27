@@ -1,0 +1,180 @@
+#!/usr/bin/env python3
+
+"""
+
+"""
+
+
+from flask import g, abort, jsonify
+from typing import Any, Sequence
+import logging
+
+from api.v1.views import app_views
+from api.v1.auth.authorization import admin_only
+from api.v1.utils.utility import get_obj, DatabaseOp
+from api.v1.utils.data_validations import (
+    UserCreate, UserUpdate, validate_request_data
+)
+from models.user import User
+from models.admin import Admin
+from models.department import Department
+from models.level import Level
+
+
+
+logger = logging.getLogger(__name__)
+
+
+def get_user_dict(user: User) -> dict[str, Any]:
+    """
+    """
+    user_dict = user.to_dict()
+
+    if user.department:
+        user_dict["department"] = user.department.dept_code
+    if user.level:
+        user_dict["level"] = user.level.name
+    user_dict["course_files_added"] = len(user.course_files_added)
+    user_dict["tutorial_links_added"] = len(user.tutorial_links_added)
+    user_dict["feedbacks_added"] = len(user.feedbacks_added)
+    user_dict["helps_added"] = len(user.helps_added)
+    user_dict["reports_added"] = len(user.reports_added)
+    return user_dict
+
+
+@app_views.route("/register", strict_slashes=False, methods=["POST"])
+def register_users():
+    """
+    """
+    from api.v1.app import bcrypt
+
+    valid_data = validate_request_data(UserCreate)
+    
+    if "department_id" in valid_data:
+        department = get_obj(Department, valid_data["department_id"])
+        if not department:
+            abort(404, description="Department does not exist.")
+    
+    if "level_id" in valid_data:
+        level = get_obj(Level, valid_data["level_id"])
+        if not level:
+            abort(404, description="Level does not exist.")
+
+    valid_data["password"] = (
+        bcrypt
+        .generate_password_hash(valid_data["password"])  # type: ignore
+        .decode("utf-8")
+    )
+
+    user = User(**valid_data)
+    db = DatabaseOp()
+    db.save(user)
+
+    if user.is_admin:
+        admin = Admin(user_id=user.id)
+        db.save(admin)
+
+    user_dict = get_user_dict(user)
+    return jsonify(user_dict), 201
+
+# allow only admins
+@app_views.route(
+        "/users/<department_id>/<level_id>"
+        "/<int:page_size>/<int:page_num>",
+        strict_slashes=False, methods=["GET"]
+    )
+@admin_only
+def get_users_by_department_and_level(
+    department_id: str, level_id:str,
+    page_size: int, page_num: int
+):
+    """
+    """
+    department = get_obj(Department, department_id)
+    if not department:
+        abort(404, description="Department does not exist.")
+    
+    level = get_obj(Level, level_id)
+    if not level:
+        abort(404, description="Level does not exist.")
+
+    users: Sequence[User] | None = User.get_users_by_deparment_and_level(
+        department.id, level.id, page_size, page_num)
+    
+    if not users:
+        abort(
+            404,
+            description="Users not found for the department and level."
+        )
+    
+    users_list: list[dict[str, Any]] = [get_user_dict(user) for user in users]
+    return jsonify(users_list), 200
+
+@app_views.route("/users/<user_id>", strict_slashes=False, methods=["GET"])
+def get_user(user_id: str):
+    """
+    """
+    if user_id == "me" and g.current_user == None:
+        abort(404, description="User does not exist.")
+    
+    if user_id == "me" and g.current_user:
+        user = g.current_user
+    else:
+        user = get_obj(User, user_id)
+        if not user:
+            abort(404, description="User does not exist")
+    
+    user_dict = get_user_dict(user)
+    return jsonify(user_dict), 200
+
+@app_views.route("/users/<user_id>", strict_slashes=False, methods=["PUT"])
+def update_user(user_id: str):
+    """
+    """
+    valid_data = validate_request_data(UserUpdate)
+
+    if "department_id" in valid_data:
+        department = get_obj(Department, valid_data["department_id"])
+        if not department:
+            abort(404, description="Department does not exist.")
+    
+    if "level_id" in valid_data:
+        level = get_obj(Level, valid_data["level_id"])
+        if not level:
+            abort(404, description="Level does not exist.")
+
+    user = get_obj(User, user_id)
+    if not user:
+        abort(404, description="User does not exist.")
+    
+    for attr, value in valid_data.items():
+        setattr(user, attr, value)
+    db = DatabaseOp()
+    db.save(user)
+
+    if user.is_admin and not user.admin:
+        admin = Admin(user_id=user.id)
+        db.save(admin)
+
+    user_dict = get_user_dict(user)
+    user_dict.pop("admin", None)
+    return jsonify(user_dict), 200
+
+# allow only admins
+@app_views.route(""
+"/users/<user_id>",
+strict_slashes=False,
+methods=["DELETE"]
+)
+@admin_only
+def delete_user(user_id: str):
+    """
+    """
+    user = get_obj(User, user_id)
+    if not user:
+        abort(404, description="User does not exist.")
+    
+    db = DatabaseOp()
+    db.delete(user)
+    db.commit()
+    return jsonify({}), 200
