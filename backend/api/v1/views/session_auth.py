@@ -8,6 +8,7 @@
 from dotenv import load_dotenv
 from flask import abort, jsonify
 import logging
+import os
 
 from api.v1.views import app_views
 from api.v1.auth.authentication import LoginAuth
@@ -25,14 +26,17 @@ def login():
     cookie_name = login_data["cookie"]
     session_id = login_data["session_id"]
     user_id = login_data["user_id"]
+    session_duration = int(os.getenv("SESSION_DURATION", 0))
 
     response = jsonify({"user_id": user_id})
     response.set_cookie(
         key=cookie_name,
         value=session_id,
-        max_age=3600,
+        max_age=session_duration,
         secure=False,
-        httponly=True
+        httponly=True,
+        samesite="Lax",
+        path="/"
     )
     return response, 200
 

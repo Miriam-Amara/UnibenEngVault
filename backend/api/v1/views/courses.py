@@ -15,6 +15,7 @@ from api.v1.utils.utility import get_obj, DatabaseOp
 from api.v1.utils.data_validations import (
     validate_request_data, CourseCreate, CourseUpdate
 )
+from models import storage
 from models.admin import Admin
 from models.course import Course
 from models.level import Level
@@ -60,6 +61,25 @@ def add_course():
 
     course_dict = get_course_dict(course)
     return jsonify(course_dict), 201
+
+
+# allow only admins
+@app_views.route(
+        "/courses/<int:page_size>/<int:page_num>",
+        strict_slashes=False,
+        methods=["GET"]
+    )
+@admin_only
+def get_all_courses(page_size: int, page_num: int):
+    """
+    """
+    courses = storage.all(Course, page_size, page_num)
+    if not Course:
+        abort(404, description="No course found")
+    all_courses = [
+        get_course_dict(course) for course in courses
+    ]
+    return jsonify(all_courses), 200
 
 
 # allow only admins

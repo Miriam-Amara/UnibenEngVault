@@ -29,6 +29,7 @@ def get_user_dict(user: User) -> dict[str, Any]:
     """
     """
     user_dict = user.to_dict()
+    user_dict.pop("__User__", None)
 
     if user.department:
         user_dict["department"] = user.department.dept_code

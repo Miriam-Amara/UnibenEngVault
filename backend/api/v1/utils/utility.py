@@ -44,6 +44,8 @@ class DatabaseOp:
         except IntegrityError as e:
             if isinstance(e.orig, UniqueViolation):
                 detail = e.orig.diag.message_detail
+                if detail:
+                    detail = detail.replace("Key ", "")
                 abort(409, description=detail)
             else:
                 logger.error(f"Database operation failed: {e}")

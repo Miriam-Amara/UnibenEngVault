@@ -31,12 +31,12 @@ def verify_auth():
         request.path,
         [
             "/api/v1/stats/", "/api/v1/register/",
-            "/api/v1/auth_session/login/"
+            "/api/v1/auth_session/login/",
         ]
     ):
         return
-
-    if  not auth.session_cookie():
+    
+    if not auth.session_cookie():
         abort(401)
     
     user: User | None = auth.current_user()
@@ -62,8 +62,11 @@ def create_app(config_name: str | None=None) -> Flask:
     
     app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024 * 1024
     bcrypt.init_app(app) # type: ignore
-    CORS(app, resources={r"/api/v1/*": {"origins": "0.0.0.0"}})
-
+    CORS(
+        app,
+        resources={r"/api/v1/*": {"origins": "http://localhost:5173"}},
+        supports_credentials=True
+    )
     app.register_blueprint(app_views)
     app.before_request(verify_auth)
     app.teardown_appcontext(close_db)
@@ -75,6 +78,9 @@ def create_app(config_name: str | None=None) -> Flask:
     app.register_error_handler(409, conflict_error)
     app.register_error_handler(413, large_request_error)
     app.register_error_handler(500, server_error)
+
+    for rule in app.url_map.iter_rules():
+        print(f"Endpoint: {rule.endpoint}, Route: {rule}, Methods: {rule.methods}")
 
     return app
 

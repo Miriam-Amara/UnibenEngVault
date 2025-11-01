@@ -20,7 +20,7 @@ def admin_only(func: F) -> F:
         """
         user = getattr(g, "current_user", None)
         if not user:
-            abort(401)
+            abort(403)
         user = g.current_user
         if not user.is_admin:
             abort(403)

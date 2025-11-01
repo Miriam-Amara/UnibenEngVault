@@ -26,6 +26,7 @@ def get_department_dict(department: Department) -> dict[str, Any]:
     """
     """
     dept_dict = department.to_dict()
+    dept_dict.pop("__class__", None)
     dept_dict["courses"] = len(department.courses)
     
     count_100level = 0

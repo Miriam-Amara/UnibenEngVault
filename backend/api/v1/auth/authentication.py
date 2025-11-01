@@ -32,8 +32,10 @@ class BaseAuth:
         
         if not path.endswith("/"):
             path += "/"
-        if path in excluded_paths:
-            return False
+
+        for excluded in excluded_paths:
+            if path.startswith(excluded):
+                return False
         return True
     
     def session_cookie(self) -> str | None:
