@@ -25,10 +25,8 @@ function Sidebar(){
                     <li>
                         Content
                         <ul>
-                            <li><a href="/"></a></li>
-                            <li></li>
-                            <li></li>
-                            <li></li>
+                            <li><a href="/courses">Manage Courses</a></li>
+                            <li><a href="/files">Manage Files</a></li>
                     </ul>
                     </li>
                 </ul>

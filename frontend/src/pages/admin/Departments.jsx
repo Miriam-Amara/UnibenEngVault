@@ -1,0 +1,246 @@
+import { useState, useEffect } from "react";
+import * as Yup from "yup";
+
+import { 
+  addDepartmentAPI,
+  deleteDepartmentAPI,
+  fetchDepartmentsAPI,
+  updateDepartmentAPI 
+} from "../api/departments";
+import Layout from "../../components/Layout";
+import { showToast } from "../utils/toast";
+
+
+
+function useDepartments({ pageSize = 13, pageNum = 1 }) {
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchDepartments = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchDepartmentsAPI(pageSize, pageNum);
+      setDepartments(data);
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDepartments();
+  }, [pageSize, pageNum]);
+
+  return { departments, fetchDepartments, loading };
+}
+
+
+function DepartmentForm({ mode = "add", existingData = null, onSuccess }) {
+  const [formData, setFormData] = useState({ dept_name: "", dept_code: "" });
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (existingData) setFormData(existingData);
+  }, [existingData]);
+
+  const validationSchema = Yup.object({
+    dept_name: Yup.string()
+      .required("Department name is required.")
+      .matches(/engineering$/i, "Department name must end with 'engineering'."),
+    dept_code: Yup.string()
+      .required("Department code is required.")
+      .length(3, "Department code must be exactly 3 characters."),
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await validationSchema.validate(formData, { abortEarly: false });
+
+      if (mode === "edit") await updateDepartmentAPI(formData.id, formData);
+      else await addDepartmentAPI(formData);
+
+      showToast(
+        `${formData.dept_name} ${mode === "edit" ? "updated" : "added"} successfully!`,
+        "success");
+
+      setFormData({ dept_name: "", dept_code: "" });
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      if (error.inner) {
+        const newErrors = {};
+        error.inner.forEach((err) => (newErrors[err.path] = err.message));
+        setErrors(newErrors);
+      } else if (error.response) {
+        showToast(error.response.data?.error || "An unexpected error occurred.", "error");
+      } else {
+        console.error(error);
+        showToast("Something went wrong.");
+      }
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Department Name</label>
+        <input
+          type="text"
+          name="dept_name"
+          value={formData.dept_name}
+          placeholder="Enter department name"
+          onChange={handleChange}
+        />
+        {errors.dept_name && <p>{errors.dept_name}</p>}
+      </div>
+
+      <div>
+        <label>Department Code</label>
+        <input
+          type="text"
+          name="dept_code"
+          value={formData.dept_code}
+          placeholder="Enter department code"
+          onChange={handleChange}
+        />
+        {errors.dept_code && <p>{errors.dept_code}</p>}
+      </div>
+
+      <button type="submit">{mode === "edit" ? "Update" : "Add"}</button>
+    </form>
+  );
+}
+
+
+function DepartmentRow({ dept, onEdit, onDelete }) {
+  return (
+    <tr>
+      <td>{dept.dept_name}</td>
+      <td>{dept.dept_code}</td>
+      <td>
+        {["100", "200", "300", "400", "500"].map((lvl) => (
+          <div key={lvl}>
+            {lvl}L - {dept.dept_level_courses_count[`level_${lvl}`]}
+          </div>
+        ))}
+      </td>
+      <td>{dept.courses}</td>
+      <td>{dept.id}</td>
+      <td>{new Date(dept.created_at).toLocaleString()}</td>
+      <td>{new Date(dept.updated_at).toLocaleString()}</td>
+      <td>
+        <button onClick={() => onEdit(dept)}>Edit</button>
+        <button onClick={() => onDelete(dept.id)}>Delete</button>
+      </td>
+    </tr>
+  );
+}
+
+
+function DepartmentPageView({ pageSize, pageNum }) {
+  const { departments, fetchDepartments, loading } = useDepartments({ pageSize, pageNum });
+  const [showForm, setShowForm] = useState(false);
+  const [formMode, setFormMode] = useState("add");
+  const [selectedDept, setSelectedDept] = useState(null);
+
+  const handleEdit = (dept) => {
+    setSelectedDept(dept);
+    setFormMode("edit");
+    setShowForm(true);
+  };
+
+  const handleDelete = async (deptId) => {
+    if (!window.confirm("Are you sure you want to delete this department?")) return;
+
+    try {
+      await deleteDepartmentAPI(deptId);
+      showForm("Department deleted successfully!");
+      fetchDepartments();
+    } catch (error) {
+      console.error(error);
+      showForm("Failed to delete department.");
+    }
+  };
+
+  return (
+    <main>
+      <section>
+        <h2>Departments</h2>
+      </section>
+
+
+      {/* forms, search, filters */}
+      <section>
+        <button
+          onClick={() => {
+            setSelectedDept(null);
+            setFormMode("add");
+            setShowForm(true);
+          }}
+        >
+          Add Department
+        </button>
+        
+        {showForm && (
+          <div>
+            <button onClick={() => setShowForm(false)}>Close</button>
+            <DepartmentForm
+              mode={formMode}
+              existingData={selectedDept}
+              onSuccess={() => {
+                setShowForm(false);
+                fetchDepartments();
+              }}
+            />
+          </div>
+        )}
+      </section>
+      
+
+      {/* table */}
+      <section>
+        {loading ? (
+          <p>Loading departments...</p>
+        ) : (
+          <table border="1" cellPadding="8" cellSpacing="0">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Courses by Level</th>
+                <th>Total Courses</th>
+                <th>ID</th>
+                <th>Date Created</th>
+                <th>Last Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {departments.map((dept) => (
+                <DepartmentRow
+                  key={dept.id}
+                  dept={dept}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
+    </main>
+  );
+}
+
+
+function DepartmentPage() {
+  return <Layout main={<DepartmentPageView />} />;
+}
+
+export default DepartmentPage;

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 
 
@@ -12,7 +13,7 @@ function useDepartments({pageSize, pageNum}) {
   useEffect(() => {
     axios.get(`/api/v1/departments/${pagesize}/${pagenum}`)
     .then((response) => {
-      console.log(response.data);
+      console.log("response data", response.data);
       setDepartments(response.data);
     })
     .catch((error) => console.error("Error fetching departments:", error));
@@ -33,25 +34,26 @@ function useLevels({pageSize, pageNum}) {
       console.log(response.data);
       setLevels(response.data);
     })
-    .catch((error) => console.error("Error fetching departments:", error));
+    .catch((error) => console.error("Error fetching levels:", error));
   }, [pagesize, pagenum]);
 
   return levels
 }
 
 
-function Form({pageSize, pageNum}) {
-
+function RegisterForm({pageSize, pageNum}) {
+  
   const departments = useDepartments({ pageSize, pageNum });
   const levels = useLevels({ pageSize, pageNum })
 
+  console.log("Form rendered", { departments, levels });
   const [formData, setFormData] = useState(
     {
       email: "",
       department: "",
       level: "",
       password: "",
-      confirmpassword: ""
+      confirmpassword: "",
     }
   );
 
@@ -74,30 +76,48 @@ function Form({pageSize, pageNum}) {
   );
 
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await validationSchema.validate(formData, {abortEarly: false})
-      console.log("Form Submitted", formData);
-    }
-    catch (error){
-      const newError = {};
-      error.inner.forEach((err) => {
-        newError[err.path] = err.message;
+      await validationSchema.validate(formData, {abortEarly: false});
+      const response = await axios.post("/api/v1/register", formData);
+      console.log("Registration successful: ", response.data);
+
+      setFormData({
+        email: "",
+        department: "",
+        level: "",
+        password: "",
+        confirmpassword: "",
       });
-      setErrors(newError)
+      
+      alert("Registration successful!");
+      navigate("/login")
+
+    } catch (error){
+      if (error.inner) {
+        const newError = {};
+        error.inner.forEach((err) => {
+          newError[err.path] = err.message;
+        });
+        setErrors(newError)
+      } else {
+          console.error("Error submitting form: ", error);
+          alert("Something went wrong. Please try again.");
+      }
     }
   };
 
   const handleChange = (e) => {
     const {name, value} = e.target;
-    setFormData(
-      {
+    setFormData({
         ...formData,
         [name]: value
-      }
-    );
+      });
   };
 
   return (
@@ -127,8 +147,8 @@ function Form({pageSize, pageNum}) {
             <>
               <option value="">Select Department</option>
               {departments.map((department) => (
-                <option key={department.id} value={department.name}>
-                  {department.name}
+                <option key={department.id} value={department.dept_name}>
+                  {department.dept_name}
                 </option>
                 ))}
             </>
@@ -162,23 +182,34 @@ function Form({pageSize, pageNum}) {
     <div>
       <label>Password</label>
       <input
-        type="password"
+        type={showPassword ? "text" : "password"}
         name="password"
         value={formData.password}
         placeholder="Enter your password"
         onChange={handleChange}
       />
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+      >
+        {showPassword ? "👁️" : "🙈"}
+      </button>
       {errors.password && <p>{errors.password}</p>}
     </div>
     <div>
       <label>Confirm Password</label>
       <input
-        type="password"
+        type={showConfirmPassword ? "text" : "password"}
         name="confirmpassword"
         value={formData.confirmpassword}
         placeholder="Confirm your password"
         onChange={handleChange}
       />
+      <button
+        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+      >
+        {showConfirmPassword ? "👁️" : "🙈"}
+      </button>
       {errors.confirmpassword && <p>{errors.confirmpassword}</p>}
     </div>
     <button type="submit">Register</button>
@@ -186,7 +217,7 @@ function Form({pageSize, pageNum}) {
 }
 
 function Register(){
-
+    console.log("Here in Register!")
     return(
         <div>
             <div>
@@ -201,11 +232,10 @@ function Register(){
                     register on UnibenEngVault to
                     access all materials and take
                     your studies to the next level!
-                    and take
                 </p>
             </div>
             <div>
-              <Form pageSize={13} pageNum={1} />
+              <RegisterForm pageSize={13} pageNum={1} />
             </div>
         </div>
     )
