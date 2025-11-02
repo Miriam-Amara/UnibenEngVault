@@ -49,28 +49,35 @@ def get_department_courses_dict(
 
 
 def get_department_level_courses_dict(
-        department: Department,
-        level: Level,
-        semester: str | None = None
-    ) -> dict[str, Any] | None:
+    department: Department,
+    level: Level,
+    semester: str | None = None,
+) -> list[dict[str, Any]]:
     """
+    Return all courses for a given department and level.
+    If semester is provided, filter courses by that semester.
     """
-    dept_level_courses: list[dict[str, str]] | None = []
+    dept_level_courses: list[dict[str, Any]] = []
 
     for course in department.courses:
-        if course.level == level and course.semester == semester:
-            dept_level_courses.append(course.course_code)
-        elif course.level == level:
-            dept_level_courses.append(course.course_code)
-    
-    return {
-        "department_name": department.dept_name,
-        "department_code": department.dept_code,
-        "level": level.name,
-        "semester": semester,
-        "department_level_courses": dept_level_courses
-    }
-    
+        if course.level != level:
+            continue
+
+        if semester and course.semester.value != semester:
+            continue
+
+        course_dict = course.to_dict()
+        course_dict.pop("__class__", None)
+        course_dict["course_code"] = course_dict["course_code"].upper()
+        course_dict["level"] = course.level.name
+        course_dict["files"] = len(course.files)
+        course_dict["departments"] = [
+            dept.dept_code.upper() for dept in course.departments
+        ]
+
+        dept_level_courses.append(course_dict)
+    return dept_level_courses
+
 
 # allow only admins
 @app_views.route(
@@ -147,6 +154,7 @@ def get_department_level_courses(department_id: str, level_id: str):
     """
     """
     semester = request.args.get("semester")
+
     if semester and semester.lower().strip() not in ["first", "second"]:
         semester = None
     
@@ -161,6 +169,7 @@ def get_department_level_courses(department_id: str, level_id: str):
     department_level_courses = get_department_level_courses_dict(
         department, level, semester=semester
     )
+
     if not department_level_courses:
         abort(
             404,

@@ -52,7 +52,8 @@ def upload_file(course_id: str):
         abort(404, description="Course does not exist.")
     
     file_upload = FileUpload()
-    file_metadata = file_upload.get_file_metadata(course)
+    file_info = file_upload.get_file_metadata(course)
+    file_metadata = file_info["file_metadata"]
     file_metadata["added_by"] = user
 
     file_record = File(**file_metadata)
@@ -60,7 +61,8 @@ def upload_file(course_id: str):
     db.save(file_record)    
     
     # upload to s3 bucket
-    file_upload.upload_file_to_s3_temp(course, file_record.temp_filepath)
+    file_obj = file_info["file_obj"]
+    file_upload.upload_file_to_s3_temp(file_obj, course, file_record.temp_filepath)
 
     # notify admins
     db = DatabaseOp()
@@ -182,4 +184,8 @@ def delete_file(file_id: str):
         file_upload.delete_file(file.permanent_filepath)
     else:
         file_upload.delete_file(file.temp_filepath)
+    
+    db = DatabaseOp()
+    db.delete(file)
+    db.commit()
     return jsonify({}), 200

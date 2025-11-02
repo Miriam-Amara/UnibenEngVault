@@ -28,10 +28,12 @@ def get_course_dict(course: Course) -> dict[str, Any]:
     """
     """
     course_dict = course.to_dict()
+    course_dict.pop("__class__", None)
+    course_dict["course_code"] = course_dict["course_code"].upper()
     course_dict["level"] = course.level.name
     course_dict["files"] = len(course.files)
     course_dict["departments"] = [
-        department.dept_code for department in course.departments
+        department.dept_code.upper() for department in course.departments
     ]
     return course_dict
 

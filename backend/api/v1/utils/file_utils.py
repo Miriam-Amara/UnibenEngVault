@@ -127,6 +127,7 @@ class FileManager:
         """
         file_obj = request.files.get("file")
 
+        logger.debug(f"file_obj: {file_obj}")
         if not isinstance(file_obj, FileStorage):
             abort(400, description="Missing or invalid file")
 
@@ -217,9 +218,14 @@ class FileManager:
         """
         """
         valid_metadata = validate_request_data(FileCreate)
+        if valid_metadata.get("session"):
+            session = valid_metadata["session"]
+        else:
+            session = ""
+        
         valid_file = self.validate_file_obj()
         new_filename = self.rename_file(
-            course, valid_metadata["file_type"], valid_metadata["session"]
+            course, valid_metadata["file_type"], session
         )
         temp_filepath = self.generate_temp_s3_filepath(new_filename, course)
 
@@ -227,7 +233,7 @@ class FileManager:
             "size": valid_file["file_size"],
             "file_obj": valid_file["file_obj"],
             "file_format": valid_file["file_ext"],
-            "session": valid_metadata["session"],
+            "session": session,
             "file_type": valid_metadata["file_type"],
             "file_name": new_filename,
             "temp_filepath": temp_filepath,
@@ -255,8 +261,11 @@ class FileUpload:
         file_manager = FileManager()
         file_metadata: dict[str, Any] = file_manager.process_file(course)
 
-        file_metadata.pop("file_obj")
-        return file_metadata
+        file_obj = file_metadata.pop("file_obj")
+        return {
+            "file_metadata": file_metadata,
+            "file_obj": file_obj
+        }
     
     def get_presigned_url(self, file_name: str):
         """
@@ -271,13 +280,12 @@ class FileUpload:
 
     def upload_file_to_s3_temp(
             self,
+            file_obj: FileStorage,
             course: Course,
             temp_file_path: str
         ) -> None:
         """
         """
-        file_manager = FileManager()
-        file_obj = file_manager.process_file(course).pop("file_obj")
         try:
             self.s3.upload_fileobj(
                 file_obj.stream,

@@ -219,10 +219,10 @@ class FileCreate(BaseModel):
         str,
         StringConstraints(strip_whitespace=True)
     ]
-    session: Annotated[
+    session: Optional[Annotated[
         str,
         StringConstraints(pattern=r"^\d{4}/\d{4}$", strip_whitespace=True)
-    ]
+    ]] = None
 
     @field_validator("file_type")
     @classmethod
@@ -402,7 +402,7 @@ class UserCreate(BaseModel):
         str,
         StringConstraints(
             min_length=8,
-            max_length=200,
+            max_length=64,
             strip_whitespace=True
         )
     ]
@@ -513,10 +513,13 @@ def get_file_metadata() -> dict[str, Any]:
     """
     try:
         file_metadata: dict[str, Any] = json.loads(request.form["metadata"])
+        logger.debug(f"file_metadata: {file_metadata}")
     except KeyError:
         abort(400, description="Missing key - metadata")
     except json.JSONDecodeError:
         abort(400, description="Not a valid JSON")
+    
+    logger.debug(f"returned file_metadata: {file_metadata}")
     return file_metadata
 
 
