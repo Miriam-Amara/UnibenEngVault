@@ -18,8 +18,10 @@ function CoursesTableView({
   levels,
   departmentId,
   levelId,
+  semester,
   onDepartmentChange,
   onLevelChange,
+  onSemesterChange,
   courses,
   loading,
   onEdit,
@@ -29,7 +31,7 @@ function CoursesTableView({
   onPageChange,
   pageSize,
 }) {
-  console.log("In CoursesTableView:", courses);
+
   return (
     <div>
       {/* Filters */}
@@ -47,6 +49,13 @@ function CoursesTableView({
             <option key={lvl.id} value={lvl.id}>{lvl.name}</option>
           ))}
         </select>
+
+        <select value={semester} onChange={onSemesterChange}>
+          <option value="">Semester</option>
+          {["first", "second"].map((sems) => (
+            <option key={sems} value={sems}>{sems}</option>
+          ))}
+        </select>
       </div>
 
       {/* Table */}
@@ -60,8 +69,8 @@ function CoursesTableView({
             <th>Title</th>
             <th>Outline</th>
             <th>Departments</th>
+            <th>No. of Files</th>
             <th>ID</th>
-            <th>Date Created</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -79,7 +88,10 @@ function CoursesTableView({
                 <td>{course.level}</td>
                 <td>{course.title}</td>
                 <td>{course.outline}</td>
-                <td>{course.departments?.length ? course.departments.join(", ") : "Unassigned"}</td>
+                <td>
+                  {course.departments?.length ? course.departments.join(", ") : "Unassigned"}
+                </td>
+                <td>{course.files}</td>
                 <td>{course.id}</td>
                 <td>
                   <button onClick={() => onEdit(course)}>Edit</button>
@@ -93,9 +105,17 @@ function CoursesTableView({
 
       {/* Pagination */}
       <div>
-        <button disabled={pageNum === 1} onClick={() => onPageChange(pageNum - 1)}>Prev</button>
+        <button
+          disabled={pageNum === 1}
+          onClick={() => onPageChange(pageNum - 1)}>
+            Prev
+        </button>
         <span>Page {pageNum} — Total: {totalCourses}</span>
-        <button disabled={pageNum * pageSize >= totalCourses} onClick={() => onPageChange(pageNum + 1)}>Next</button>
+        <button
+          disabled={pageNum * pageSize >= totalCourses}
+          onClick={() => onPageChange(pageNum + 1)}>
+            Next
+        </button>
       </div>
     </div>
   );
@@ -105,8 +125,9 @@ function CoursesTableView({
 function CoursesPageView() {
   const [departmentId, setDepartmentId] = useState("");
   const [levelId, setLevelId] = useState("");
+  const [semester, setSemester] = useState("");
   const [pageNum, setPageNum] = useState(1);
-  const pageSize = 10;
+  const pageSize = 20;
 
   const [departments, setDepartments] = useState([]);
   const [levels, setLevels] = useState([]);
@@ -120,22 +141,37 @@ function CoursesPageView() {
 
   // Load departments and levels once
   useEffect(() => {
-    fetchDepartmentsAPI().then(setDepartments).catch(() => showToast("Failed to load departments", "error"));
-    fetchLevelsAPI().then(setLevels).catch(() => showToast("Failed to load levels", "error"));
+    fetchDepartmentsAPI()
+    .then(setDepartments)
+    .catch(() => showToast("Failed to load departments", "error"));
+
+    fetchLevelsAPI()
+    .then(setLevels)
+    .catch(() => showToast("Failed to load levels", "error"));
   }, []);
   
   // Load courses on filters/page change
-  useEffect(() => {
+  const fetchCourses = () => {
     setLoading(true);
-    fetchCoursesAPI({ pageSize, pageNum })
-      .then(data => {
-        console.log(data)
+    fetchCoursesAPI({
+      pageSize,
+      pageNum,
+      departmentId: departmentId || undefined,
+      levelId: levelId || undefined,
+      semester: semester || undefined,
+    })
+      .then((data) => {
         setCourses(data);
         setTotalCourses(data.total || 0);
       })
-      .catch(() => showToast("Failed to load courses", "error"))
+      // .catch(() => showToast("Failed to load courses", "error"))
       .finally(() => setLoading(false));
-  }, [departmentId, levelId, pageNum]);
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, [departmentId, levelId, semester, pageNum]);
+
   
   const handleEdit = (course) => {
     setEditData(course);
@@ -147,6 +183,7 @@ function CoursesPageView() {
     try {
       await deleteCourseAPI(id);
       showToast("Course deleted successfully", "success");
+      fetchCourses();
       setPageNum(1);
     } catch {
       showToast("Failed to delete course", "error");
@@ -173,6 +210,7 @@ function CoursesPageView() {
           onClose={() => setShowCourseForm(false)}
           onSaved={() => {
             setShowCourseForm(false);
+            fetchCourses();
             setPageNum(1);
           }}
           editData={editData}
@@ -184,6 +222,7 @@ function CoursesPageView() {
           onClose={() => setShowAssignForm(false)}
           onSaved={() => {
             setShowAssignForm(false);
+            fetchCourses();
             setPageNum(1);
           }}
           departments={departments}
@@ -200,8 +239,10 @@ function CoursesPageView() {
           levels={levels}
           departmentId={departmentId}
           levelId={levelId}
+          semester={semester}
           onDepartmentChange={e => { setDepartmentId(e.target.value); setPageNum(1); }}
           onLevelChange={e => { setLevelId(e.target.value); setPageNum(1); }}
+          onSemesterChange={e => { setSemester(e.target.value); setPageNum(1); }}
           courses={courses}
           loading={loading}
           onEdit={handleEdit}

@@ -25,17 +25,21 @@ export default function CourseForm({ onClose, onSaved, editData }) {
   const schema = Yup.object({
     course_code: Yup.string()
       .required("Course code is required")
-      .length(6, "Course code must be exactly 6 characters"),
+      .length(6, "Course code must be exactly 6 characters")
+      .matches(/^[a-z]{3}\d{3}$/, "Course code must be 3 letters followed by 3 digits (e.g., IDE562)"),
     semester: Yup.string().required("Semester is required"),
     credit_load: Yup.number()
       .required("Credit load is required")
+      .min(1, "Credit load must not be less than 1")
       .max(10, "Credit load must not exceed 10"),
     level_id: Yup.string().required("Level is required"),
     title: Yup.string()
       .required("Course title is required")
+      .min(5, "Minimum of 5 characters")
       .max(500, "Maximum of 500 characters"),
     outline: Yup.string()
       .required("Course outline is required")
+      .min(5, "Minimum of 5 characters")
       .max(2000, "Maximum of 2000 characters"),
     is_active: Yup.boolean(),
   });
@@ -139,7 +143,7 @@ export default function CourseForm({ onClose, onSaved, editData }) {
             name="course_code"
             value={form.course_code}
             onChange={handleChange}
-            placeholder="Course Code"
+            placeholder="Enter course code"
           />
           {errors.course_code && <p className="error">{errors.course_code}</p>}
         </div>
@@ -162,7 +166,7 @@ export default function CourseForm({ onClose, onSaved, editData }) {
             value={form.credit_load}
             onChange={handleChange}
             placeholder="Credit Load"
-            min={0}
+            min={1}
             max={10}
           />
           {errors.credit_load && <p className="error">{errors.credit_load}</p>}
@@ -181,29 +185,38 @@ export default function CourseForm({ onClose, onSaved, editData }) {
           {errors.level_id && <p className="error">{errors.level_id}</p>}
         </div>
 
-        <input
-          type="text"
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Course Title"
-        />
-        {errors.title && <p className="error">{errors.title}</p>}
+        <div>
+          <label>Title</label>
+          <input
+            type="text"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            placeholder="Enter course title"
+          />
+          {errors.title && <p className="error">{errors.title}</p>}
+        </div>
 
-        <textarea
-          name="outline"
-          value={form.outline}
-          onChange={handleChange}
-          placeholder="Course Outline"
-          rows={4}
-        />
-        {errors.outline && <p className="error">{errors.outline}</p>}
+        <div>
+          <label>Course Outline</label>
+          <textarea
+            name="outline"
+            value={form.outline}
+            onChange={handleChange}
+            placeholder="Enter course outline"
+            rows={4}
+          />
+          {errors.outline && <p className="error">{errors.outline}</p>}
+        </div>
 
-        <select name="is_active" value={String(form.is_active)} onChange={handleChange}>
-          <option value="">Select</option>
-          <option value="true">Yes</option>
-          <option value="false">No</option>
-        </select>
+        <div>
+          <label>Is course still being offered?</label>
+            <select name="is_active" value={String(form.is_active)} onChange={handleChange}>
+            <option value="">Select</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
 
         <div>
           <button type="button" onClick={onClose}>

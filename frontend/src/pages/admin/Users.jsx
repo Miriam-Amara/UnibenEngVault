@@ -69,6 +69,7 @@ function UserForm({ mode = "add", existingData = null, onSuccess }) {
             .length(36, "Level id must be exactly 36 characters"),
           password: Yup.string()
             .min(8, "Password must be at least 8 characters")
+            .max(64, "Maximum is 64 characters")
             .required("Password required"),
           confirm_password: Yup.string()
             .oneOf([Yup.ref("password"), null], "Passwords must match")
@@ -199,17 +200,15 @@ function UserForm({ mode = "add", existingData = null, onSuccess }) {
         {errors.level_id && <p>{errors.level_id}</p>}
       </div>
 
-      {mode === "edit" && (
-        <div>
-          <label>Is Admin</label>
-          <input
-            name="is_admin"
-            type="checkbox"
-            checked={formData.is_admin}
-            onChange={handleChange}
-          />
-        </div>
-      )}
+      <div>
+        <label>Is Admin</label>
+        <input
+          name="is_admin"
+          type="checkbox"
+          checked={formData.is_admin}
+          onChange={handleChange}
+        />
+      </div>
 
       <button type="submit">{mode === "edit" ? "Update" : "Register"}</button>
     </form>

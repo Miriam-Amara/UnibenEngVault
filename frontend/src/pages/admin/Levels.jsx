@@ -33,12 +33,15 @@ function LevelForm({ onSuccess }) {
   const [errors, setErrors] = useState({});
 
   const validationSchema = Yup.object({
-    name: Yup.string().required("Level name is required.")
+    name: Yup.number()
+      .required("Level name is required.")
+      .min(100, "Level should not be less that 100")
+      .max(600, "Level should not exceed 600")
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: Number(value) });
   };
 
   const handleSubmit = async (e) => {
@@ -66,15 +69,15 @@ function LevelForm({ onSuccess }) {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Level Name</label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          placeholder="Enter level name"
-          onChange={handleChange}
-        />
-        {errors.name && <p>{errors.name}</p>}
+        <select name="name" value={formData.name} onChange={handleChange}>
+        <option value="">Select Level</option>
+          {[100, 200, 300, 400, 500].map((lvl) => (
+            <option key={lvl} value={lvl}>
+              {lvl}
+            </option>
+          ))}
+        </select>
+        {errors.name && <p className="error">{errors.name}</p>}
       </div>
 
       <button type="submit">Add</button>
@@ -89,7 +92,6 @@ function LevelRow({ level, onDelete }) {
       <td>{level.name}</td>
       <td>{level.id}</td>
       <td>{new Date(level.created_at).toLocaleString()}</td>
-      <td>{new Date(level.updated_at).toLocaleString()}</td>
       <td>
         <button onClick={() => onDelete(level.id)}>Delete</button>
       </td>
@@ -145,7 +147,6 @@ function LevelPageView({ pageSize, pageNum }) {
                   <th>Name</th>
                   <th>ID</th>
                   <th>Date Created</th>
-                  <th>Last Updated</th>
                   <th>Actions</th>
                 </tr>
               </thead>

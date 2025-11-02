@@ -14,6 +14,7 @@ export default function AssignCoursesForm({
   departments,
   courses,
 }) {
+  console.log("Inside AssignCourse", courses)
   const [departmentId, setDepartmentId] = useState("");
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [mode, setMode] = useState("assign"); // assign or remove
@@ -73,31 +74,33 @@ export default function AssignCoursesForm({
           {mode === "assign" ? "Assign Courses" : "Remove Courses"}
         </h2>
         <form onSubmit={handleSubmit}>
-          <select
-            value={departmentId}
-            onChange={(e) => setDepartmentId(e.target.value)}
-          >
-            <option value="">Select Department</option>
-            {departments.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.dept_name}
-              </option>
-            ))}
-          </select>
+          <div>
+            <select
+              value={departmentId}
+              onChange={(e) => setDepartmentId(e.target.value)}
+            >
+              <option value="">Select Department</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.dept_name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div>
             {courses.map((c) => (
               <label
                 key={c.id}
               >
+                <div>
                 <input
                   type="checkbox"
                   checked={selectedCourses.includes(c.id)}
                   onChange={() => toggleCourse(c.id)}
                 />
-                <span>
-                  {c.code} — {c.title}
-                </span>
+                  {c.course_code}
+                </div>
               </label>
             ))}
           </div>

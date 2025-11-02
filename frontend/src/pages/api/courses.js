@@ -1,37 +1,8 @@
 import axios from "axios";
 import { showToast } from "../utils/toast";
 
-// Helper for error handling
-const handleApiError = (error, action = "operation") => {
-  if (error.response) {
-    const { status, data } = error.response;
-    switch (status) {
-      case 400:
-        showToast(data?.error || "Bad request", "error");
-        break;
-      case 401:
-        showToast("Unauthorized: Please log in again.", "error");
-        break;
-      case 403:
-        showToast("Forbidden: You're not supposed to be here", "error");
-        break;
-      case 404:
-        showToast("Not found: The requested resource could not be found.", "error");
-        break;
-      case 409:
-        showToast(data?.error || "Conflict: Duplicate or invalid data.", "error");
-        break;
-      case 500:
-        showToast("Server error: Please try again later.", "error");
-        break;
-      default:
-        showToast(data?.error || `An error occurred during ${action}.`, "error");
-    }
-  } else {
-    showToast("Network error: Unable to reach the server.", "error");
-  }
-  throw error; // rethrow so the caller can handle if needed
-};
+import handleApiError from "./errorHandler";
+
 
 // Add new course
 export const addCourseAPI = async (data) => {
@@ -72,21 +43,28 @@ export const fetchCoursesAPI = async ({
   pageNum = 1,
   departmentId = "",
   levelId = "",
+  semester = "",
 }) => {
-  try {
+   try {
     let res;
+    let url;
+    const params = {};
+
     if (departmentId && levelId) {
-      res = await axios.get(
-        `/api/v1/departments/${departmentId}/levels/${levelId}/courses`,
-        { withCredentials: true }
-      );
+      url = `/api/v1/departments/${departmentId}/levels/${levelId}/courses`;
     } else {
-      res = await axios.get(`/api/v1/courses/${pageSize}/${pageNum}`,
-        { withCredentials: true }
-      );
+      url = `/api/v1/courses/${pageSize}/${pageNum}`;
     }
+
+    if (semester) params.semester = semester;
+
+    res = await axios.get(url, {
+      params,
+      withCredentials: true,
+    });
     return res.data;
   } catch (error) {
+    console.log(error)
     handleApiError(error, "fetching courses");
   }
 };
