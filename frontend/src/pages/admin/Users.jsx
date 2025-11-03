@@ -11,7 +11,7 @@ import { fetchDepartmentsAPI } from "../api/departments";
 import { fetchLevelsAPI } from "../api/levels";
 import Layout from "../../components/Layout";
 import { showToast } from "../utils/toast";
-
+import "./mainPage.css"
 
 
 
@@ -220,7 +220,7 @@ function UserForm({ mode = "add", existingData = null, onSuccess }) {
 
 function UserRow({ user, onEdit, onDelete }) {
   return (
-    <tr>
+    <tr className="t-row">
       <td>{user.email}</td>
       <td>{user.department}</td>
       <td>{user.level}</td>
@@ -285,13 +285,18 @@ function UsersPageView({ pageSize, pageNum }) {
   }, []);
 
   return (
-    <main>
-      <section>
-        <h2>Users</h2>
+    <main className="main">
+
+      {/* Header section */}
+      <section className="header-section">
+        <div className="header-section-items">
+          <h3>Users</h3>
+          <p>Add, edit, view and delete users from UnibenEngVault</p>
+        </div>
       </section>
 
       {/* Forms, search, filters */}
-      <section>
+      <section className="control-section">
         <button
           onClick={() => {
             setSelectedUser(null);
@@ -314,52 +319,53 @@ function UsersPageView({ pageSize, pageNum }) {
             />
           </div>
         )}
-        <div>
-          <label>
-            Department:{" "}
-            <select
-              value={departmentId}
-              onChange={(e) => setDepartmentId(e.target.value)}
+        <div className="filter">
+          <div>
+            <label>Department:{" "}</label>
+              <select
+                value={departmentId}
+                onChange={(e) => setDepartmentId(e.target.value)}
+              >
+                <option value="">All</option>
+                {departments.map((dep) => (
+                  <option key={dep.id} value={dep.id}>
+                    {dep.dept_name}
+                  </option>
+                ))}
+              </select>
+          </div>
+
+          <div>
+            <label>Level:{" "}</label>
+              <select value={levelId} onChange={(e) => setLevelId(e.target.value)}>
+                <option value="">All</option>
+                {levels.map((lev) => (
+                  <option key={lev.id} value={lev.id}>
+                    {lev.name}
+                  </option>
+                ))}
+              </select>
+          </div>
+
+          <div>
+            <button
+              onClick={() => fetchUsers()}
             >
-              <option value="">All</option>
-              {departments.map((dep) => (
-                <option key={dep.id} value={dep.id}>
-                  {dep.dept_name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label style={{ marginLeft: "1rem" }}>
-            Level:{" "}
-            <select value={levelId} onChange={(e) => setLevelId(e.target.value)}>
-              <option value="">All</option>
-              {levels.map((lev) => (
-                <option key={lev.id} value={lev.id}>
-                  {lev.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <button
-            style={{ marginLeft: "1rem" }}
-            onClick={() => fetchUsers()}
-          >
-            Filter
-          </button>
+              Filter
+            </button>
+          </div>
         </div>
       </section>
 
 
       {/* Table */}
-      <section>
+      <section className="table-section">
         {loading ? (
           <p>Loading users...</p>
         ) : (
-          <table border="1" cellPadding="8" cellSpacing="0">
-            <thead>
-              <tr>
+          <table className="table">
+            <thead className="t-head">
+              <tr className="t-row">
                 <th>Email</th>
                 <th>Department</th>
                 <th>Level</th>
@@ -376,6 +382,7 @@ function UsersPageView({ pageSize, pageNum }) {
                   user={user}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  className="t-row"
                 />
               ))}
             </tbody>

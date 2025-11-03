@@ -110,7 +110,7 @@ export async function downloadFileAPI(fileId) {
     const a = document.createElement("a");
     a.href = presignedUrl;
     a.target = "_blank"; // or "_self" if you prefer direct download
-    a.download = ""; // optional — allows browser to download instead of preview
+    // a.download = ""; // optional — allows browser to download instead of preview
     document.body.appendChild(a);
     a.click();
     a.remove();

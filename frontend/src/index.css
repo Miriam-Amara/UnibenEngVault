@@ -1,6 +1,133 @@
+
+
+:root{
+  /* Colors */
+  --color-primary: #807AD8;
+  --color-primary-light: #CDCBED;
+  --color-secondary: #07024C;
+  --color-grey: #D8DAE9;
+  --color-black: #000;
+  --color-white: #fff;
+  --color-error: #E63946;
+
+  /* FONT SIZE */
+  --text-xs: 1.0rem;
+  --text-sm: 1.2rem;
+  --text-base: 1.6rem;
+  --text-lg: 2.0rem;
+  --text-h5: 2.4rem;
+  --text-h4: 2.8rem;
+  --text-h3: 3.2rem;
+  --text-h2: 3.6rem;
+  --text-h1: 4.0rem;
+
+  /* FONT-WEIGHT */
+  --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* SPACING SCALE (1.25 ratio) */
+  --space-xxs: 0.4rem;
+  --space-xs: 0.6rem;
+  --space-sm: 0.8rem;
+  --space-md: 1.0rem;
+  --space-lg: 1.25rem;
+  --space-xl: 1.6rem;
+  --space-2xl: 2.0rem;
+  --space-3xl: 2.5rem;
+  --space-4xl: 3.2rem;
+  --space-5xl: 4.0rem;
+  --space-6xl: 5.0rem;
+}
+
+#root{
+  height: 100vh;
+  background-image: url("./src/assets/background_desktop.png");
+  background-size: contain;
+}
+
 *{
-  /* box-sizing: border-box; */
-  /* padding: 0; */
-  /* margin: 0; */
-  /* list-style: none; */
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  text-decoration: none;
+}
+
+html{
+  font-size: 62.5%;  /* 1rem = 10px */
+}
+
+body{
+  color: var(--color-black);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-normal);
+  font-family: "Poppins", sans-serif;
+}
+
+h1{
+  font-size: var(--text-h1);
+  font-weight: var(--font-weight-bold);
+}
+
+h2{
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-semibold);
+}
+
+h3{
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-semibold);
+}
+
+h4{
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-normal);
+}
+
+h5{
+  font-size: var(--text-h5);
+  font-weight: var(--font-weight-normal);
+}
+
+/* 24rem = 384px */
+@media (min-width: 24rem) {
+  html {
+    font-size: 40%; /* 1rem = 6.4px */
+  }
+  /* .sidebar-nav{
+    gap: var(--space-xl);
+  }
+
+  .body-container{
+    grid-template-columns: 0.5fr 1fr;
+    column-gap: var(--space-xl);
+  } */
+}
+
+
+/* 45.5rem = 728px */
+@media (min-width: 45.5rem) {
+  html {
+    font-size: 56.25%; /* 1rem = 9px */
+  }
+}
+
+
+@media (min-width: 62.5rem /* 62.5 x 16px = 1000px */) {
+  html {
+    font-size: 50%; /* 1rem = 8px */
+  }
+}
+
+@media (min-width: 75rem /* 1200px */) {
+  html {
+    font-size: 62.5%; /* 1rem = 10px */
+  }
+}
+
+@media (min-width: 90rem /* 1520px */) {
+  html {
+    font-size: 75%; /* 1rem = 12px */
+  }
 }

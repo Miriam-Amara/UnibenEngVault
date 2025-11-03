@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import "./authPage.css"
 
 
 function LoginForm() {
@@ -97,59 +98,77 @@ function LoginForm() {
   };
 
   return (
-  <form onSubmit={handleSubmit}>
-    <div>
-      <label>Email Address</label>
-      <input 
-        type="email"
-        name="email"
-        value={formData.email}
-        placeholder="Enter your email address"
-        onChange={handleChange}
-      />
-      {errors.email && <p>{errors.email}</p>}
+  <form onSubmit={handleSubmit} className="form">
+
+    <div className="form-field">
+      <label className="form-label">Email Address</label>
+      <div>
+        <input 
+          type="email"
+          name="email"
+          value={formData.email}
+          placeholder="Enter your email address"
+          onChange={handleChange}
+          className="form-input"
+        />
+        {errors.email && <p className="error">{errors.email}</p>}
+      </div>
     </div>
-    <div>
-      <label>Password</label>
-      <input
-        type={showPassword ? "text" : "password"}
-        name="password"
-        value={formData.password}
-        placeholder="Enter your password"
-        onChange={handleChange}
-      />
-      <button
-        type="button"
-        onClick={() => setShowPassword(!showPassword)}
-      >
-        {showPassword ? "👁️" : "🙈"}
-      </button>
-      {errors.password && <p>{errors.password}</p>}
+
+    <div className="form-field">
+      <label className="form-label">Password</label>
+      <div>
+        <div className="form-password">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            value={formData.password}
+            placeholder="Enter your password"
+            onChange={handleChange}
+            className="form-input-password"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="btn-password"
+          >
+            {showPassword ? "👁️" : "🙈"}
+          </button>
+        </div>
+        {errors.password && <p className="error">{errors.password}</p>}
+      </div>
     </div>
-    <button type="submit">Login</button>
+
+    <div className="btn-container">
+      <button type="submit" className="btn-submit">Login</button>
+    </div>
   </form>);
 }
 
 function Login(){
 
     return(
-        <div>
-            <div>
-                <h2>
-                    UnibenEngVault
-                </h2>
-                <h1>
+        <main className="auth-main-body">
+            <div className="auth-content">
+                <div>
+                  <h5>UnibenEngVault</h5>
+                </div>
+
+                <div className="auth-content-body">
+                  <h1>
                     Welcome <br />Back
-                </h1>
-                <p>
-                    Welcome back! Login and continue
-                    your learning journey.
-                </p>
+                  </h1>
+                  <p>
+                      Welcome back! Login and continue
+                      your learning journey.
+                  </p>
+                </div>
             </div>
-            <div>
+            <div className="auth-container">
+              <h3>Login</h3>
               <LoginForm />
             </div>
-        </div>
+        </main>
     )
 }
 

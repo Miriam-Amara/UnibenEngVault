@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import * as Yup from "yup";
+
 import { addLevelAPI, deleteLevelAPI, fetchLevelsAPI } from "../api/levels";
 import Layout from "../../components/Layout";
-import * as Yup from "yup";
+import "./mainPage.css"
 
 // Custom hook to fetch levels
 function useLevels({ pageSize = 8, pageNum = 1 }) {
@@ -117,31 +119,35 @@ function LevelPageView({ pageSize, pageNum }) {
   };
 
   return (
-    <main>
-      <section>
-        <h2>Levels</h2>
+    <main className="main">
+      <section className="header-section">
+        <div className="header-section-items">
+          <h3>Levels</h3>
+          <p>Add, edit, view and delete levels from UnibenEngVault</p>
+        </div>
       </section>
 
-      <section>
+      <section className="control-section">
         <div>
           <button onClick={() => setShowForm(true)}>Add Level</button>
         </div>
 
-        <div>
-          {showForm && (
-            <div>
-              <button onClick={() => setShowForm(false)}>Close</button>
-              <LevelForm onSuccess={() => {
-                setShowForm(false);
-                fetchLevels();
-              }} />
-            </div>
-          )}
+        {showForm && (
+          <div>
+            <button onClick={() => setShowForm(false)}>Close</button>
+            <LevelForm onSuccess={() => {
+              setShowForm(false);
+              fetchLevels();
+            }} />
+          </div>
+        )}
+      </section>    
 
-          {loading ? (
+      <section className="table-section">
+        {loading ? (
             <p>Loading levels...</p>
           ) : (
-            <table border="1" cellPadding="8" cellSpacing="0">
+            <table>
               <thead>
                 <tr>
                   <th>Name</th>
@@ -150,14 +156,17 @@ function LevelPageView({ pageSize, pageNum }) {
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="t-body">
                 {levels.map((level) => (
-                  <LevelRow key={level.id} level={level} onDelete={handleDelete} />
+                  <LevelRow
+                  key={level.id}
+                  level={level}
+                  onDelete={handleDelete}
+                  />
                 ))}
               </tbody>
             </table>
           )}
-        </div>
       </section>
     </main>
   );

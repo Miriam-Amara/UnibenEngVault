@@ -9,6 +9,7 @@ import {
 } from "../api/departments";
 import Layout from "../../components/Layout";
 import { showToast } from "../utils/toast";
+import "./mainPage.css"
 
 
 
@@ -123,18 +124,10 @@ function DepartmentRow({ dept, onEdit, onDelete }) {
     <tr>
       <td>{dept.dept_name}</td>
       <td>{dept.dept_code}</td>
-      <td>
-        {["100", "200", "300", "400", "500"].map((lvl) => (
-          <div key={lvl}>
-            {lvl}L - {dept.dept_level_courses_count[`level_${lvl}`]}
-          </div>
-        ))}
-      </td>
       <td>{dept.courses}</td>
       <td>{dept.id}</td>
       <td>{new Date(dept.created_at).toLocaleString()}</td>
-      <td>{new Date(dept.updated_at).toLocaleString()}</td>
-      <td>
+      <td className="actions">
         <button onClick={() => onEdit(dept)}>Edit</button>
         <button onClick={() => onDelete(dept.id)}>Delete</button>
       </td>
@@ -169,14 +162,17 @@ function DepartmentPageView({ pageSize, pageNum }) {
   };
 
   return (
-    <main>
-      <section>
-        <h2>Departments</h2>
+    <main className="main">
+      <section className="header-section">
+        <div className="header-section-items">
+          <h3>Departments</h3>
+          <p>Add, edit, view and delete departments from UnibenEngVault</p>
+        </div>
       </section>
 
 
       {/* forms, search, filters */}
-      <section>
+      <section className="control-section">
         <button
           onClick={() => {
             setSelectedDept(null);
@@ -204,20 +200,18 @@ function DepartmentPageView({ pageSize, pageNum }) {
       
 
       {/* table */}
-      <section>
+      <section className="table-section">
         {loading ? (
           <p>Loading departments...</p>
         ) : (
-          <table border="1" cellPadding="8" cellSpacing="0">
+          <table>
             <thead>
               <tr>
                 <th>Name</th>
                 <th>Code</th>
-                <th>Courses by Level</th>
                 <th>Total Courses</th>
                 <th>ID</th>
                 <th>Date Created</th>
-                <th>Last Updated</th>
                 <th>Actions</th>
               </tr>
             </thead>

@@ -122,7 +122,11 @@ def serve_file(file_id: str):
         abort(404, description="File does not exist.")
 
     file_upload = FileUpload()
-    url = file_upload.get_presigned_url(file.file_name)
+    if file.temp_filepath:
+        url = file_upload.get_presigned_url(file.temp_filepath)
+    else:
+        url = file_upload.get_presigned_url(file.permanent_filepath)
+    logger.debug(url)
     return jsonify({"url": url}), 200
 
 

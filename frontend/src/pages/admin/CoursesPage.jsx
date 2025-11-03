@@ -9,19 +9,10 @@ import { fetchLevelsAPI } from "../api/levels";
 import CourseForm from "../../components/CourseForm";
 import AssignCoursesForm from "../../components/AssignCoursesForm";
 import { showToast } from "../utils/toast";
-
+import "./mainPage.css"
 
 
 function CoursesTableView({
-
-  departments,
-  levels,
-  departmentId,
-  levelId,
-  semester,
-  onDepartmentChange,
-  onLevelChange,
-  onSemesterChange,
   courses,
   loading,
   onEdit,
@@ -33,91 +24,64 @@ function CoursesTableView({
 }) {
 
   return (
-    <div>
-      {/* Filters */}
-      <div>
-        <select value={departmentId} onChange={onDepartmentChange}>
-          <option value="">All Departments</option>
-          {departments.map((d) => (
-            <option key={d.id} value={d.id}>{d.dept_name}</option>
-          ))}
-        </select>
-
-        <select value={levelId} onChange={onLevelChange}>
-          <option value="">All Levels</option>
-          {levels.map((lvl) => (
-            <option key={lvl.id} value={lvl.id}>{lvl.name}</option>
-          ))}
-        </select>
-
-        <select value={semester} onChange={onSemesterChange}>
-          <option value="">Semester</option>
-          {["first", "second"].map((sems) => (
-            <option key={sems} value={sems}>{sems}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Table */}
-      <table>
-        <thead>
-          <tr>
-            <th>Course Code</th>
-            <th>Semester</th>
-            <th>Credit Load</th>
-            <th>Level</th>
-            <th>Title</th>
-            <th>Outline</th>
-            <th>Departments</th>
-            <th>No. of Files</th>
-            <th>ID</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loading ? (
-            <tr><td>Loading...</td></tr>
-          ) : courses.length === 0 ? (
-            <tr><td>No courses found.</td></tr>
-          ) : (
-            courses.map(course => (
-              <tr key={course.id}>
-                <td>{course.course_code}</td>
-                <td>{course.semester}</td>
-                <td>{course.credit_load}</td>
-                <td>{course.level}</td>
-                <td>{course.title}</td>
-                <td>{course.outline}</td>
-                <td>
-                  {course.departments?.length ? course.departments.join(", ") : "Unassigned"}
-                </td>
-                <td>{course.files}</td>
-                <td>{course.id}</td>
-                <td>
-                  <button onClick={() => onEdit(course)}>Edit</button>
-                  <button onClick={() => onDelete(course.id)}>Delete</button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-
-      {/* Pagination */}
-      <div>
-        <button
-          disabled={pageNum === 1}
-          onClick={() => onPageChange(pageNum - 1)}>
-            Prev
-        </button>
-        <span>Page {pageNum} — Total: {totalCourses}</span>
-        <button
-          disabled={pageNum * pageSize >= totalCourses}
-          onClick={() => onPageChange(pageNum + 1)}>
-            Next
-        </button>
-      </div>
-    </div>
+    <>
+      {/* Courses Table */}
+      <section className="table-section">
+        <table>
+          <thead>
+            <tr>
+              <th>Course Code</th>
+              <th>Semester</th>
+              <th>Credit Load</th>
+              <th>Level</th>
+              <th>Title</th>
+              <th>Departments</th>
+              <th>No. of Files</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td>Loading...</td></tr>
+            ) : courses.length === 0 ? (
+              <tr><td>No courses found.</td></tr>
+            ) : (
+              courses.map(course => (
+                <tr key={course.id}>
+                  <td>{course.course_code}</td>
+                  <td>{course.semester}</td>
+                  <td>{course.credit_load}</td>
+                  <td>{course.level}</td>
+                  <td>{course.title}</td>
+                  <td>
+                    {course.departments?.length ? course.departments.join(", ") : "Unassigned"}
+                  </td>
+                  <td>{course.files}</td>
+                  <td className="actions">
+                    <button onClick={() => onEdit(course)}>Edit</button>
+                    <button onClick={() => onDelete(course.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+        {/* Pagination */}
+        <div>
+          <button
+            disabled={pageNum === 1}
+            onClick={() => onPageChange(pageNum - 1)}>
+              Prev
+          </button>
+          <span>Page {pageNum} — Total: {totalCourses}</span>
+          <button
+            disabled={pageNum * pageSize >= totalCourses}
+            onClick={() => onPageChange(pageNum + 1)}>
+              Next
+          </button>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -190,20 +154,31 @@ function CoursesPageView() {
     }
   };
 
+  const onDepartmentChange=(e) => { setDepartmentId(e.target.value); setPageNum(1); }
+  const onLevelChange=(e) => { setLevelId(e.target.value); setPageNum(1); }
+  const onSemesterChange=(e) => { setSemester(e.target.value); setPageNum(1); }
+
   return (
-    <div>
-      <section>
-        <h2>Courses</h2>
+    <main className="main">
+      <section className="header-section">
+        <div className="header-section-items">
+          <h3>Courses</h3>
+          <p>Add, edit, view and delete courses from UnibenEngVault</p>
+        </div>
       </section>
 
-      <section>
-        <button onClick={() => { setEditData(null); setShowCourseForm(true); }}>
-          Add Course
-        </button>
+      <section className="control-section">
+        
+        {/* Buttons */}
+        <div className="control-section-buttons">
+          <button onClick={() => { setEditData(null); setShowCourseForm(true); }}>
+            Add Course
+          </button>
 
-        <button onClick={() => setShowAssignForm(true)}>
-          Assign/Remove Courses
-        </button>
+          <button onClick={() => setShowAssignForm(true)}>
+            Assign/Remove Courses
+          </button>
+        </div>
 
         {showCourseForm && (
         <CourseForm
@@ -217,32 +192,55 @@ function CoursesPageView() {
         />
       )}
 
-      {showAssignForm && (
-        <AssignCoursesForm
-          onClose={() => setShowAssignForm(false)}
-          onSaved={() => {
-            setShowAssignForm(false);
-            fetchCourses();
-            setPageNum(1);
-          }}
-          departments={departments}
-          courses={courses}
-        />
-      )}
+        {showAssignForm && (
+          <AssignCoursesForm
+            onClose={() => setShowAssignForm(false)}
+            onSaved={() => {
+              setShowAssignForm(false);
+              fetchCourses();
+              setPageNum(1);
+            }}
+            departments={departments}
+            courses={courses}
+          />
+        )}
+
+        {/* Filters */}
+        <div className="filter">
+          <div>
+            <label>Departments: </label>
+            <select value={departmentId} onChange={onDepartmentChange}>
+              <option value="">All Departments</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>{d.dept_name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label>Levels: </label>
+            <select value={levelId} onChange={onLevelChange}>
+              <option value="">All Levels</option>
+              {levels.map((lvl) => (
+                <option key={lvl.id} value={lvl.id}>{lvl.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label>Semester: </label>
+            <select value={semester} onChange={onSemesterChange}>
+              <option value="">Semester</option>
+              {["first", "second"].map((sems) => (
+                <option key={sems} value={sems}>{sems}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </section>
         
 
-      {/* Courses Table */}
-      <section>
-        <CoursesTableView
-          departments={departments}
-          levels={levels}
-          departmentId={departmentId}
-          levelId={levelId}
-          semester={semester}
-          onDepartmentChange={e => { setDepartmentId(e.target.value); setPageNum(1); }}
-          onLevelChange={e => { setLevelId(e.target.value); setPageNum(1); }}
-          onSemesterChange={e => { setSemester(e.target.value); setPageNum(1); }}
+        <CoursesTableView          
           courses={courses}
           loading={loading}
           onEdit={handleEdit}
@@ -252,8 +250,7 @@ function CoursesPageView() {
           onPageChange={setPageNum}
           pageSize={pageSize}
         />
-      </section>
-    </div>
+    </main>
   );
 }
 

@@ -1,0 +1,15 @@
+
+.header{
+  background-color: var(--color-primary);
+  padding: var(--space-md);
+  height: 10%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+h5{
+  color: var(--color-white);
+  font-size: var(--text-h4);
+}

@@ -1,0 +1,92 @@
+
+
+.main{
+  height: 100%;
+  margin-right: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+/* ---------- HEADER SECTION ---------- */
+.header-section{
+  height: 30%;
+  padding: var(--space-4xl) var(--space-xl) 0 0;
+}
+
+.header-section-items{
+  padding: var(--space-xl);
+  border: 1px solid var(--color-grey);
+  box-shadow: 3px 3px var(--color-grey);
+}
+
+
+
+/* ---------- CONTROL SECTION ---------- */
+
+.control-section{
+  height: 10%;
+  margin-top: var(--space-2xl);
+  padding: 0 var(--space-2xl);
+}
+
+.control-section-buttons{
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-xl);
+}
+
+.filter{
+  margin-top: var(--space-4xl);
+  display: flex;
+  gap: var(--space-6xl);
+}
+
+.filter-buttons{
+  display: flex;
+  gap: var(--space-md);
+}
+
+
+
+/* ---------- CONTROL SECTION ---------- */
+.table-section{
+  height: 60%;
+  padding: 0 var(--space-2xl);
+  overflow: scroll;
+}
+
+table {
+  display: table;
+  border-collapse: separate;
+  border-spacing: 2px;
+  text-indent: 0;
+  margin-top: var(--space-5xl);
+}
+
+th {
+  font-weight: var(--font-weight-normal);
+  text-align: center;
+  padding: 1px;
+  border-bottom: 2px solid var(--color-grey);
+}
+
+td {
+  text-align: left;
+  padding: var(--space-md);
+  border-top: 1px solid var(--color-grey);
+  border-bottom: 2px solid var(--color-grey);
+  overflow: hidden;
+}
+
+tr {
+  vertical-align: middle;
+}
+
+.actions{
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  height: 100%;
+}

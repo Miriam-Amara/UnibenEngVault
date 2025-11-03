@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import "./authPage.css"
 
 
 function useDepartments({pageSize, pageNum}) {
@@ -121,123 +122,158 @@ function RegisterForm({pageSize, pageNum}) {
   };
 
   return (
-  <form onSubmit={handleSubmit}>
-    <div>
-      <label>Email Address</label>
-      <input 
-        type="email"
-        name="email"
-        value={formData.email}
-        placeholder="Enter your email address"
-        onChange={handleChange}
-      />
-      {errors.email && <p>{errors.email}</p>}
+  <form onSubmit={handleSubmit} className="form">
+    <div className="form-field">
+      <label className="form-label">Email Address</label>
+      <div>
+        <input 
+          type="email"
+          name="email"
+          value={formData.email}
+          placeholder="Enter your email address"
+          onChange={handleChange}
+          className="form-input"
+        />
+        {errors.email && <p className="error">{errors.email}</p>}
+      </div>
     </div>
-    <div>
-      <label>Department</label>
-      <select
-        name="department"
-        value={formData.department}
-        onChange={handleChange}
-        disabled={departments.length === 0}
-      >
-        {departments.length === 0 ? (
-            <option value="">Loading departments...</option>
+
+    <div className="form-field">
+      <label className="form-label">Department</label>
+      <div>
+        <select
+          name="department"
+          value={formData.department}
+          onChange={handleChange}
+          disabled={departments.length === 0}
+          className="form-input"
+        >
+          {departments.length === 0 ? (
+              <option value="">Loading departments...</option>
+            ) : (
+              <>
+                <option value=""></option>
+                {departments.map((department) => (
+                  <option key={department.id} value={department.dept_name}>
+                    {department.dept_name}
+                  </option>
+                  ))}
+              </>
+            )}
+        </select>
+        {errors.department && <p className="error">{errors.department}</p>}
+      </div>
+    </div>
+
+    <div className="form-field">
+      <label className="form-label">Level</label>
+      <div>
+        <select
+          name="level"
+          value={formData.level}
+          onChange={handleChange}
+          disabled={levels.length === 0}
+          className="form-input"
+        >
+          {levels.length === 0 ? (
+            <option value="">Loading levels...</option>
           ) : (
             <>
-              <option value="">Select Department</option>
-              {departments.map((department) => (
-                <option key={department.id} value={department.dept_name}>
-                  {department.dept_name}
+              <option value=""></option>
+              {levels.map((level) => (
+                <option key={level.id} value={level.name}>
+                  {level.name}
                 </option>
-                ))}
+              ))}
             </>
           )}
-      </select>
-      {errors.department && <p>{errors.department}</p>}
+        </select>
+        {errors.level && <p className="error">{errors.level}</p>}
+      </div>
     </div>
-    <div>
-      <label>Level</label>
-      <select
-        name="level"
-        value={formData.level}
-        onChange={handleChange}
-        disabled={levels.length === 0}
-      >
-        {levels.length === 0 ? (
-          <option value="">Loading levels...</option>
-        ) : (
-          <>
-            <option value="">Select Level</option>
-            {levels.map((level) => (
-              <option key={level.id} value={level.name}>
-                {level.name}
-              </option>
-            ))}
-          </>
-        )}
-      </select>
-      {errors.level && <p>{errors.level}</p>}
+
+    <div className="form-field">
+      <label className="form-label">Password</label>
+        <div>
+          <div className="form-password">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              placeholder="Enter your password"
+              onChange={handleChange}
+              className="form-input-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="btn-password"
+            >
+              {showPassword ? "👁️" : "🙈"}
+            </button>
+          </div>
+        {errors.password && <p className="error">{errors.password}</p>}
+      </div>
     </div>
-    <div>
-      <label>Password</label>
-      <input
-        type={showPassword ? "text" : "password"}
-        name="password"
-        value={formData.password}
-        placeholder="Enter your password"
-        onChange={handleChange}
-      />
-      <button
-        type="button"
-        onClick={() => setShowPassword(!showPassword)}
-      >
-        {showPassword ? "👁️" : "🙈"}
-      </button>
-      {errors.password && <p>{errors.password}</p>}
+
+    <div className="form-field">
+      <label className="form-label">Confirm Password</label>
+      <div>
+        <div className="form-password">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirmpassword"
+            value={formData.confirmpassword}
+            placeholder="Confirm your password"
+            onChange={handleChange}
+            className="form-input-password"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="btn-password"
+          >
+            {showConfirmPassword ? "👁️" : "🙈"}
+          </button>
+        </div>
+        {errors.confirmpassword && <p className="error">{errors.confirmpassword}</p>}
+      </div>
     </div>
-    <div>
-      <label>Confirm Password</label>
-      <input
-        type={showConfirmPassword ? "text" : "password"}
-        name="confirmpassword"
-        value={formData.confirmpassword}
-        placeholder="Confirm your password"
-        onChange={handleChange}
-      />
-      <button
-        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-      >
-        {showConfirmPassword ? "👁️" : "🙈"}
-      </button>
-      {errors.confirmpassword && <p>{errors.confirmpassword}</p>}
+
+    <div className="btn-container">
+      <button type="submit" className="btn-submit">Register</button>
     </div>
-    <button type="submit">Register</button>
+
   </form>);
 }
 
 function Register(){
     console.log("Here in Register!")
     return(
-        <div>
-            <div>
-                <h2>
-                    UnibenEngVault
-                </h2>
-                <h1>
+        <main className="auth-main-body">
+            <div className="auth-content">
+                <div className="">
+                    <h5>UnibenEngVault</h5>
+                </div>
+                
+                <div className="auth-content-body">
+                  <h1>
                     Hello, <br />Welcome
-                </h1>
-                <p>
+                  </h1>
+                  <p>
                     Empower your learning,
                     register on UnibenEngVault to
                     access all materials and take
                     your studies to the next level!
-                </p>
+                  </p>
+                </div>
             </div>
-            <div>
+
+            <div className="auth-container">
+              <h3>Register</h3>
               <RegisterForm pageSize={13} pageNum={1} />
             </div>
-        </div>
+        </main>
     )
 }
 

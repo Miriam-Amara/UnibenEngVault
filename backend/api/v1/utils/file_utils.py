@@ -8,6 +8,7 @@ from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from flask import abort, request
 from mypy_boto3_s3 import S3Client
+from botocore.config import Config
 from mypy_boto3_s3.type_defs import CopySourceTypeDef
 from typing import Any, cast
 from uuid import uuid4
@@ -51,6 +52,7 @@ FILE_EXTENSION_MAPPING = {
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.getenv("AWS_REGION")
+logger.debug(AWS_REGION)
 AWS_S3_BUCKET = os.getenv('AWS_S3_BUCKET')
 
 if not AWS_ACCESS_KEY_ID:
@@ -247,11 +249,12 @@ class FileUpload:
     """
     s3: S3Client = boto3.client( # type: ignore
         "s3",
+        config=Config(signature_version="s3v4"),
         aws_access_key_id=AWS_ACCESS_KEY_ID,
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         region_name=AWS_REGION,
     )
-
+    logger.debug(AWS_REGION)
     def get_file_metadata(
             self,
             course: Course,
@@ -267,16 +270,25 @@ class FileUpload:
             "file_obj": file_obj
         }
     
-    def get_presigned_url(self, file_name: str):
+    def get_presigned_url(self, s3_key: str):
         """
+        Generate a presigned URL for downloading or viewing a file.
         """
-        return(
-            self.s3.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': AWS_S3_BUCKET, 'Key': file_name},
-            ExpiresIn=180 # 3 minutes
+        logger.debug(s3_key)
+        try:
+            presigned_url = self.s3.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": AWS_S3_BUCKET,
+                    "Key": s3_key,
+                    "ResponseContentDisposition": f'inline; filename="{s3_key.split("/")[-1]}"'
+                },
+                ExpiresIn=3600,  # 1 hour
             )
-        )
+            return presigned_url
+        except ClientError as e:
+            logger.error(f"Failed to generate presigned URL: {e}")
+            abort(500)
 
     def upload_file_to_s3_temp(
             self,
@@ -287,10 +299,13 @@ class FileUpload:
         """
         """
         try:
+            mime_type = magic.from_buffer(file_obj.read(2048), mime=True)
+            file_obj.seek(0)
             self.s3.upload_fileobj(
                 file_obj.stream,
                 cast(str, AWS_S3_BUCKET),
-                temp_file_path
+                temp_file_path,
+                ExtraArgs={"ContentType": mime_type}
             )
         except Exception as e:
             logger.error(e)
@@ -313,7 +328,8 @@ class FileUpload:
             self.s3.copy_object(
                 Bucket=aws_s3_bucket,
                 CopySource=copy_source,
-                Key=perm_file_path
+                Key=perm_file_path,
+                MetadataDirective='COPY'
             )
 
             copied_file = self.s3.head_object(

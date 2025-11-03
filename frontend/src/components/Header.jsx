@@ -1,6 +1,9 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+import "./Header.css"
+
+
 function Header({ menu, role }) {
   const navigate = useNavigate();
 
@@ -14,9 +17,11 @@ function Header({ menu, role }) {
   };
 
   return (
-    <header>
-      <div>{menu}</div>
-      <h3>UnibenEngVault</h3>
+    <header className="header">
+      <div>
+        <div>{menu}</div>
+        <h5>UnibenEngVault</h5>
+      </div>
       <div>{role}</div>
       <div>
         <button onClick={handleLogout}>
