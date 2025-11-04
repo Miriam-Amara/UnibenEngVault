@@ -136,81 +136,93 @@ function UserForm({ mode = "add", existingData = null, onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      {mode === "add" && (
-        <>
-          <div>
-            <label>Email</label>
-            <input
-              name="email"
-              type="email"
-              placeholder="Enter email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            {errors.email && <p>{errors.email}</p>}
+      <div className="main-form">
+          {mode === "add" && (
+            <div className="main-form">
+              <div className="main-form-input">
+                <label>Email</label>
+                <div>
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder="Enter email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                  {errors.email && <p className="error">{errors.email}</p>}
+                </div>
+              </div>
+
+              <div className="main-form-input">
+                <label>Password</label>
+                <div>
+                  <input
+                    name="password"
+                    type="text"
+                    placeholder="Enter password"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                  {errors.password && <p className="error">{errors.password}</p>}
+                </div>
+              </div>
+
+              <div className="main-form-input">
+                <label>Confirm Password</label>
+                <div>
+                  <input
+                    name="confirm_password"
+                    type="text"
+                    placeholder="Confirm password"
+                    value={formData.confirm_password}
+                    onChange={handleChange}
+                  />
+                  {errors.confirm_password && <p className="error">{errors.confirm_password}</p>}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="main-form-input">
+            <label>Department ID</label>
+            <div>
+              <input
+                name="department_id"
+                type="text"
+                placeholder="Enter department ID"
+                value={formData.department_id}
+                onChange={handleChange}
+              />
+              {errors.department_id && <p className="error">{errors.department_id}</p>}
+            </div>
           </div>
 
-          <div>
-            <label>Password</label>
-            <input
-              name="password"
-              type="text"
-              placeholder="Enter password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            {errors.password && <p>{errors.password}</p>}
+          <div className="main-form-input">
+            <label>Level ID</label>
+            <div>
+              <input
+                name="level_id"
+                type="text"
+                placeholder="Enter level ID"
+                value={formData.level_id}
+                onChange={handleChange}
+              />
+              {errors.level_id && <p className="error">{errors.level_id}</p>}
+            </div>
           </div>
 
-          <div>
-            <label>Confirm Password</label>
+          <div className="main-form-input">
+            <label>Is Admin</label>
             <input
-              name="confirm_password"
-              type="text"
-              placeholder="Confirm password"
-              value={formData.confirm_password}
+              name="is_admin"
+              type="checkbox"
+              checked={formData.is_admin}
               onChange={handleChange}
             />
-            {errors.confirm_password && <p>{errors.confirm_password}</p>}
           </div>
-        </>
-      )}
 
-      <div>
-        <label>Department ID</label>
-        <input
-          name="department_id"
-          type="text"
-          placeholder="Enter department ID"
-          value={formData.department_id}
-          onChange={handleChange}
-        />
-        {errors.department_id && <p>{errors.department_id}</p>}
-      </div>
-
-      <div>
-        <label>Level ID</label>
-        <input
-          name="level_id"
-          type="text"
-          placeholder="Enter level ID"
-          value={formData.level_id}
-          onChange={handleChange}
-        />
-        {errors.level_id && <p>{errors.level_id}</p>}
-      </div>
-
-      <div>
-        <label>Is Admin</label>
-        <input
-          name="is_admin"
-          type="checkbox"
-          checked={formData.is_admin}
-          onChange={handleChange}
-        />
-      </div>
-
-      <button type="submit">{mode === "edit" ? "Update" : "Register"}</button>
+          <button type="submit">{mode === "edit" ? "Update" : "Register"}</button>
+        </div>
     </form>
   );
 }
@@ -306,9 +318,11 @@ function UsersPageView({ pageSize, pageNum }) {
         >
           Register User
         </button>
+
         {showForm && (
-          <div>
-            <button onClick={() => setShowForm(false)}>Close</button>
+        <div className="modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowForm(false)}>Close</button>
             <UserForm
               mode={formMode}
               existingData={selectedUser}
@@ -318,7 +332,10 @@ function UsersPageView({ pageSize, pageNum }) {
               }}
             />
           </div>
-        )}
+        </div>
+      )}
+      
+
         <div className="filter">
           <div>
             <label>Department:{" "}</label>

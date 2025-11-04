@@ -11,6 +11,7 @@
 
 /* ---------- HEADER SECTION ---------- */
 .header-section{
+  width: 90%;
   height: 30%;
   padding: var(--space-4xl) var(--space-xl) 0 0;
 }
@@ -89,4 +90,99 @@ tr {
   gap: 1rem;
   align-items: center;
   height: 100%;
+}
+
+
+/* Modal Overlay - dark transparent background */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal box itself */
+.modal-content {
+  background: white;
+  padding: 4rem;
+  border-radius: 12px;
+  width: 60%;
+  height: 70%;
+  max-width: 60rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-content-file{
+  max-width: 80rem;
+}
+
+.modal-content h4{
+  margin-bottom: 3rem;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: var(--text-base);
+  cursor: pointer;
+  color: var(--color-black);
+}
+
+.modal-close:hover {
+  color: var(--color-black);
+}
+
+/* Simple animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+
+
+/* ---------- FORM ---------- */
+.main-form{
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.main-form-input{
+  display: flex;
+  gap: 1.2rem;
+}
+
+.main-form-input input, .main-form-input select{
+  font-size: var(--text-base);
+  width: 20rem;
+  height: 3rem;
+}
+
+.main-form-input textarea{
+  width: 40rem;
+  height: 20rem;
+}
+
+.course-select{
+  padding: 5px;
+  border: 1px solid var(--color-black);
+  border-radius: 3px;
+  height: 10rem;
+  overflow-y: scroll;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }

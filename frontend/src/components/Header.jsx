@@ -23,7 +23,7 @@ function Header({ menu, role }) {
         <h5>UnibenEngVault</h5>
       </div>
       <div>{role}</div>
-      <div>
+      <div className="btn-logout">
         <button onClick={handleLogout}>
           Logout
         </button>

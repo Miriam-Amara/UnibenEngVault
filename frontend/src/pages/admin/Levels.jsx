@@ -70,19 +70,21 @@ function LevelForm({ onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <select name="name" value={formData.name} onChange={handleChange}>
-        <option value="">Select Level</option>
-          {[100, 200, 300, 400, 500].map((lvl) => (
-            <option key={lvl} value={lvl}>
-              {lvl}
-            </option>
-          ))}
-        </select>
-        {errors.name && <p className="error">{errors.name}</p>}
-      </div>
+      <div className="main-form">
+        <div>
+          <select name="name" value={formData.name} onChange={handleChange}>
+          <option value="">Select Level</option>
+            {[100, 200, 300, 400, 500].map((lvl) => (
+              <option key={lvl} value={lvl}>
+                {lvl}
+              </option>
+            ))}
+          </select>
+          {errors.name && <p className="error">{errors.name}</p>}
+        </div>
 
-      <button type="submit">Add</button>
+        <button type="submit">Add</button>
+      </div>
     </form>
   );
 }
@@ -133,13 +135,15 @@ function LevelPageView({ pageSize, pageNum }) {
         </div>
 
         {showForm && (
-          <div>
-            <button onClick={() => setShowForm(false)}>Close</button>
+        <div className="modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowForm(false)}>Close</button>
             <LevelForm onSuccess={() => {
               setShowForm(false);
               fetchLevels();
             }} />
           </div>
+        </div>
         )}
       </section>    
 

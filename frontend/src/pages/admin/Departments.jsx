@@ -89,31 +89,37 @@ function DepartmentForm({ mode = "add", existingData = null, onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label>Department Name</label>
-        <input
-          type="text"
-          name="dept_name"
-          value={formData.dept_name}
-          placeholder="Enter department name"
-          onChange={handleChange}
-        />
-        {errors.dept_name && <p>{errors.dept_name}</p>}
-      </div>
+      <div className="main-form">
+        <div className="main-form-input">
+          <label>Department Name</label>
+          <div>
+            <input
+              type="text"
+              name="dept_name"
+              value={formData.dept_name}
+              placeholder="Enter department name"
+              onChange={handleChange}
+            />
+            {errors.dept_name && <p className="error">{errors.dept_name}</p>}
+          </div>
+        </div>
 
-      <div>
-        <label>Department Code</label>
-        <input
-          type="text"
-          name="dept_code"
-          value={formData.dept_code}
-          placeholder="Enter department code"
-          onChange={handleChange}
-        />
-        {errors.dept_code && <p>{errors.dept_code}</p>}
-      </div>
+        <div className="main-form-input">
+          <label>Department Code</label>
+          <div>
+            <input
+            type="text"
+            name="dept_code"
+            value={formData.dept_code}
+            placeholder="Enter department code"
+            onChange={handleChange}
+          />
+          {errors.dept_code && <p className="error">{errors.dept_code}</p>}
+          </div>
+        </div>
 
-      <button type="submit">{mode === "edit" ? "Update" : "Add"}</button>
+        <button type="submit">{mode === "edit" ? "Update" : "Add"}</button>
+      </div>
     </form>
   );
 }
@@ -126,7 +132,6 @@ function DepartmentRow({ dept, onEdit, onDelete }) {
       <td>{dept.dept_code}</td>
       <td>{dept.courses}</td>
       <td>{dept.id}</td>
-      <td>{new Date(dept.created_at).toLocaleString()}</td>
       <td className="actions">
         <button onClick={() => onEdit(dept)}>Edit</button>
         <button onClick={() => onDelete(dept.id)}>Delete</button>
@@ -184,16 +189,18 @@ function DepartmentPageView({ pageSize, pageNum }) {
         </button>
         
         {showForm && (
-          <div>
-            <button onClick={() => setShowForm(false)}>Close</button>
-            <DepartmentForm
-              mode={formMode}
-              existingData={selectedDept}
-              onSuccess={() => {
-                setShowForm(false);
-                fetchDepartments();
-              }}
-            />
+          <div className="modal-overlay" onClick={() => setShowForm(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowForm(false)}>Close</button>
+              <DepartmentForm
+                mode={formMode}
+                existingData={selectedDept}
+                onSuccess={() => {
+                  setShowForm(false);
+                  fetchDepartments();
+                }}
+              />
+            </div>
           </div>
         )}
       </section>
@@ -211,7 +218,6 @@ function DepartmentPageView({ pageSize, pageNum }) {
                 <th>Code</th>
                 <th>Total Courses</th>
                 <th>ID</th>
-                <th>Date Created</th>
                 <th>Actions</th>
               </tr>
             </thead>

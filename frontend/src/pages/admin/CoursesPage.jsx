@@ -181,28 +181,36 @@ function CoursesPageView() {
         </div>
 
         {showCourseForm && (
-        <CourseForm
-          onClose={() => setShowCourseForm(false)}
-          onSaved={() => {
-            setShowCourseForm(false);
-            fetchCourses();
-            setPageNum(1);
-          }}
-          editData={editData}
-        />
-      )}
+          <div className="modal-overlay" onClick={() => setShowForm(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <CourseForm
+                onClose={() => setShowCourseForm(false)}
+                onSaved={() => {
+                  setShowCourseForm(false);
+                  fetchCourses();
+                  setPageNum(1);
+                }}
+                editData={editData}
+              />
+            </div>
+          </div>
+        )}
 
         {showAssignForm && (
-          <AssignCoursesForm
-            onClose={() => setShowAssignForm(false)}
-            onSaved={() => {
-              setShowAssignForm(false);
-              fetchCourses();
-              setPageNum(1);
-            }}
-            departments={departments}
-            courses={courses}
-          />
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <AssignCoursesForm
+                onClose={() => setShowAssignForm(false)}
+                onSaved={() => {
+                  setShowAssignForm(false);
+                  fetchCourses();
+                  setPageNum(1);
+                }}
+                departments={departments}
+                courses={courses}
+              />
+            </div>
+          </div>
         )}
 
         {/* Filters */}

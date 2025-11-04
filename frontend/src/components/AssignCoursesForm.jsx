@@ -68,44 +68,12 @@ export default function AssignCoursesForm({
 
 
   return (
-    <div>
       <div>
-        <h2>
-          {mode === "assign" ? "Assign Courses" : "Remove Courses"}
-        </h2>
+        <button className="modal-close" type="button" onClick={onClose}>Cancel</button>
+        <h4>{mode === "assign" ? "Assign Courses" : "Remove Courses"}</h4>
         <form onSubmit={handleSubmit}>
-          <div>
-            <select
-              value={departmentId}
-              onChange={(e) => setDepartmentId(e.target.value)}
-            >
-              <option value="">Select Department</option>
-              {departments.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.dept_name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <div className="main-form">
 
-          <div>
-            {courses.map((c) => (
-              <label
-                key={c.id}
-              >
-                <div>
-                <input
-                  type="checkbox"
-                  checked={selectedCourses.includes(c.id)}
-                  onChange={() => toggleCourse(c.id)}
-                />
-                  {c.course_code}
-                </div>
-              </label>
-            ))}
-          </div>
-
-          <div>
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value)}
@@ -115,22 +83,46 @@ export default function AssignCoursesForm({
             </select>
 
             <div>
-              <button
-                type="button"
-                onClick={onClose}
+              <select
+                value={departmentId}
+                onChange={(e) => setDepartmentId(e.target.value)}
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Save"}
-              </button>
+                <option value="">Select Department</option>
+                {departments.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.dept_name}
+                  </option>
+                ))}
+              </select>
             </div>
+
+            <div className="course-select">
+              {courses.map((c) => (
+                <label
+                  key={c.id}
+                >
+                  <div>
+                  <input
+                    type="checkbox"
+                    checked={selectedCourses.includes(c.id)}
+                    onChange={() => toggleCourse(c.id)}
+                  />
+                    {c.course_code}
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            <button
+              type="submit"
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+
+
           </div>
         </form>
       </div>
-    </div>
   );
 }

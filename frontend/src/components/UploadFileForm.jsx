@@ -134,40 +134,52 @@ export default function UploadMultipleFilesForm({ onClose, onUploaded }) {
   }
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-md max-w-4xl mx-auto">
-      <h2 className="text-lg font-semibold mb-4">Upload Multiple Files</h2>
+    <div>
+      <button
+        type="button"
+        onClick={onClose}
+        className="modal-close"
+        disabled={uploading}
+      >
+        Close
+      </button>
+      <h4>Upload Multiple Files</h4>
 
       {/* Course autocomplete */}
-      <div className="mb-6 relative">
-        <label className="block text-sm font-medium mb-1" htmlFor="course_search">Course (type to search)</label>
-        <input
-          id="course_search"
-          type="text"
-          value={courseSearch}
-          onChange={handleCourseSearchChange}
-          ref={courseInputRef}
-          className="border rounded-md px-3 py-2 w-full"
-          autoComplete="off"
-          placeholder="Start typing course code..."
-        />
-        {formik.touched.course_id && formik.errors.course_id && (
-          <p className="text-red-600 text-sm">{formik.errors.course_id}</p>
-        )}
+      <div className="main-form">
+        <div className="main-form-input">
+          <label>Course (type to search)</label>
+          <div>
+            <input
+              id="course_search"
+              type="text"
+              value={courseSearch}
+              onChange={handleCourseSearchChange}
+              ref={courseInputRef}
+              autoComplete="off"
+              placeholder="Start typing course code..."
+            />
+            {formik.touched.course_id && formik.errors.course_id && (
+              <p className="error">{formik.errors.course_id}</p>
+            )}
+          </div>
+        </div>
 
         {/* Suggestions dropdown */}
-        {filteredCourses.length > 0 && !selectedCourse && (
-          <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full max-h-48 overflow-y-auto mt-1 shadow-lg">
-            {filteredCourses.slice(0, 10).map((c) => (
-              <li
-                key={c.id}
-                className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
-                onClick={() => handleCourseSelect(c)}
-              >
-                {c.course_code} - {c.course_title}
-              </li>
-            ))}
-          </ul>
-        )}
+        <div>
+          {filteredCourses.length > 0 && !selectedCourse && (
+            <ul>
+              {filteredCourses.slice(0, 10).map((c) => (
+                <li
+                  key={c.id}
+                  onClick={() => handleCourseSelect(c)}
+                >
+                  {c.course_code} - {c.semester}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       <FormikProvider value={formik}>
@@ -177,13 +189,13 @@ export default function UploadMultipleFilesForm({ onClose, onUploaded }) {
             name="files"
             render={arrayHelpers => (
               <>
-                <table className="w-full table-auto border-collapse mb-4">
+                <table>
                   <thead>
                     <tr>
-                      <th className="border px-2 py-1 text-left">File Type</th>
-                      <th className="border px-2 py-1 text-left">Session</th>
-                      <th className="border px-2 py-1 text-left">Select File</th>
-                      <th className="border px-2 py-1 text-left">Remove</th>
+                      <th>File Type</th>
+                      <th>Session</th>
+                      <th>Select File</th>
+                      <th>Remove</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -210,7 +222,7 @@ export default function UploadMultipleFilesForm({ onClose, onUploaded }) {
                               ))}
                             </select>
                             {touchedFileRow.file_type && fileTypeError && (
-                              <p className="text-red-600 text-xs">{fileTypeError}</p>
+                              <p className="error">{fileTypeError}</p>
                             )}
                           </td>
 
@@ -233,7 +245,7 @@ export default function UploadMultipleFilesForm({ onClose, onUploaded }) {
                               }`}
                             />
                             {touchedFileRow.session && sessionError && (
-                              <p className="text-red-600 text-xs">{sessionError}</p>
+                              <p className="error">{sessionError}</p>
                             )}
                           </td>
 
@@ -245,20 +257,18 @@ export default function UploadMultipleFilesForm({ onClose, onUploaded }) {
                               onChange={(e) => {
                                 formik.setFieldValue(`files[${index}].file`, e.currentTarget.files[0]);
                               }}
-                              className="w-full"
                             />
                             {touchedFileRow.file && fileError && (
-                              <p className="text-red-600 text-xs">{fileError}</p>
+                              <p className="error">{fileError}</p>
                             )}
                           </td>
 
                           {/* Remove row */}
-                          <td className="border px-2 py-1 text-center">
+                          <td>
                             <button
                               type="button"
                               disabled={formik.values.files.length === 1}
                               onClick={() => arrayHelpers.remove(index)}
-                              className="text-red-600 hover:text-red-900"
                             >
                               &times;
                             </button>
@@ -279,7 +289,6 @@ export default function UploadMultipleFilesForm({ onClose, onUploaded }) {
                       file: null,
                     })
                   }
-                  className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
                 >
                   Add Another File
                 </button>
@@ -289,14 +298,6 @@ export default function UploadMultipleFilesForm({ onClose, onUploaded }) {
 
           {/* Buttons */}
           <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded"
-              disabled={uploading}
-            >
-              Cancel
-            </button>
             <button
               type="submit"
               disabled={uploading}

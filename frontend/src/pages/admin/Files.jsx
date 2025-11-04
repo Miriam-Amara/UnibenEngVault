@@ -109,8 +109,8 @@ function FilesPageView() {
 
         {/* Upload Files Modal */}
         {showUploadForm && (
-          <div>
-            <div>
+          <div className="modal-overlay" onClick={() => setShowForm(false)}>
+            <div className="modal-content modal-content-file" onClick={(e) => e.stopPropagation()}>
               <UploadMultipleFilesForm
                 onClose={() => setShowUploadForm(false)}
                 onUploaded={() => {

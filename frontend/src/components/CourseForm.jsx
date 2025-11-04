@@ -134,97 +134,112 @@ export default function CourseForm({ onClose, onSaved, editData }) {
 
   return (
     <div>
-      <h2>{editData ? "Update Course" : "Add New Course"}</h2>
+      <h4>{editData ? "Update Course" : "Add New Course"}</h4>
       <form onSubmit={handleSubmit} noValidate>
-        <div>
-          <label>Course Code</label>
-          <input
-            type="text"
-            name="course_code"
-            value={form.course_code}
-            onChange={handleChange}
-            placeholder="Enter course code"
-          />
-          {errors.course_code && <p className="error">{errors.course_code}</p>}
-        </div>
+        <div className="main-form">
 
-        <div>
-          <label>Semester</label>
-          <select name="semester" value={form.semester} onChange={handleChange}>
-            <option value="">Select Semester</option>
-            <option value="First">First</option>
-            <option value="Second">Second</option>
-          </select>
-          {errors.semester && <p className="error">{errors.semester}</p>}
-        </div>
+          <div className="main-form-input">
+            <label>Course Code</label>
+            <div>
+              <input
+                type="text"
+                name="course_code"
+                value={form.course_code}
+                onChange={handleChange}
+                placeholder="Enter course code"
+              />
+              {errors.course_code && <p className="error">{errors.course_code}</p>}
+            </div>
+          </div>
 
-        <div>
-          <label>Credit Load</label>
-          <input
-            type="number"
-            name="credit_load"
-            value={form.credit_load}
-            onChange={handleChange}
-            placeholder="Credit Load"
-            min={1}
-            max={10}
-          />
-          {errors.credit_load && <p className="error">{errors.credit_load}</p>}
-        </div>
+          <div className="main-form-input">
+            <label>Semester</label>
+            <div>
+              <select name="semester" value={form.semester} onChange={handleChange}>
+              <option value=""></option>
+              <option value="First">First</option>
+              <option value="Second">Second</option>
+            </select>
+            {errors.semester && <p className="error">{errors.semester}</p>}
+            </div>
+          </div>
 
-        <div>
-          <label>Level</label>
-          <select name="level_id" value={form.level_id} onChange={handleChange}>
-          <option value="">Select Level</option>
-            {levels.map((lvl) => (
-              <option key={lvl.id} value={lvl.id}>
-                {lvl.level || lvl.name || `Level ${lvl.id}`}
-              </option>
-            ))}
-          </select>
-          {errors.level_id && <p className="error">{errors.level_id}</p>}
-        </div>
+          <div className="main-form-input">
+            <label>Credit Load</label>
+            <div>
+              <input
+                type="number"
+                name="credit_load"
+                value={form.credit_load}
+                onChange={handleChange}
+                placeholder="Credit Load"
+                min={1}
+                max={10}
+              />
+              {errors.credit_load && <p className="error">{errors.credit_load}</p>}
+            </div>
+          </div>
 
-        <div>
-          <label>Title</label>
-          <input
-            type="text"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            placeholder="Enter course title"
-          />
-          {errors.title && <p className="error">{errors.title}</p>}
-        </div>
+          <div className="main-form-input">
+            <label>Level</label>
+            <div>
+              <select name="level_id" value={form.level_id} onChange={handleChange}>
+              <option value=""></option>
+                {levels.map((lvl) => (
+                  <option key={lvl.id} value={lvl.id}>
+                    {lvl.level || lvl.name || `Level ${lvl.id}`}
+                  </option>
+                ))}
+              </select>
+              {errors.level_id && <p className="error">{errors.level_id}</p>}
+            </div>
+          </div>
 
-        <div>
-          <label>Course Outline</label>
-          <textarea
-            name="outline"
-            value={form.outline}
-            onChange={handleChange}
-            placeholder="Enter course outline"
-            rows={4}
-          />
-          {errors.outline && <p className="error">{errors.outline}</p>}
-        </div>
+          <div className="main-form-input">
+            <label>Is course still being offered?</label>
+              <select name="is_active" value={String(form.is_active)} onChange={handleChange}>
+              <option value="">Select</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
 
-        <div>
-          <label>Is course still being offered?</label>
-            <select name="is_active" value={String(form.is_active)} onChange={handleChange}>
-            <option value="">Select</option>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </select>
-        </div>
+          <div className="main-form-input">
+            <label>Title</label>
+            <div>
+              <input
+                type="text"
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                placeholder="Enter course title"
+              />
+              {errors.title && <p className="error">{errors.title}</p>}
+            </div>
+          </div>
 
-        <div>
-          <button type="button" onClick={onClose}>
-            Cancel
-          </button>
-          <button type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Save"}
-          </button>
+          <div className="main-form-input">
+            <label>Course Outline</label>
+            <div>
+              <textarea
+                name="outline"
+                value={form.outline}
+                onChange={handleChange}
+                placeholder="Enter course outline"
+                rows={4}
+              />
+              {errors.outline && <p className="error">{errors.outline}</p>}
+            </div>
+          </div>
+
+          <div>
+            <button className="modal-close" type="button" onClick={onClose}>
+              Close
+            </button>
+            <button type="submit" disabled={saving}>
+              {saving ? "Saving..." : "Save"}
+            </button>
+          </div>
         </div>
       </form>
     </div>
