@@ -103,13 +103,14 @@ function FilesPageView() {
       <section className="control-section">
         <button
           onClick={() => setShowUploadForm(true)}
+          className="btn-lg"
         >
           + Upload Files
         </button>
 
         {/* Upload Files Modal */}
         {showUploadForm && (
-          <div className="modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="modal-overlay">
             <div className="modal-content modal-content-file" onClick={(e) => e.stopPropagation()}>
               <UploadMultipleFilesForm
                 onClose={() => setShowUploadForm(false)}
@@ -130,8 +131,8 @@ function FilesPageView() {
               key={s}
               className={` ${
                 status === s
-                  ? ""
-                  : ""
+                  ? "btn-lg"
+                  : "btn-lg"
               }`}
               onClick={() => {
                 setStatus(s);
@@ -178,6 +179,7 @@ function FilesPageView() {
             <button
               onClick={fetchFiles}
               disabled={loading}
+              className="btn-grey"
             >
               Go
             </button>
@@ -208,17 +210,19 @@ function FilesPageView() {
                 <tr key={file.id}>
                   <td>{file.file_name}</td>
                   <td>{file.status}</td>
-                  <td><button onClick={() => handleView(file.id)}>view</button></td>
+                  <td><button onClick={() => handleView(file.id)} className="btn-sm">view</button></td>
                   <td className="actions">
                     {status === "pending" && (
                       <>
                         <button
                           onClick={() => handleApprove(file.id)}
+                          className="btn-md"
                         >
                           Approve
                         </button>
                         <button
                           onClick={() => handleReject(file.id)}
+                          className="btn-grey"
                         >
                           Reject
                         </button>
@@ -226,6 +230,7 @@ function FilesPageView() {
                     )}
                     <button
                       onClick={() => handleDelete(file.id)}
+                      className="btn-dg"
                     >
                       Delete
                     </button>

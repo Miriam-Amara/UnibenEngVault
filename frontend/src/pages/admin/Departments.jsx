@@ -90,6 +90,7 @@ function DepartmentForm({ mode = "add", existingData = null, onSuccess }) {
   return (
     <form onSubmit={handleSubmit}>
       <div className="main-form">
+        <h4>Add Departments</h4>
         <div className="main-form-input">
           <label>Department Name</label>
           <div>
@@ -118,7 +119,7 @@ function DepartmentForm({ mode = "add", existingData = null, onSuccess }) {
           </div>
         </div>
 
-        <button type="submit">{mode === "edit" ? "Update" : "Add"}</button>
+        <button type="submit" className="btn-sm">{mode === "edit" ? "Update" : "Add"}</button>
       </div>
     </form>
   );
@@ -133,8 +134,8 @@ function DepartmentRow({ dept, onEdit, onDelete }) {
       <td>{dept.courses}</td>
       <td>{dept.id}</td>
       <td className="actions">
-        <button onClick={() => onEdit(dept)}>Edit</button>
-        <button onClick={() => onDelete(dept.id)}>Delete</button>
+        <button className= "btn-sm" onClick={() => onEdit(dept)}>Edit</button>
+        <button className= "btn-dg" onClick={() => onDelete(dept.id)}>Delete</button>
       </td>
     </tr>
   );
@@ -184,6 +185,7 @@ function DepartmentPageView({ pageSize, pageNum }) {
             setFormMode("add");
             setShowForm(true);
           }}
+          className="btn-lg"
         >
           Add Department
         </button>

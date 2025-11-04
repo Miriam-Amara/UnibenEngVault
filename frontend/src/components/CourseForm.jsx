@@ -236,7 +236,7 @@ export default function CourseForm({ onClose, onSaved, editData }) {
             <button className="modal-close" type="button" onClick={onClose}>
               Close
             </button>
-            <button type="submit" disabled={saving}>
+            <button type="submit" disabled={saving} className="btn-sm">
               {saving ? "Saving..." : "Save"}
             </button>
           </div>

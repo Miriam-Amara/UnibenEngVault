@@ -137,14 +137,14 @@ tr {
   right: 1.5rem;
   background: none;
   border: none;
+  border-radius: 3px;
+  padding: 2px 4px 2px 4px;
   font-size: var(--text-base);
   cursor: pointer;
-  color: var(--color-black);
+  color: var(--color-white);
+  background-color: var(--color-warn);
 }
 
-.modal-close:hover {
-  color: var(--color-black);
-}
 
 /* Simple animation */
 @keyframes fadeIn {
@@ -177,6 +177,12 @@ tr {
   height: 20rem;
 }
 
+.upload-file-container{
+  margin-top: 2rem;
+  display: flex;
+  gap: 5rem;
+}
+
 .course-select{
   padding: 5px;
   border: 1px solid var(--color-black);
@@ -185,4 +191,57 @@ tr {
   overflow-y: scroll;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+}
+
+
+
+/* ---------- BUTTONS ---------- */
+
+.btn-pg, .btn-sm, .btn-dg, .btn-md, .btn-lg, .btn-grey{
+  width: fit-content;
+  border: none;
+  border-radius: 3px;
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+.btn-sm, .btn-md, .btn-lg{
+  background-color: var(--color-secondary);
+}
+
+
+
+/* button pagination */
+.btn-pg{
+  margin: 1rem;
+  padding: 3px 4px 3px 4px;
+  color: var(--color-black);
+  background-color: var(--color-primary-light);
+}
+
+/* button small */
+.btn-sm{
+  padding: 3px 6px 3px 6px;
+}
+
+/* button danger */
+.btn-dg{
+  padding: 3px 4px 3px 4px;
+  background-color: var(--color-warn);
+}
+
+/* button medium */
+.btn-md{
+  padding: 4px 6px 4px 6px;
+}
+
+/* button large */
+.btn-lg{
+  padding: 4px 6px 4px 6px;
+}
+
+
+.btn-grey{
+  padding: 3px 4px 3px 4px;
+  background-color: var(--color-grey);
 }

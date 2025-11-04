@@ -69,7 +69,7 @@ export default function AssignCoursesForm({
 
   return (
       <div>
-        <button className="modal-close" type="button" onClick={onClose}>Cancel</button>
+        <button className="modal-close" type="button" onClick={onClose}>Close</button>
         <h4>{mode === "assign" ? "Assign Courses" : "Remove Courses"}</h4>
         <form onSubmit={handleSubmit}>
           <div className="main-form">
@@ -116,6 +116,7 @@ export default function AssignCoursesForm({
             <button
               type="submit"
               disabled={saving}
+              className="btn-sm"
             >
               {saving ? "Saving..." : "Save"}
             </button>

@@ -139,6 +139,8 @@ function UserForm({ mode = "add", existingData = null, onSuccess }) {
       <div className="main-form">
           {mode === "add" && (
             <div className="main-form">
+
+              <h4>Register Users</h4>
               <div className="main-form-input">
                 <label>Email</label>
                 <div>
@@ -221,7 +223,7 @@ function UserForm({ mode = "add", existingData = null, onSuccess }) {
             />
           </div>
 
-          <button type="submit">{mode === "edit" ? "Update" : "Register"}</button>
+          <button type="submit" className="btn-md">{mode === "edit" ? "Update" : "Register"}</button>
         </div>
     </form>
   );
@@ -240,8 +242,8 @@ function UserRow({ user, onEdit, onDelete }) {
       <td>{new Date(user.created_at).toLocaleString()}</td>
       <td>{new Date(user.updated_at).toLocaleString()}</td>
       <td>
-        <button onClick={() => onEdit(user)}>Edit</button>
-        <button onClick={() => onDelete(user.id)}>Delete</button>
+        <button onClick={() => onEdit(user)} className="btn-small">Edit</button>
+        <button onClick={() => onDelete(user.id)} className="btn-dg">Delete</button>
       </td>
     </tr>
   );
@@ -315,6 +317,7 @@ function UsersPageView({ pageSize, pageNum }) {
             setFormMode("add");
             setShowForm(true);
           }}
+          className="btn-lg"
         >
           Register User
         </button>
@@ -367,6 +370,7 @@ function UsersPageView({ pageSize, pageNum }) {
           <div>
             <button
               onClick={() => fetchUsers()}
+              className="btn-sm"
             >
               Filter
             </button>

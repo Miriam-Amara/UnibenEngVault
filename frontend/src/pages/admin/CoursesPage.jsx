@@ -58,8 +58,8 @@ function CoursesTableView({
                   </td>
                   <td>{course.files}</td>
                   <td className="actions">
-                    <button onClick={() => onEdit(course)}>Edit</button>
-                    <button onClick={() => onDelete(course.id)}>Delete</button>
+                    <button onClick={() => onEdit(course)} className="btn-sm">Edit</button>
+                    <button onClick={() => onDelete(course.id)} className="btn-dg">Delete</button>
                   </td>
                 </tr>
               ))
@@ -70,13 +70,17 @@ function CoursesTableView({
         <div>
           <button
             disabled={pageNum === 1}
-            onClick={() => onPageChange(pageNum - 1)}>
+            onClick={() => onPageChange(pageNum - 1)}
+            className="btn-pg"
+          >
               Prev
           </button>
           <span>Page {pageNum} — Total: {totalCourses}</span>
           <button
             disabled={pageNum * pageSize >= totalCourses}
-            onClick={() => onPageChange(pageNum + 1)}>
+            onClick={() => onPageChange(pageNum + 1)}
+            className="btn-pg"
+          >
               Next
           </button>
         </div>
@@ -171,17 +175,21 @@ function CoursesPageView() {
         
         {/* Buttons */}
         <div className="control-section-buttons">
-          <button onClick={() => { setEditData(null); setShowCourseForm(true); }}>
+          <button onClick={() => { setEditData(null); setShowCourseForm(true); }}
+            className="btn-md"
+          >
             Add Course
           </button>
 
-          <button onClick={() => setShowAssignForm(true)}>
+          <button onClick={() => setShowAssignForm(true)}
+            className="btn-lg"
+          >
             Assign/Remove Courses
           </button>
         </div>
 
         {showCourseForm && (
-          <div className="modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="modal-overlay">
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <CourseForm
                 onClose={() => setShowCourseForm(false)}

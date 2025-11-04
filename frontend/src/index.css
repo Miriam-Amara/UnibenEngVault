@@ -5,10 +5,12 @@
   --color-primary: #807AD8;
   --color-primary-light: #CDCBED;
   --color-secondary: #07024C;
-  --color-grey: #D8DAE9;
+  --color-grey: #B0B3C3;
   --color-black: #000;
   --color-white: #fff;
   --color-error: #E63946;
+  --color-warn: #B22222;
+
 
   /* FONT SIZE */
   --text-xs: 1.0rem;

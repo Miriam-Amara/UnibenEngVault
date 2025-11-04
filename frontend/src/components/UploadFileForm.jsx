@@ -250,7 +250,7 @@ export default function UploadMultipleFilesForm({ onClose, onUploaded }) {
                           </td>
 
                           {/* File input */}
-                          <td className="border px-2 py-1">
+                          <td>
                             <input
                               type="file"
                               name={`files[${index}].file`}
@@ -279,35 +279,35 @@ export default function UploadMultipleFilesForm({ onClose, onUploaded }) {
                   </tbody>
                 </table>
 
-                {/* Add new file row */}
-                <button
-                  type="button"
-                  onClick={() =>
+                {/* Buttons */}
+                <div className="upload-file-container">
+
+                  {/* Add new file row */}
+                  <button
+                    type="button"
+                    onClick={() =>
                     arrayHelpers.push({
                       file_type: "",
                       session: "",
-                      file: null,
-                    })
-                  }
-                >
-                  Add Another File
-                </button>
+                      file: null})}
+                    className="btn-lg"
+                  >
+                    Add Another File
+                  </button>
+                  
+                  <button
+                    type="submit"
+                    disabled={uploading}
+                    className={`${
+                      uploading ? "btn-grey" : "btn-lg"
+                    }`}
+                  >
+                    {uploading ? "Uploading..." : "Upload All"}
+                  </button>
+                </div>
               </>
             )}
           />
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-2">
-            <button
-              type="submit"
-              disabled={uploading}
-              className={`px-4 py-2 rounded text-white ${
-                uploading ? "bg-gray-400" : "bg-blue-600"
-              }`}
-            >
-              {uploading ? "Uploading..." : "Upload All"}
-            </button>
-          </div>
         </form>
       </FormikProvider>
     </div>

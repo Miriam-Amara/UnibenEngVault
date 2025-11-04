@@ -16,5 +16,22 @@ h5{
 
 .btn-logout{
   width: 10rem;
-  background-color: var(--color-primary-light);
+  height: 70%;
+  margin-right: 5rem;
+  border-radius: 5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-white);
+  box-shadow: 2px 2px var(--color-grey);
+}
+
+.btn-logout button{
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
 }

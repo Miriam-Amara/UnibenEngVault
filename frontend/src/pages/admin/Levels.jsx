@@ -71,6 +71,7 @@ function LevelForm({ onSuccess }) {
   return (
     <form onSubmit={handleSubmit}>
       <div className="main-form">
+        <h4>Add Levels</h4>
         <div>
           <select name="name" value={formData.name} onChange={handleChange}>
           <option value="">Select Level</option>
@@ -83,7 +84,7 @@ function LevelForm({ onSuccess }) {
           {errors.name && <p className="error">{errors.name}</p>}
         </div>
 
-        <button type="submit">Add</button>
+        <button type="submit" className="btn-md">Add</button>
       </div>
     </form>
   );
@@ -97,7 +98,7 @@ function LevelRow({ level, onDelete }) {
       <td>{level.id}</td>
       <td>{new Date(level.created_at).toLocaleString()}</td>
       <td>
-        <button onClick={() => onDelete(level.id)}>Delete</button>
+        <button onClick={() => onDelete(level.id)} className="btn-dg">Delete</button>
       </td>
     </tr>
   );
@@ -131,7 +132,7 @@ function LevelPageView({ pageSize, pageNum }) {
 
       <section className="control-section">
         <div>
-          <button onClick={() => setShowForm(true)}>Add Level</button>
+          <button onClick={() => setShowForm(true)} className="btn-md">Add Level</button>
         </div>
 
         {showForm && (
