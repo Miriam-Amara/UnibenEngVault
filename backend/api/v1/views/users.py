@@ -15,6 +15,7 @@ from api.v1.utils.utility import get_obj, DatabaseOp
 from api.v1.utils.data_validations import (
     UserCreate, UserUpdate, validate_request_data
 )
+from models import storage
 from models.user import User
 from models.admin import Admin
 from models.department import Department
@@ -31,8 +32,9 @@ def get_user_dict(user: User) -> dict[str, Any]:
     user_dict = user.to_dict()
     user_dict.pop("__User__", None)
 
+    logger.debug(f"user department", user.department)
     if user.department:
-        user_dict["department"] = user.department.dept_code
+        user_dict["department"] = user.department.dept_code.upper()
     if user.level:
         user_dict["level"] = user.level.name
     user_dict["course_files_added"] = len(user.course_files_added)
@@ -77,6 +79,23 @@ def register_users():
 
     user_dict = get_user_dict(user)
     return jsonify(user_dict), 201
+
+
+@app_views.route(
+        "/users/<int:page_size>/<int:page_num>",
+        strict_slashes=False,
+        methods=["GET"]
+    )
+def get_all_users(page_size: int, page_num: int):
+    """
+    """
+    users = storage.all(User, page_size, page_num)
+    if not users:
+        abort(404, description="no level found")
+
+    all_users = [get_user_dict(user) for user in users]
+    return jsonify(all_users), 200
+
 
 # allow only admins
 @app_views.route(
