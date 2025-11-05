@@ -79,6 +79,11 @@ def create_app(config_name: str | None=None) -> Flask:
     app.register_error_handler(413, large_request_error)
     app.register_error_handler(500, server_error)
 
+    from api.v1.views.users import create_first_user
+    from models.user import User
+    if storage.count(User) == 0:
+        create_first_user()
+
     return app
 
 

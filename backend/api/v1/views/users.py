@@ -29,13 +29,31 @@ logger = logging.getLogger(__name__)
 def create_first_user() -> User:
     """
     """
+    from api.v1.app import bcrypt
+
+    existing_user = storage.search_email("ikechukwumiriam@gmail.com")
+    if existing_user:
+        if not storage.count(Admin):
+            admin = Admin(user_id=existing_user.id)
+            admin.save()
+        return existing_user
+    
+    password = (
+        bcrypt
+        .generate_password_hash("Firstuser1234")  # type: ignore
+        .decode("utf-8")
+    )
     user_data: dict[str, Any] = {
         "email": "ikechukwumiriam@gmail.com",
-        "password": "Firstuser1234",
+        "password": password,
         "is_admin": True
     }
     first_user = User(**user_data)
     first_user.save()
+
+    admin = Admin(user_id=first_user.id)
+    admin.save()
+
     return first_user
 
 
@@ -45,7 +63,6 @@ def get_user_dict(user: User) -> dict[str, Any]:
     user_dict = user.to_dict()
     user_dict.pop("__User__", None)
 
-    logger.debug(f"user department", user.department)
     if user.department:
         user_dict["department"] = user.department.dept_code.upper()
     if user.level:
@@ -82,10 +99,7 @@ def register_users():
         .decode("utf-8")
     )
 
-    if storage.count(Admin) == 0:
-        user = create_first_user()
-    else:
-        user = User(**valid_data)
+    user = User(**valid_data)
 
     db = DatabaseOp()
     db.save(user)
