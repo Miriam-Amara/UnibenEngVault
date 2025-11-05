@@ -28,7 +28,7 @@ bcrypt = Bcrypt()
 auth = SessionDBAuth()
 
 ALLOWED_ORIGINS = [
-            "https://uniben-eng-vault.vercel.app/",
+            "https://uniben-eng-vault.vercel.app",
             "http://localhost:5173"
         ]
 def verify_auth():
