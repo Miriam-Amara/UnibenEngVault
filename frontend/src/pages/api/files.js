@@ -21,7 +21,6 @@ export async function uploadFileAPI(courseId, formData) {
     );
     return response.data;
   } catch (error) {
-    console.error("Error uploading file:", error);
     handleApiError(error, "uploading file")
   }
 }
@@ -35,7 +34,6 @@ export async function fetchFilesAPI(status = "approved", pageSize = 15, pageNum 
     const response = await axios.get(url, { withCredentials: true });
     return response.data;
   } catch (error) {
-    console.error("Error fetching files:", error);
     handleApiError(error, "fetching files")
   }
 }
@@ -50,7 +48,6 @@ export async function fetchApprovedCourseFilesAPI(courseId) {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching approved files:", error);
     handleApiError(error, "loading approved files")
     if (error.response)
       showToast(error.response.data?.error || "Failed to load approved files", "error");
@@ -71,7 +68,6 @@ export async function updateFileAPI(fileId, payload) {
   );
     return response.data;
   } catch (error) {
-    console.error("Error updating file:", error);
     handleApiError(error, "updating file metadata")
   }
 }
@@ -86,7 +82,6 @@ export async function deleteFileAPI(fileId) {
     );
     return response.data;
   } catch (error) {
-    console.error("Error deleting file:", error);
     handleApiError(error, "deleting file")
   }
 }
@@ -117,7 +112,6 @@ export async function downloadFileAPI(fileId) {
 
     showToast("File download started!", "success");
   } catch (error) {
-    console.error("Error downloading file:", error);
     handleApiError(error, "downloading file");
   }
 }

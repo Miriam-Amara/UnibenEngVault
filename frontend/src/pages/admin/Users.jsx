@@ -34,7 +34,7 @@ function useUsers({ departmentId, levelId, pageSize = 20, pageNum = 1 }) {
 
   useEffect(() => {
     fetchUsers();
-  }, [pageSize, pageNum]);
+  }, [pageSize, pageNum, departmentId, levelId]);
 
   return { users, fetchUsers, loading };
 }
@@ -239,10 +239,8 @@ function UserRow({ user, onEdit, onDelete }) {
       <td>{user.department}</td>
       <td>{user.level}</td>
       <td>{user.id}</td>
-      <td>{new Date(user.created_at).toLocaleString()}</td>
-      <td>{new Date(user.updated_at).toLocaleString()}</td>
-      <td>
-        <button onClick={() => onEdit(user)} className="btn-small">Edit</button>
+      <td className="actions">
+        <button onClick={() => onEdit(user)} className="btn-sm">Edit</button>
         <button onClick={() => onDelete(user.id)} className="btn-dg">Delete</button>
       </td>
     </tr>
@@ -289,6 +287,7 @@ function UsersPageView({ pageSize, pageNum }) {
       try {
         const deps = await fetchDepartmentsAPI();
         setDepartments(deps);
+
         const levs = await fetchLevelsAPI();
         setLevels(levs);
       } catch (error) {
@@ -297,6 +296,12 @@ function UsersPageView({ pageSize, pageNum }) {
     };
     fetchFilters();
   }, []);
+
+
+  useEffect(() => {
+  if (departments.length > 0 && levels.length > 0) {
+    fetchUsers();
+  }}, [departments, levels]);
 
   return (
     <main className="main">
@@ -391,8 +396,6 @@ function UsersPageView({ pageSize, pageNum }) {
                 <th>Department</th>
                 <th>Level</th>
                 <th>ID</th>
-                <th>Date Created</th>
-                <th>Last Updated</th>
                 <th>Actions</th>
               </tr>
             </thead>

@@ -48,11 +48,6 @@ function Sidebar(){
                 </ul>
             
                 <ul className="main-nav">
-                    <li></li>
-                    <li><a href="/notifications">Notifications</a></li>
-                </ul>
-            
-                <ul className="main-nav">
                     {/* <li><img src="profile_icon" alt="Profile" className="nav-icon" /></li> */}
                     <li><a href="/profile">Profile</a></li>
                 </ul>
