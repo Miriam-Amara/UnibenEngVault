@@ -32,6 +32,8 @@ def verify_auth():
         [
             "/api/v1/stats/", "/api/v1/register/",
             "/api/v1/auth_session/login/",
+            f"/api/v1/departments/{13}/{1}",
+            f"/api/v1/levels/{13}/{1}"
         ]
     ):
         return
