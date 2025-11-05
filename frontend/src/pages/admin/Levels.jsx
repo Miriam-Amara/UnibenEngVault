@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import * as Yup from "yup";
 
 import { addLevelAPI, deleteLevelAPI, fetchLevelsAPI } from "../api/levels";
+import { showToast } from "../utils/toast";
 import Layout from "../../components/Layout";
 import "./mainPage.css"
 
@@ -14,9 +15,10 @@ function useLevels({ pageSize = 8, pageNum = 1 }) {
     setLoading(true);
     try {
       const data = await fetchLevelsAPI(pageSize, pageNum);
-      setLevels(data);
+      setLevels(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching levels:", error);
+      setLevels([]);
     } finally {
       setLoading(false);
     }
@@ -51,7 +53,7 @@ function LevelForm({ onSuccess }) {
     try {
       await validationSchema.validate(formData, { abortEarly: false });
       await addLevelAPI(formData);
-      alert(`${formData.name} added successfully!`);
+      showToast(`${formData.name} added successfully!`, "success")
       setFormData({ name: "" });
       if (onSuccess) onSuccess();
     } catch (error) {
@@ -60,10 +62,10 @@ function LevelForm({ onSuccess }) {
         error.inner.forEach((err) => (newErrors[err.path] = err.message));
         setErrors(newErrors);
       } else if (error.response) {
-        alert(error.response.data?.message || "An unexpected error occurred.");
+        showToast(error.response.data?.message || "An unexpected error occurred.", "error");
       } else {
         console.error(error);
-        alert("Something went wrong.");
+        showToast("Something went wrong.");
       }
     }
   };
@@ -113,11 +115,11 @@ function LevelPageView({ pageSize, pageNum }) {
     if (!window.confirm("Are you sure you want to delete this level?")) return;
     try {
       await deleteLevelAPI(levelId);
-      alert("Level deleted successfully!");
+      showToast("Level deleted successfully!", "success");
       fetchLevels();
     } catch (error) {
       console.error(error);
-      alert("Failed to delete level.");
+      showToast("Failed to delete level.", "error");
     }
   };
 
@@ -151,6 +153,8 @@ function LevelPageView({ pageSize, pageNum }) {
       <section className="table-section">
         {loading ? (
             <p>Loading levels...</p>
+          ) : levels.length === 0 ? (
+            <p>No levels found. Please add some levels.</p>
           ) : (
             <table>
               <thead>

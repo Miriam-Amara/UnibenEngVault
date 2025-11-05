@@ -79,9 +79,6 @@ def create_app(config_name: str | None=None) -> Flask:
     app.register_error_handler(413, large_request_error)
     app.register_error_handler(500, server_error)
 
-    for rule in app.url_map.iter_rules():
-        print(f"Endpoint: {rule.endpoint}, Route: {rule}, Methods: {rule.methods}")
-
     return app
 
 

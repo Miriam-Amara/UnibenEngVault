@@ -2,6 +2,8 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+
+import { fetchStatsAPI } from "../api/dashboard";
 import "./authPage.css"
 
 
@@ -43,11 +45,20 @@ function useLevels({pageSize, pageNum}) {
 
 
 function RegisterForm({pageSize, pageNum}) {
-  
+
+    const [stats, setStats] = useState()
+    useEffect(() => {
+        const loadStats = async () => {
+        const data = await fetchStatsAPI();
+        setStats(data);
+        };
+    
+        loadStats();
+    }, []);
+
   const departments = useDepartments({ pageSize, pageNum });
   const levels = useLevels({ pageSize, pageNum })
 
-  console.log("Form rendered", { departments, levels });
   const [formData, setFormData] = useState(
     {
       email: "",
@@ -61,8 +72,14 @@ function RegisterForm({pageSize, pageNum}) {
   const validationSchema = Yup.object(
     {
       email: Yup.string().required("Email is required").email("Invalid email format"),
-      department: Yup.string().required("Department is required"),
-      level: Yup.string().required("Level is required"),
+      // If no admin, department & level NOT required
+      department: stats && stats.Admin === 0
+        ? Yup.string()  // optional
+        : Yup.string().required("Department is required"),
+
+      level: stats && stats.Admin === 0
+        ? Yup.string()  // optional
+        : Yup.string().required("Level is required"),
       password: Yup.string()
         .required("Password is required")
         .min(8, "Password must be at least 8 characters")

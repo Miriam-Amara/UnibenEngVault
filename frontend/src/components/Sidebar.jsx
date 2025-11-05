@@ -9,7 +9,7 @@ function Sidebar(){
         <aside className="sidebar-nav">
                 <ul className="main-nav">
                     {/* <li></li> */}
-                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/admins/dashboard">Dashboard</a></li>
                 </ul>
 
                 <ul className="main-nav">

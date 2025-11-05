@@ -37,16 +37,17 @@ function LoginForm() {
 
       console.log("Login successful: ", response.data);
 
-      const res = await axios.get("/api/v1/users/me", {
+      await axios.get("/api/v1/users/me", {
           withCredentials: true,
       });
-      const user = res.data;
+      // const user = res.data;
 
-      if (user.is_admin) {
-          navigate("/admin/dashboard");
-      } else {
-          navigate("/mycourses");
-      }
+      navigate("/admins/dashboard");
+      // if (user.is_admin) {
+      //     navigate("/admins/dashboard");
+      // } else {
+      //     navigate("/mycourses");
+      // }
 
       setFormData({
         email: "",

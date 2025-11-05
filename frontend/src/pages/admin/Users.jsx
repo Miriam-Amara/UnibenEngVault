@@ -274,11 +274,11 @@ function UsersPageView({ pageSize, pageNum }) {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await deleteUserAPI(userId);
-      alert("User deleted successfully!");
+      showToast("User deleted successfully!", "error")
       fetchUsers();
     } catch (error) {
       console.error(error);
-      alert("Failed to delete user.");
+      showToast("Failed to delete user.", "error");
     }
   };
 
@@ -286,12 +286,14 @@ function UsersPageView({ pageSize, pageNum }) {
     const fetchFilters = async () => {
       try {
         const deps = await fetchDepartmentsAPI();
-        setDepartments(deps);
+        setLevels(Array.isArray(deps) ? deps : []);
 
         const levs = await fetchLevelsAPI();
-        setLevels(levs);
+        setLevels(Array.isArray(levs) ? levs : []);
       } catch (error) {
         console.error("Error fetching filters", error);
+        setDepartments([]);
+        setLevels([]);
       }
     };
     fetchFilters();

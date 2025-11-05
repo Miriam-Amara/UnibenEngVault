@@ -26,6 +26,19 @@ from models.level import Level
 logger = logging.getLogger(__name__)
 
 
+def create_first_user() -> User:
+    """
+    """
+    user_data: dict[str, Any] = {
+        "email": "ikechukwumiriam@gmail.com",
+        "password": "Firstuser1234",
+        "is_admin": True
+    }
+    first_user = User(**user_data)
+    first_user.save()
+    return first_user
+
+
 def get_user_dict(user: User) -> dict[str, Any]:
     """
     """
@@ -69,10 +82,13 @@ def register_users():
         .decode("utf-8")
     )
 
-    user = User(**valid_data)
+    if storage.count(Admin) == 0:
+        user = create_first_user()
+    else:
+        user = User(**valid_data)
+
     db = DatabaseOp()
     db.save(user)
-
     if user.is_admin:
         admin = Admin(user_id=user.id)
         db.save(admin)

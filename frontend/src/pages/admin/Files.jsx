@@ -8,6 +8,7 @@ import {
   downloadFileAPI,
 } from "../api/files";
 import UploadMultipleFilesForm from "../../components/UploadFileForm";
+import { showToast } from "../utils/toast";
 import "./mainPage.css"
 
 
@@ -52,7 +53,7 @@ function FilesPageView() {
       fetchFiles();
     } catch (error) {
       console.error("Failed to approve file:", error);
-      alert("Failed to approve file, please try again.");
+      showToast("Failed to approve file, please try again.", "error")
     }
   };
 
@@ -63,7 +64,7 @@ function FilesPageView() {
       fetchFiles();
     } catch (error) {
       console.error("Failed to reject file:", error);
-      alert("Failed to reject file, please try again.");
+      showToast("Failed to reject file, please try again.", "error");
     }
   };
 
@@ -75,7 +76,7 @@ function FilesPageView() {
         fetchFiles();
       } catch (error) {
         console.error("Failed to delete file:", error);
-        alert("Failed to delete file, please try again.");
+        showToast("Failed to delete file, please try again.");
       }
     }
   };
@@ -86,7 +87,7 @@ function FilesPageView() {
       await downloadFileAPI(fileId);
     } catch (error) {
       console.error("Failed to view file:", error);
-      alert("Unable to open file. Please try again.");
+      showToast("Unable to open file. Please try again.", "error");
     }
   };
 

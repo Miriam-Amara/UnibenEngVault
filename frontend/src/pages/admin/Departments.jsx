@@ -21,9 +21,10 @@ function useDepartments({ pageSize = 13, pageNum = 1 }) {
     setLoading(true);
     try {
       const data = await fetchDepartmentsAPI(pageSize, pageNum);
-      setDepartments(data);
+      setDepartments(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching departments:", error);
+      setDepartments([]);
     } finally {
       setLoading(false);
     }
@@ -212,6 +213,8 @@ function DepartmentPageView({ pageSize, pageNum }) {
       <section className="table-section">
         {loading ? (
           <p>Loading departments...</p>
+        ) : departments.length === 0 ? (
+          <p>No department found. Please add some departments.</p>
         ) : (
           <table>
             <thead>

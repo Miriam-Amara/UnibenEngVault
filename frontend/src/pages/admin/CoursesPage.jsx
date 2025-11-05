@@ -110,30 +110,41 @@ function CoursesPageView() {
   // Load departments and levels once
   useEffect(() => {
     fetchDepartmentsAPI()
-    .then(setDepartments)
-    .catch(() => showToast("Failed to load departments", "error"));
+      .then(data => setDepartments(Array.isArray(data) ? data : []))
+      .catch(() => {
+        setDepartments([]);
+        showToast("Failed to load departments", "error");
+      });
 
     fetchLevelsAPI()
-    .then(setLevels)
-    .catch(() => showToast("Failed to load levels", "error"));
+      .then(data => setLevels(Array.isArray(data) ? data : []))
+      .catch(() => {
+        setLevels([]);
+        showToast("Failed to load levels", "error");
+      });
   }, []);
   
   // Load courses on filters/page change
   const fetchCourses = () => {
     setLoading(true);
-    fetchCoursesAPI({
-      pageSize,
-      pageNum,
-      departmentId: departmentId || undefined,
-      levelId: levelId || undefined,
-      semester: semester || undefined,
-    })
-      .then((data) => {
-        setCourses(data);
-        setTotalCourses(data.total || 0);
+    try {
+      fetchCoursesAPI({
+        pageSize,
+        pageNum,
+        departmentId: departmentId || undefined,
+        levelId: levelId || undefined,
+        semester: semester || undefined,
       })
-      // .catch(() => showToast("Failed to load courses", "error"))
-      .finally(() => setLoading(false));
+        .then((data) => {
+          setCourses(Array.isArray(data) ? data : []);
+          setTotalCourses(data.total || 0);
+        })
+        // .catch(() => showToast("Failed to load courses", "error"))
+        .finally(() => setLoading(false));
+    } catch (error) {
+        console.error("Error fetching courses:", error);
+        setCourses([]);
+    }
   };
 
   useEffect(() => {

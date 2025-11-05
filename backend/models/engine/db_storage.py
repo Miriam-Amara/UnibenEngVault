@@ -12,7 +12,7 @@ import logging
 
 from models.basemodel import BaseModel, Base
 from models.admin import Admin, Permission, AdminPermission
-from models.course import Course, course_departments
+from models.course import Course, course_departments # type: ignore
 from models.department import Department
 from models.feedback import Feedback
 from models.file import File
@@ -265,7 +265,6 @@ class DBStorage:
     
     def reload(self) -> None:
         """Create database tables and initialize the session factory."""
-        # Base.metadata.drop_all(self.__engine)
         Base.metadata.create_all(self.__engine)
         self.__session = scoped_session(
             sessionmaker(bind=self.__engine, expire_on_commit=False)
