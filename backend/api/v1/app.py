@@ -10,6 +10,8 @@ from flask_cors import CORS
 from flask import Flask, g, request, abort
 from typing import Optional
 import os
+import sys
+import traceback
 
 from api.v1.views import app_views
 from api.v1.auth.session_db_auth import SessionDBAuth
@@ -25,8 +27,15 @@ load_dotenv()
 bcrypt = Bcrypt()
 auth = SessionDBAuth()
 
+ALLOWED_ORIGINS = [
+            "https://uniben-eng-vault.vercel.app/",
+            "http://localhost:5173"
+        ]
 def verify_auth():
     """ """
+    if request.method == 'OPTIONS':
+        return  # Allow the OPTIONS request to proceed unauthenticated
+
     if not auth.require_auth(
         request.path,
         [
@@ -66,7 +75,9 @@ def create_app(config_name: str | None=None) -> Flask:
     bcrypt.init_app(app) # type: ignore
     CORS(
         app,
-        resources={r"/api/v1/*": {"origins": "https://uniben-eng-vault.vercel.app/"}},
+        resources={r"/api/v1/*": {"origins": ALLOWED_ORIGINS,
+        }},
+        allow_headers=["Content-Type", "Authorization", "X-Custom-Header"],
         supports_credentials=True
     )
     app.register_blueprint(app_views)
@@ -85,6 +96,29 @@ def create_app(config_name: str | None=None) -> Flask:
     from models.user import User
     if storage.count(User) == 0:
         create_first_user()
+
+    @app.errorhandler(500)
+    def handle_internal_server_error(e):
+        # This forces the full traceback to print to the console
+        traceback.print_exc(file=sys.stderr)
+
+        # Return a generic response to the browser
+        return "An internal server error occurred. Check server logs for details.", 500
+
+    @app.after_request
+    def force_cors_headers(response):
+        # 1. Get the origin from the request headers
+        origin = request.headers.get('Origin')
+
+        # 2. Check if the requesting origin is in our allowed list
+        if origin and origin in ALLOWED_ORIGINS:
+            # 3. CRITICAL: Set the mandatory credentialed CORS headers
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+
+        return response
 
     return app
 
