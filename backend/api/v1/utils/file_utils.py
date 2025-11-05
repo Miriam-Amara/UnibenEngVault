@@ -55,18 +55,18 @@ AWS_REGION = os.getenv("AWS_REGION")
 logger.debug(AWS_REGION)
 AWS_S3_BUCKET = os.getenv('AWS_S3_BUCKET')
 
-if not AWS_ACCESS_KEY_ID:
-    logger.error("No environment variable for aws access key id.")
-    abort(500)
-if not AWS_SECRET_ACCESS_KEY:
-    logger.error("No environment variable for aws secret access key.")
-    abort(500)
-if not AWS_REGION:
-    logger.error("No environment variable for aws region.")
-    abort(500)
-if not AWS_S3_BUCKET:
-    logger.error("No environment variable for aws s3 bucket")
-    abort(500)
+# if not AWS_ACCESS_KEY_ID:
+#     logger.error("No environment variable for aws access key id.")
+#     abort(500)
+# if not AWS_SECRET_ACCESS_KEY:
+#     logger.error("No environment variable for aws secret access key.")
+#     abort(500)
+# if not AWS_REGION:
+#     logger.error("No environment variable for aws region.")
+#     abort(500)
+# if not AWS_S3_BUCKET:
+#     logger.error("No environment variable for aws s3 bucket")
+#     abort(500)
 
 
 def is_valid_file_extension(file_obj: FileStorage) -> str:
@@ -250,9 +250,9 @@ class FileUpload:
     s3: S3Client = boto3.client( # type: ignore
         "s3",
         config=Config(signature_version="s3v4"),
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        region_name=AWS_REGION,
+        # aws_access_key_id=AWS_ACCESS_KEY_ID,
+        # aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        # region_name=AWS_REGION,
     )
     logger.debug(AWS_REGION)
     def get_file_metadata(
