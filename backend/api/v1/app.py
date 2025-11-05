@@ -66,6 +66,7 @@ def create_app(config_name: str | None=None) -> Flask:
     bcrypt.init_app(app) # type: ignore
     CORS(
         app,
+        origins=[os.getenv("PROJECT_FRONTEND_URL")],
         resources={r"/api/v1/*": {"origins": "http://localhost:5173"}},
         supports_credentials=True
     )
