@@ -10,7 +10,7 @@ import enum
 from models.basemodel import BaseModel, Base
 
 
-class Semester(enum.Enum):
+class Semester(str, enum.Enum):
     first = "first"
     second = "second"
 
@@ -47,7 +47,9 @@ class Course(BaseModel, Base):
     __tablename__ = "courses"
 
     course_code = mapped_column(String(6), nullable=False, unique=True)
-    semester = mapped_column(Enum(Semester), nullable=False)
+    semester = mapped_column(
+        Enum(Semester, name="semester", create_type=True), nullable=False
+    )
     credit_load = mapped_column(Integer, nullable=False)
     title = mapped_column(String(500), nullable=False)
     outline = mapped_column(String(2000), nullable=False)
@@ -73,10 +75,3 @@ class Course(BaseModel, Base):
         secondary="course_departments",
         back_populates="courses"
     )
-
-    @classmethod
-    def search_course_code(cls, course_code: str):
-        """
-        """
-        from models import storage
-        return storage.search_course_code(course_code)
