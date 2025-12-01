@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 """
-
+Defines courses routes.
 """
 
 
-from flask import g, abort, jsonify
+from flask import g, abort, jsonify, request
 from typing import Any, cast
 import logging
 
@@ -26,25 +26,28 @@ logger = logging.getLogger(__name__)
 
 def get_course_dict(course: Course) -> dict[str, Any]:
     """
+    Returns a json serializable dict of the course object.
     """
     course_dict = course.to_dict()
-    course_dict.pop("__class__", None)
     course_dict["course_code"] = course_dict["course_code"].upper()
-    course_dict["level"] = course.level.name
-    course_dict["files"] = len(course.files)
-    course_dict["departments"] = [
-        department.dept_code.upper() for department in course.departments
+    course_dict["course_level"] = course.level.name
+    course_dict["num_of_files_in_course"] = len(course.files)
+    course_dict["course_departments"] = [
+        department.name for department in course.departments
     ]
+    course_dict["added_by"] = course.added_by.user.email
+    course_dict.pop("__class__", None)
+
     return course_dict
 
 
-# allow only admins
 @app_views.route(
         "/courses", strict_slashes=False, methods=["POST"]
     )
 @admin_only
 def add_course():
     """
+    Create and add a course to the database
     """
     admin = cast(Admin, g.current_user.admin)
 
@@ -65,17 +68,37 @@ def add_course():
     return jsonify(course_dict), 201
 
 
-# allow only admins
 @app_views.route(
-        "/courses/<int:page_size>/<int:page_num>",
+        "/courses",
         strict_slashes=False,
         methods=["GET"]
     )
 @admin_only
-def get_all_courses(page_size: int, page_num: int):
+def get_all_courses():
     """
+    Returns all courses in the database with optional filtering by:
+    date, search and pagination.
     """
-    courses = storage.all(Course, page_size, page_num)
+    page_size: str | None = request.args.get("page_size")
+    page_num: str | None = request.args.get("page_num")
+    created_at: str | None = request.args.get("created_at")
+    search_str: str | None = request.args.get("search_str")
+
+    if search_str:
+        courses = storage.search(
+            Course,
+            search_str,
+            page_size=page_size,
+            page_num=page_num
+        )
+    else:
+        courses = storage.all(
+            Course,
+            page_size=page_size,
+            page_num=page_num,
+            date_time=created_at
+        )
+ 
     if not Course:
         abort(404, description="No course found")
     all_courses = [
@@ -84,13 +107,13 @@ def get_all_courses(page_size: int, page_num: int):
     return jsonify(all_courses), 200
 
 
-# allow only admins
 @app_views.route(
         "/courses/<course_id>", methods=["GET"]
     )
 @admin_only
 def get_course(course_id: str):
     """
+    Return a course details given its id.
     """
     course = get_obj(Course, course_id)
     if not course:
@@ -100,11 +123,11 @@ def get_course(course_id: str):
     return jsonify(course_dict), 200
 
 
-# allow only admins
 @app_views.route("/courses/<course_id>", methods=["PUT"])
 @admin_only
 def update_course(course_id: str):
     """
+    Update the details of a course using its id.
     """
     valid_data = validate_request_data(CourseUpdate)
     
@@ -115,7 +138,7 @@ def update_course(course_id: str):
 
     course = get_obj(Course, course_id)
     if not course:
-        abort(404, description="course does not exist.")
+        abort(404, description="Course does not exist.")
     
     for attr, value in valid_data.items():
         setattr(course, attr, value)
@@ -127,11 +150,11 @@ def update_course(course_id: str):
     return jsonify(course_dict), 200
 
 
-# allow only admins
 @app_views.route("/courses/<course_id>", methods=["DELETE"])
 @admin_only
 def delete_course(course_id: str):
     """
+    Deletes a course from the database.
     """
     course = get_obj(Course, course_id)
     if not course:
