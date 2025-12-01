@@ -34,7 +34,10 @@ class File(BaseModel, Base):
     file_format = mapped_column(String(10), nullable=False)
     session = mapped_column(String(20))
     size = mapped_column(Integer, nullable=False)  # in kilobytes
-    status = mapped_column(Enum(FileStatus), nullable=False, default="pending")
+    status = mapped_column(
+        Enum(FileStatus, name="file_status", create_type=True),
+        nullable=False, default="pending"
+    )
     rejection_reason = mapped_column(String(1024))
     temp_filepath = mapped_column(String(300), nullable=False)
     permanent_filepath = mapped_column(String(300))

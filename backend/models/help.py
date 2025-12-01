@@ -10,20 +10,20 @@ import enum
 from models.basemodel import BaseModel, Base
 
 
-class HelpType(enum.Enum):
+class HelpType(str, enum.Enum):
     technical = "technical"
     academic = "academic"
     account = "account"
     other = "other"
 
 
-class HelpStatus(enum.Enum):
+class HelpStatus(str, enum.Enum):
     pending = "pending"
     in_progress = "in progress"
     resolved = "resolved"
 
 
-class HelpPriority(enum.Enum):
+class HelpPriority(str, enum.Enum):
     low = "low"
     high = "high"
 
@@ -42,11 +42,18 @@ class Help(BaseModel, Base):
 
     __tablename__ = "helps"
 
-    help_type = mapped_column(Enum(HelpType), nullable=False)
+    help_type = mapped_column(
+        Enum(HelpType, name="help_type", create_type=True), nullable=False
+    )
     message = mapped_column(String(2000), nullable=False)
     is_faq = mapped_column(Boolean, nullable=False, default=False)
-    priority = mapped_column(Enum(HelpPriority), nullable=False, default="low")
-    status = mapped_column(Enum(HelpStatus), nullable=False, default="pending")
+    priority = mapped_column(
+        Enum(HelpPriority, name="help_priority", create_type=True),
+        nullable=False, default="low"
+    )
+    status = mapped_column(
+        Enum(HelpStatus, name="help_status", nullable=False), default="pending"
+    )
     response = mapped_column(String(2000))
     user_id = mapped_column(
         String(36), ForeignKey("users.id", ondelete="SET NULL")

@@ -9,9 +9,9 @@ from sqlalchemy.orm import mapped_column, relationship
 import enum
 
 from models.basemodel import BaseModel, Base
-from models.user import User
+# from models.user import User
 
-class NotificationScope(enum.Enum):
+class NotificationScope(str, enum.Enum):
     personal = "personal"
     group = "group"
     general = "general"
@@ -55,7 +55,10 @@ class Notification(BaseModel, Base):
 
     __tablename__ = "notifications"
 
-    notification_scope = mapped_column(Enum(NotificationScope), nullable=False)
+    notification_scope = mapped_column(
+        Enum(NotificationScope, name="notification_scope", create_type=True),
+        nullable=False
+    )
     message = mapped_column(String(2000), nullable=False)
     department_id = mapped_column(
         String(36), ForeignKey("departments.id", ondelete="SET NULL")
@@ -87,9 +90,9 @@ class Notification(BaseModel, Base):
     help = relationship("Help", backref="notifications", lazy="noload")
     feedback = relationship("Feedback", backref="notifications", lazy="noload")
     
-    @classmethod
-    def get_notifications(cls, user: User):
-        """
-        """
-        from models import storage
-        return storage.get_user_notifications(user)
+    # @classmethod
+    # def get_notifications(cls, user: User):
+    #     """
+    #     """
+    #     from models import storage
+    #     return storage.get_user_notifications(user)

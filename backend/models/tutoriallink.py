@@ -10,13 +10,13 @@ import enum
 from models.basemodel import BaseModel, Base
 
 
-class Status(enum.Enum):
+class TutorialLinkStatus(str, enum.Enum):
     pending = "pending"
     approved = "approved"
     rejected = "rejected"
 
 
-class ContentType(enum.Enum):
+class ContentType(str, enum.Enum):
     video = "video"
     blog = "blog"
     article = "article"
@@ -44,8 +44,13 @@ class TutorialLink(BaseModel, Base):
     )
     url = mapped_column(String(1024), nullable=False)
     title = mapped_column(String(200), nullable=False)
-    content_type = mapped_column(Enum(ContentType), nullable=False)
-    status = mapped_column(Enum(Status), nullable=False, default="pending")
+    content_type = mapped_column(
+        Enum(ContentType, name="content_type", create_type=True), nullable=False
+    )
+    status = mapped_column(
+        Enum(TutorialLinkStatus, name="tutorial_link_status", create_type=True),
+        nullable=False, default="pending"
+    )
     level_id = mapped_column(ForeignKey("levels.id"), nullable=False)
     user_id = mapped_column(String(36), ForeignKey(
         "users.id", ondelete="SET NULL")

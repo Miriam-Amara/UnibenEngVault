@@ -9,20 +9,20 @@ import enum
 from models.basemodel import BaseModel, Base
 
 
-class ReportType(enum.Enum):
+class ReportType(str, enum.Enum):
     file = "file"
     tutorial_link = "tutorial link"
     content = "content"
     other = "other"
 
 
-class ReportStatus(enum.Enum):
+class ReportStatus(str, enum.Enum):
     pending = "pending"
     in_progress = "in progress"
     resolved = "resolved"
 
 
-class ReportPriority(enum.Enum):
+class ReportPriority(str, enum.Enum):
     normal = "normal"
     high = "high"
 
@@ -41,13 +41,17 @@ class Report(BaseModel, Base):
 
     __tablename__ = "reports"
 
-    report_type = mapped_column(Enum(ReportType), nullable=False)
+    report_type = mapped_column(
+        Enum(ReportType, name="report_type", create_type=True), nullable=False
+    )
     message = mapped_column(String(2000), nullable=False)
     priority = mapped_column(
-        Enum(ReportPriority), nullable=False, default="normal"
+        Enum(ReportPriority, name="report_priority", create_type=True),
+        nullable=False, default="normal"
     )
     status = mapped_column(
-        Enum(ReportStatus), nullable=False, default="pending"
+        Enum(ReportStatus, name="report_status", create_type=True),
+        nullable=False, default="pending"
     )
     response = mapped_column(String(2000))
     file_id = mapped_column(
