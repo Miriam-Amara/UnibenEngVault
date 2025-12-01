@@ -5,7 +5,7 @@
 """
 
 
-from flask import abort, jsonify
+from flask import abort, jsonify, request
 from typing import Any
 import logging
 
@@ -24,36 +24,15 @@ logger = logging.getLogger(__name__)
 
 def get_department_dict(department: Department) -> dict[str, Any]:
     """
+    Return a json serializable dict of the department object.
     """
+    num_of_users_in_dept: int = len(department.users)
+    num_of_courses_offered: int = len(department.courses)
+
     dept_dict = department.to_dict()
+    dept_dict["num_of_users"] = num_of_users_in_dept
+    dept_dict["num_of_courses"] = num_of_courses_offered
     dept_dict.pop("__class__", None)
-    dept_dict["courses"] = len(department.courses)
-    
-    count_100level = 0
-    count_200level = 0
-    count_300level = 0
-    count_400level = 0
-    count_500level = 0
-    for course in department.courses:
-        if course.level.name == 100:
-            count_100level += 1
-        elif course.level.name == 200:
-            count_200level += 1
-        elif course.level.name == 300:
-            count_300level += 1
-        elif course.level.name == 400:
-            count_400level += 1
-        elif course.level.name == 500:
-            count_500level += 1
-    
-    dept_level_courses_count = {
-        "level_100": count_100level,
-        "level_200": count_200level,
-        "level_300": count_300level,
-        "level_400": count_400level,
-        "level_500": count_500level
-    }
-    dept_dict["dept_level_courses_count"] = dept_level_courses_count
     return dept_dict
 
 
@@ -65,6 +44,7 @@ def get_department_dict(department: Department) -> dict[str, Any]:
 @admin_only
 def create_department():
     """
+    Implements route for creating and adding new departments to the database.
     """
     valid_data = validate_request_data(DepartmentCreate)
 
@@ -77,14 +57,33 @@ def create_department():
 
 
 @app_views.route(
-        "/departments/<int:page_size>/<int:page_num>",
+        "/departments",
         strict_slashes=False,
         methods=["GET"]
     )
-def get_all_departments(page_size: int, page_num: int):
+def get_all_departments():
     """
+    Retrieves all departments with optional filtering by date and pagination.
     """
-    departments = storage.all(Department, page_size, page_num)
+    page_size: str | None = request.args.get("page_size")
+    page_num: str | None = request.args.get("page_num")
+    created_at: str | None = request.args.get("created_at")
+    search_str: str | None = request.args.get("search_str")
+
+    if search_str:
+        departments = storage.search(
+            Department,
+            search_str,
+            page_size=page_size,
+            page_num=page_num
+        )
+    else:
+        departments = storage.all(
+            Department,
+            page_size=page_size,
+            page_num=page_num,
+            date_time=created_at
+        )
     if not departments:
         abort(404, description="No department found")
     all_departments = [
