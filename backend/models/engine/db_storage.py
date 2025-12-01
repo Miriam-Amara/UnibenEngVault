@@ -4,21 +4,24 @@
 Database storage engine for managing ORM operations with SQLAlchemy.
 """
 
+from datetime import date, datetime
 from dotenv import load_dotenv
 from typing import Any, Optional, Sequence, Type, TypeVar
-from sqlalchemy import  create_engine, select, and_, or_, func
+from sqlalchemy import  create_engine, select, and_, func
 from sqlalchemy.orm import sessionmaker, scoped_session
 import logging
 
 from models.basemodel import BaseModel, Base
 from models.admin import Admin, Permission, AdminPermission
-from models.course import Course, course_departments # type: ignore
+from models.course import Course, Semester, course_departments  # type: ignore
 from models.department import Department
 from models.feedback import Feedback
 from models.file import File
 from models.help import Help
 from models.level import Level
-from models.notification import Notification, notification_reads, NotificationScope
+from models.notification import (
+    Notification, notification_reads, NotificationScope # type: ignore
+)
 from models.report import Report
 from models.tutoriallink import TutorialLink
 from models.user import User
@@ -50,31 +53,55 @@ class DBStorage:
         UserSession,
     ]
 
+
     def __init__(self, database_url: str) -> None:
         """Initialize the database engine."""
         self.__engine = create_engine(database_url, pool_pre_ping=True)
-        
+
+
     def all(
-        self, cls: Type[T], page_size: int, page_num: int
+        self,
+        cls: Type[T],
+        page_size: int | str | None = None,
+        page_num: int | str | None = None,
+        date_time: str | None = None
     ) -> Sequence[T]:
-        """Return all objects or objects of a given class with pagination."""
-        if page_size <= 0:
-            raise ValueError(f"{page_size} must be greater than zero")
-        if page_num <= 0:
-            raise ValueError(f"{page_num} must be greater than zero")
-        if not isinstance(page_size, int):   # type: ignore
-            raise TypeError(f"{page_size} should be a valid integer.")
-        if not isinstance(page_num, int):   # type: ignore
-            raise TypeError(f"{page_num} should be a valid integer.")
+        """
+        Return all objects or objects of a given class with optional
+        filtering by date and pagination.
+        """
         if not issubclass(cls, BaseModel):  # type: ignore
-            raise TypeError("cls must inherit from BaseModel")
+            raise TypeError("Cls must inherit from BaseModel")
+        if page_size and page_num:
+            try:
+                int(page_size)
+                int(page_num)
+            except ValueError:
+                raise ValueError(
+                    "page_size and page_num must be a valid positive integer"
+                )
+    
+        if date_time:
+            try:
+                datetime.fromisoformat(date_time)
+            except ValueError:
+                raise ValueError("date_time must be a valid ISO datetime string")
+
+        stmt = select(cls)
+
+        if date_time:
+            date_only: date = datetime.fromisoformat(date_time).date()
+            stmt = stmt.where(func.date(cls.created_at) == date_only)
+        if page_size and page_num:
+            stmt = (
+                stmt.offset((int(page_num) - 1) * int(page_size))
+                .limit(int(page_size))
+            )
         
-        cls_objects = self.__session.scalars(
-            select(cls)
-            .offset((page_num - 1) * page_size)
-            .limit(page_size)
-        ).all()
+        cls_objects = self.__session.scalars(stmt).all()
+
         return cls_objects
+    
 
     def close(self) -> None:
         """Close the current database session."""
@@ -98,7 +125,223 @@ class DBStorage:
             )
             all_obj_count[cls_name.__name__] = cls_objects_count
         return all_obj_count
+
+    def delete(self, obj: BaseModel) -> None:
+        """Delete an object from the current session."""
+        self.__session.delete(obj)
+
+    def get_obj_by_id(self, cls: Type[T], id: str) -> T | None:
+        """
+        Returns an object based on its class and  ID, or None if not found.
+        """
+        if issubclass(cls, BaseModel):  # type: ignore
+            obj = self.__session.get(cls, id)
+            return obj
     
+    def get_users_by_dept_and_level(
+            self,
+            department_id: str, level_id: str,
+            page_size:int, page_num:int,
+        ) -> Sequence[User] | None:
+        """
+        Returns all users in a specific department and level.
+        """
+        if (not isinstance(department_id, str)  # type: ignore
+            or not isinstance(level_id, str)  # type: ignore
+        ):
+            raise ValueError("department_id and level_id must be a valid str.")
+        
+        user_objects = self.__session.scalars(
+            select(User).where(
+                and_(User.department_id == department_id,
+                     User.level_id == level_id
+                    )
+                )
+            .offset((page_num - 1) * page_size)
+            .limit(page_size)
+        ).all()
+        return user_objects
+    
+    def get_courses_by_dept_and_level(
+            self,
+            department_id: str,
+            level_id: str,
+            semester: str | None = None
+        ) -> Sequence[Course]:
+        """
+        Returns all courses offered by a department and level optionally
+        filtere by semester.
+        """
+        if (not isinstance(department_id, str)  # type: ignore
+            or not isinstance(level_id, str)  # type: ignore
+        ):
+            raise ValueError("department_id and level_id must be a valid str.")
+        
+        if semester and semester.lower() not in ["first", "second"]:
+            raise ValueError("semester must be either first or second.")
+
+        stmt = (select(Course)
+                .select_from(Course)
+                .join(Course.departments)
+                .where(
+                    Course.level_id == level_id,
+                    Department.id == department_id  # type: ignore
+                )
+            )
+        
+        if semester:
+            stmt = stmt.where(Course.semester == Semester(semester.lower()))
+        
+        courses = self.__session.scalars(stmt).all()
+        return courses
+
+
+    def new(self, obj: BaseModel) -> None:
+        """Add a new object to the current session."""
+        self.__session.add(obj)
+    
+    def reload(self) -> None:
+        """Create database tables and initialize the session factory."""
+        # Base.metadata.drop_all(self.__engine)
+        Base.metadata.create_all(self.__engine)
+        self.__session = scoped_session(
+            sessionmaker(bind=self.__engine, expire_on_commit=False)
+        )
+
+    def save(self) -> None:
+        """Commit the current transaction, rollback if an error occurs."""
+        try:
+            self.__session.commit()
+        except Exception as e:
+            try:
+                self.__session.rollback()
+            except Exception as rollback_error:
+                logger.critical(f"Rollback failed: {rollback_error}")
+            raise e
+    
+    def search_email(self, email: str) -> Optional[User]:
+        """
+        """
+        if not isinstance(email, str): # type: ignore
+            return
+        
+        user = self.__session.scalars(
+            select(User).where(User.email == email)
+        ).one_or_none()
+        return user
+
+
+    def search(
+            self,
+            cls: Type[T],
+            search_str: str,
+            page_size: int | str | None = None,
+            page_num: int | str | None = None,
+        ) -> Sequence[T]:
+        """
+        Search for where objects name matches the search string in the given class.
+        """
+        if not issubclass(cls, BaseModel):  # type: ignore
+            raise TypeError("Cls must inherit from BaseModel")
+        
+        if (
+            not isinstance(search_str, str)  # type: ignore
+            or not search_str.strip()
+        ):
+            raise ValueError("search_str must be an instance of str.")
+        if page_size and page_num:
+            try:
+                int(page_size)
+                int(page_num)
+            except ValueError:
+                raise ValueError(
+                    "page_size and page_num must be a valid positive integer"
+                )
+        
+        if cls is Course:
+            stmt = select(Course).where(Course.course_code.ilike(f"%{search_str}%"))
+        elif cls is User:
+            stmt = select(Course).where(User.email.ilike(f"%{search_str}%"))
+        else:
+            stmt = select(cls).where(cls.name.ilike(f"%{search_str}%")) # type: ignore
+
+        if page_size and page_num:
+            stmt = (
+                stmt.offset((int(page_num) - 1) * int(page_size))
+                .limit(int(page_size))
+            )
+
+        cls_objects = self.__session.scalars(stmt).all()
+        return cls_objects
+
+
+# def get_courses_by_department_and_level(
+    #         self, 
+    #         department_id: str, level_id: str,
+    #         semester: Optional[str]=None
+    #     ) -> Optional[Sequence[BaseModel]]:
+    #     """
+    #     """
+    #     if semester and not isinstance(semester, str): # type: ignore
+    #        return
+        
+    #     if not isinstance(department_id, str) or not isinstance(level_id, str): # type: ignore
+    #         return
+        
+    #     stmt = (
+    #         select(Course)
+    #         .join(course_departments, Course.id == course_departments.c.course_id) # type: ignore
+    #         .where(
+    #             Course.level_id == level_id,
+    #             course_departments.c.department_id == department_id
+    #         )
+    #     )
+    #     if semester:
+    #         stmt = stmt.where(Course.semester == semester)
+        
+    #     courses = self.__session.scalars(stmt).all()
+    #     return courses
+    
+    # def get_user_notifications(self, user: User) -> Sequence[Any]:
+    #     """
+    #     """
+    #     stmt = (
+    #         select(Notification, notification_reads.c.read_at)
+    #         .join(
+    #             notification_reads,
+    #             and_(
+    #                 Notification.__table__.c.id == notification_reads.c.notification_id,
+    #                 notification_reads.c.user_id == user.id
+    #             ),
+    #             isouter=True  # LEFT JOIN so unread notifications are included
+    #         )
+    #         .where(
+    #             and_(
+    #                 or_(
+    #                     Notification.notification_scope == NotificationScope.general,
+    #                     and_(
+    #                         Notification.notification_scope == NotificationScope.group,
+    #                         Notification.department_id == user.department_id,
+    #                         Notification.level_id == user.level_id,
+    #                     ),
+    #                     and_(
+    #                         Notification.notification_scope == NotificationScope.personal,
+    #                         Notification.user_id == user.id,
+    #                     ),
+    #                     and_(
+    #                         Notification.notification_scope == NotificationScope.admin,
+    #                         user.is_admin
+    #                     ),
+    #                 ),
+    #                 notification_reads.c.read_at.is_(None)
+    #             )
+    #         )
+    #         .order_by(Notification.__table__.c.created_at.desc())
+    #     )
+    #     result = self.__session.execute(stmt).all()
+    #     return result
+
+
     # def count_course_departments(
     #         self, course_id: str,
     #     ) -> Optional[int]:
@@ -156,149 +399,3 @@ class DBStorage:
     #     )
     #     courses_count = self.__session.scalars(stmt).all()
     #     return courses_count
-
-
-    def delete(self, obj: BaseModel) -> None:
-        """Delete an object from the current session."""
-        self.__session.delete(obj)
-
-    def get_obj_by_id(self, cls: Type[T], id: str) -> T | None:
-        """
-        Returns the object based on the class and its ID, or None if not found.
-        """
-        if issubclass(cls, BaseModel):  # type: ignore
-            obj = self.__session.get(cls, id)
-            return obj
-    
-    def get_users_by_dept_and_level(
-            self,
-            department_id: str, level_id: str,
-            page_size:int, page_num:int,
-        ) -> Sequence[User] | None:
-        """
-        """
-        if (not isinstance(department_id, str)  # type: ignore
-            or not isinstance(level_id, str)  # type: ignore
-        ):
-            return
-        
-        user_objects = self.__session.scalars(
-            select(User).where(
-                and_(User.department_id == department_id,
-                     User.level_id == level_id
-                    )
-                )
-            .offset((page_num - 1) * page_size)
-            .limit(page_size)
-        ).all()
-        return user_objects
-    
-    # def get_courses_by_department_and_level(
-    #         self, 
-    #         department_id: str, level_id: str,
-    #         semester: Optional[str]=None
-    #     ) -> Optional[Sequence[BaseModel]]:
-    #     """
-    #     """
-    #     if semester and not isinstance(semester, str): # type: ignore
-    #        return
-        
-    #     if not isinstance(department_id, str) or not isinstance(level_id, str): # type: ignore
-    #         return
-        
-    #     stmt = (
-    #         select(Course)
-    #         .join(course_departments, Course.id == course_departments.c.course_id) # type: ignore
-    #         .where(
-    #             Course.level_id == level_id,
-    #             course_departments.c.department_id == department_id
-    #         )
-    #     )
-    #     if semester:
-    #         stmt = stmt.where(Course.semester == semester)
-        
-    #     courses = self.__session.scalars(stmt).all()
-    #     return courses
-    
-    def get_user_notifications(self, user: User) -> Sequence[Any]:
-        """
-        """
-        stmt = (
-            select(Notification, notification_reads.c.read_at)
-            .join(
-                notification_reads,
-                and_(
-                    Notification.__table__.c.id == notification_reads.c.notification_id,
-                    notification_reads.c.user_id == user.id
-                ),
-                isouter=True  # LEFT JOIN so unread notifications are included
-            )
-            .where(
-                and_(
-                    or_(
-                        Notification.notification_scope == NotificationScope.general,
-                        and_(
-                            Notification.notification_scope == NotificationScope.group,
-                            Notification.department_id == user.department_id,
-                            Notification.level_id == user.level_id,
-                        ),
-                        and_(
-                            Notification.notification_scope == NotificationScope.personal,
-                            Notification.user_id == user.id,
-                        ),
-                        and_(
-                            Notification.notification_scope == NotificationScope.admin,
-                            user.is_admin
-                        ),
-                    ),
-                    notification_reads.c.read_at.is_(None)
-                )
-            )
-            .order_by(Notification.__table__.c.created_at.desc())
-        )
-        result = self.__session.execute(stmt).all()
-        return result
-
-    def new(self, obj: BaseModel) -> None:
-        """Add a new object to the current session."""
-        self.__session.add(obj)
-    
-    def reload(self) -> None:
-        """Create database tables and initialize the session factory."""
-        Base.metadata.create_all(self.__engine)
-        self.__session = scoped_session(
-            sessionmaker(bind=self.__engine, expire_on_commit=False)
-        )
-
-    def save(self) -> None:
-        """Commit the current transaction, rollback if an error occurs."""
-        try:
-            self.__session.commit()
-        except Exception as e:
-            try:
-                self.__session.rollback()
-            except Exception as rollback_error:
-                logger.critical(f"Rollback failed: {rollback_error}")
-            raise e
-    
-    def search_email(self, email: str) -> Optional[User]:
-        """
-        """
-        if not isinstance(email, str): # type: ignore
-            return
-        
-        user = self.__session.scalars(
-            select(User).where(User.email == email)
-        ).one_or_none()
-        return user
-    
-    def search_course_code(self, course_code: str) -> Optional[Course]:
-        """
-        """
-        if not isinstance(course_code, str) or len(course_code) != 6: # type: ignore
-            return
-        
-        course = self.__session.scalars(
-            select(Course).where(Course.course_code == course_code)
-        ).one_or_none()
-        return course
