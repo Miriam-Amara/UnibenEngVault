@@ -51,6 +51,7 @@ class Semester(str, Enum):
 
 class CourseCreate(BaseModel):
     """
+    Validation class for creating courses.
     """
     course_code: Annotated[
         str,
@@ -84,6 +85,7 @@ class CourseCreate(BaseModel):
     @classmethod
     def check_constraints(cls, credit_load: int) -> int:
         """
+        Validates credit load is not greater than 10.
         """
         if credit_load < 1 or credit_load > 10:
             raise ValueError(
@@ -95,6 +97,7 @@ class CourseCreate(BaseModel):
     @classmethod
     def set_to_lowercase(cls, request_data: Any):
         """
+        Converts attributes to lower case.
         """
         for attr, value in request_data.items():
             if isinstance(value, str):
@@ -104,6 +107,7 @@ class CourseCreate(BaseModel):
 
 class CourseUpdate(BaseModel):
     """
+    Validation class for updating courses.
     """
     course_code: Optional[Annotated[
         str,
@@ -137,6 +141,7 @@ class CourseUpdate(BaseModel):
     @classmethod
     def check_constraints(cls, credit_load: int) -> int:
         """
+        Validate credit load is not greater than 10.
         """
         if credit_load < 1 or credit_load > 10:
             raise ValueError(
@@ -148,6 +153,7 @@ class CourseUpdate(BaseModel):
     @classmethod
     def set_to_lowercase(cls, request_data: Any):
         """
+        Convert attributes to lower case.
         """
         for attr, value in request_data.items():
             if isinstance(value, str):
@@ -157,8 +163,9 @@ class CourseUpdate(BaseModel):
 
 class DepartmentCreate(BaseModel):
     """
+    Validation class for creating departments.
     """
-    dept_name: Annotated[
+    name: Annotated[
         str,
         StringConstraints(
             pattern=r".*\bengineering$",
@@ -178,6 +185,7 @@ class DepartmentCreate(BaseModel):
     @classmethod
     def set_to_lowercase(cls, request_data: Any):
         """
+        Convert attributes to lower case.
         """
         for attr, value in request_data.items():
             if isinstance(value, str):
@@ -187,8 +195,9 @@ class DepartmentCreate(BaseModel):
 
 class DepartmentUpdate(BaseModel):
     """
+    Validation class for updating department requests.
     """
-    dept_name: Optional[Annotated[
+    name: Optional[Annotated[
         str,
         StringConstraints(
             pattern=r".*\bengineering$",
@@ -207,6 +216,9 @@ class DepartmentUpdate(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def set_to_lowercase(cls, request_data: Any):
+        """
+        Converts attributes to lowercase.
+        """
         for attr, value in request_data.items():
             if isinstance(value, str):
                 request_data[attr] = value.lower()
@@ -214,6 +226,7 @@ class DepartmentUpdate(BaseModel):
 
 class FileCreate(BaseModel):
     """
+    Validation class for file creation.
     """
     file_type: Annotated[
         str,
@@ -228,6 +241,7 @@ class FileCreate(BaseModel):
     @classmethod
     def validate_file_type(cls, v: str) -> str:
         """
+        Validate the type of files given in the request.
         """
         valid_file_types = [
             "lecture material", "note", "past question",
@@ -242,6 +256,7 @@ class FileCreate(BaseModel):
 
 class FileUpdate(BaseModel):
     """
+    Validation class for updating files.
     """
     file_type: Optional[Annotated[
         str,
@@ -270,6 +285,7 @@ class FileUpdate(BaseModel):
     @classmethod
     def validate_file_type(cls, v: str) -> str:
         """
+        validates the type of files given in the request data.
         """
         valid_file_types = [
             "lecture material", "note", "past question",
@@ -285,6 +301,7 @@ class FileUpdate(BaseModel):
 
 class LevelCreate(BaseModel):
     """
+    Validation class for creating levels.
     """
     name: Annotated[int, PositiveInt]
 
@@ -301,6 +318,7 @@ class LevelCreate(BaseModel):
 
 class ReportCreate(BaseModel):
     """
+    Validation class for creating reports.
     """
     report_type: ReportType
     message: Annotated[
@@ -331,6 +349,9 @@ class ReportCreate(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def set_to_lowercase(cls, request_data: Any):
+        """
+        Converts attributes to lowercase.
+        """
         for attr, value in request_data.items():
             if isinstance(value, str):
                 request_data[attr] = value.lower()
@@ -338,6 +359,7 @@ class ReportCreate(BaseModel):
 
 class ReportUpdate(BaseModel):
     """
+    Validation class for updating reports.
     """
     priority: Optional[ReportPriority] = None
     status: Optional[ReportStatus] = None
@@ -353,6 +375,9 @@ class ReportUpdate(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def set_to_lowercase(cls, request_data: Any):
+        """
+        Converts attributes to lowercase.
+        """
         for attr, value in request_data.items():
             if isinstance(value, str):
                 request_data[attr] = value.lower()
@@ -361,7 +386,7 @@ class ReportUpdate(BaseModel):
 
 class UserLogin(BaseModel):
     """
-    Schema for user login validation.
+    Validation class for user login.
     """
 
     email: EmailStr
@@ -396,6 +421,7 @@ class UserLogin(BaseModel):
 
 class UserCreate(BaseModel):
     """
+    Validation class for creating users.
     """
     email: EmailStr
     password: Annotated[
@@ -441,6 +467,7 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     """
+    Validation class for updating users.
     """
     is_admin: Optional[StrictBool] = None
     department_id: Optional[Annotated[
@@ -463,6 +490,7 @@ class UserUpdate(BaseModel):
 
 class UserWarningCreate(BaseModel):
     """
+    Validation class for creating user warning.
     """
     reason: Annotated[
         str,
@@ -477,6 +505,7 @@ class UserWarningCreate(BaseModel):
 
 class UserWarningUpdate(BaseModel):
     """
+    Validation class for updating user warning.
     """
     reason: Optional[Annotated[
         str,
@@ -510,16 +539,15 @@ def get_request_data() -> dict[str, Any]:
 
 def get_file_metadata() -> dict[str, Any]:
     """
+    Returns file metadata - file type and session.
     """
     try:
         file_metadata: dict[str, Any] = json.loads(request.form["metadata"])
-        logger.debug(f"file_metadata: {file_metadata}")
     except KeyError:
         abort(400, description="Missing key - metadata")
     except json.JSONDecodeError:
         abort(400, description="Not a valid JSON")
     
-    logger.debug(f"returned file_metadata: {file_metadata}")
     return file_metadata
 
 
@@ -527,6 +555,7 @@ def validate_request_data(
         validation_cls: Type[BaseModel]
     ) -> dict[str, Any]:
     """
+    Returns validated request data or aborts the request on validation error.
     """
     if not issubclass(validation_cls, BaseModel):  # type: ignore
         logger.error(
@@ -534,7 +563,7 @@ def validate_request_data(
         )
         abort(500)
 
-    if validation_cls is FileCreate:
+    if validation_cls is FileCreate or validation_cls is FileUpdate:
         request_data = get_file_metadata()
     else:
         request_data = get_request_data()
