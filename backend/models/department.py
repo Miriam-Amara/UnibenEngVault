@@ -24,7 +24,7 @@ class Department(BaseModel, Base):
 
     __tablename__ = "departments"
 
-    dept_name = mapped_column(String(200), unique=True, nullable=False)
+    name = mapped_column(String(200), unique=True, nullable=False)
     dept_code = mapped_column(String(20), unique=True, nullable=False)
     users = relationship(
         "User",
