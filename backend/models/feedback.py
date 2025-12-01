@@ -10,7 +10,7 @@ import enum
 from models.basemodel import BaseModel, Base
 
 
-class FeedbackStatus(enum.Enum):
+class FeedbackStatus(str, enum.Enum):
     pending = "pending"
     reviewed = "reviewed"
 
@@ -31,7 +31,8 @@ class Feedback(BaseModel, Base):
 
     message = mapped_column(String(2000), nullable=False)
     status = mapped_column(
-        Enum(FeedbackStatus), nullable=False, default="pending"
+        Enum(FeedbackStatus, name="feedback_status", create_type=True),
+        nullable=False, default="pending"
     )
     user_id = mapped_column(
         String(36), ForeignKey("users.id", ondelete="SET NULL")
