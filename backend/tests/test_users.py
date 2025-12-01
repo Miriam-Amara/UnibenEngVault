@@ -4,7 +4,7 @@
 
 """
 
-
+from datetime import datetime
 from flask import Flask
 from flask.testing import FlaskClient
 from typing import Any, cast
@@ -16,7 +16,7 @@ from models import storage
 from models.user import User
 from models.department import Department
 from models.level import Level
-from tests.requests_data import user_data, department_data, level_data
+from tests.requests_data import users_data, departments_data, levels_data
 
 logger = logging.getLogger(__name__)
 
@@ -44,13 +44,14 @@ class TestUserRoute(unittest.TestCase):
                 "is_admin": True
             }
         )
-        response = cls.client.post(
+        
+        cls.login_response = cls.client.post(
             "/api/v1/auth_session/login",
             json={"email": "test@gmail.com", "password": "Test1234"}
         )
-        cls.user_id = response.get_json().get("user_id")
+        cls.user_id = cls.login_response.get_json().get("user_id")
 
-        session_cookie = response.headers.get("Set-Cookie")
+        session_cookie = cls.login_response.headers.get("Set-Cookie")
         if session_cookie:
             cookie_name, session_id = (
                 session_cookie.split(";", 1)[0].split("=", 1)
@@ -60,28 +61,28 @@ class TestUserRoute(unittest.TestCase):
     def add_departments(self) -> None:
         """
         """
-        self.department_data = department_data
+        self.departments = departments_data
         self.dept_ids: list[str] = []
 
-        for data in self.department_data:
-            response = self.client.post(
+        for department in self.departments:
+            dept_response = self.client.post(
                 "/api/v1/departments",
-                json=data
+                json=department
             )
-            self.dept_ids.append(response.get_json().get("id"))
+            self.dept_ids.append(dept_response.get_json().get("id"))
     
     def add_levels(self) -> None:
         """
         """
-        self.level_data = level_data
+        self.levels = levels_data
         self.level_ids: list[str] = []
 
-        for data in self.level_data:
-            response = self.client.post(
+        for level in self.levels:
+            level_response = self.client.post(
                 "/api/v1/levels",
-                json=data
+                json=level
             )
-            self.level_ids.append(response.get_json().get("id"))
+            self.level_ids.append(level_response.get_json().get("id"))
 
     def delete_department(self) -> None:
         """
@@ -105,18 +106,18 @@ class TestUserRoute(unittest.TestCase):
         self.add_departments()
         self.add_levels()
 
-        self.user_data = user_data
+        self.users = users_data
         self.user_ids: list[str] = []
-        self.responses: list[dict[str, Any]] = []
+        self.register_responses: list[dict[str, Any]] = []
         
-        for index, user in enumerate(self.user_data):
+        for index, user in enumerate(self.users):
             user["department_id"] = self.dept_ids[index]
             user["level_id"] = self.level_ids[index]
             response = self.client.post(
                 "/api/v1/register", json=user
             )
             self.user_ids.append(response.get_json().get("id"))
-            self.responses.append(
+            self.register_responses.append(
                 {
                     "status_code": response.status_code,
                      "response_json": response.get_json()
@@ -153,74 +154,111 @@ class TestUserRoute(unittest.TestCase):
     
     def test_create_user(self):
         """
+        Test that users are created successfully.
         """
-        for response in self.responses:
+        for response in self.register_responses:
+            user_data = response["response_json"]
             self.assertEqual(response["status_code"], 201)
-            self.assertIn("email", response["response_json"])
-            self.assertIn("is_admin", response["response_json"])
-            self.assertIn("email_verified", response["response_json"])
-            self.assertIn("is_active", response["response_json"])
-            self.assertIn("warnings_count", response["response_json"])
-            self.assertIn("suspensions_count", response["response_json"])
-            self.assertIn("department_id", response["response_json"])
-            self.assertIn("level_id", response["response_json"])
-            self.assertIn("department", response["response_json"])
-            self.assertIn("course_files_added", response["response_json"])
-            self.assertIn("tutorial_links_added", response["response_json"])
-            self.assertIn("feedbacks_added", response["response_json"])
-            self.assertIn("helps_added", response["response_json"])
-            self.assertIn("reports_added", response["response_json"])
-            self.assertNotIn("password", response["response_json"])
+            self.assertIn("email", user_data)
+            self.assertIn("is_admin", user_data)
+            self.assertIn("email_verified", user_data)
+            self.assertIn("is_active", user_data)
+            self.assertIn("warnings_count", user_data)
+            self.assertIn("suspensions_count", user_data)
+            self.assertIn("department_id", user_data)
+            self.assertIn("level_id", user_data)
+            self.assertIn("department", user_data)
+            self.assertIn("course_files_added", user_data)
+            self.assertIn("tutorial_links_added", user_data)
+            self.assertIn("feedbacks_added", user_data)
+            self.assertIn("helps_added", user_data)
+            self.assertIn("reports_added", user_data)
+            self.assertNotIn("password", user_data)
     
-    def test_get_users_by_department_and_level(self):
+
+    def test_get_user_by_id(self):
         """
+        Test get a user by user id.
+        Verify password is not in the returned json.
+        """
+        response = self.client.get(f"/api/v1/users/{self.user_ids[0]}")
+        user_data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("email", user_data)
+        self.assertIn("is_admin", user_data)
+        self.assertIn("email_verified", user_data)
+        self.assertIn("is_active", user_data)
+        self.assertIn("warnings_count", user_data)
+        self.assertIn("suspensions_count", user_data)
+        self.assertIn("department_id", user_data)
+        self.assertIn("level_id", user_data)
+        self.assertIn("department", user_data)
+        self.assertIn("course_files_added", user_data)
+        self.assertIn("tutorial_links_added", user_data)
+        self.assertIn("feedbacks_added", user_data)
+        self.assertIn("helps_added", user_data)
+        self.assertIn("reports_added", user_data)
+        self.assertNotIn("password", user_data)
+    
+    def test_get_user_by_me(self):
+        """
+        Test that the get me route returns the current user.
+        """
+        response = self.client.get(f"/api/v1/users/me")
+        current_user = response.get_json().get("id")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(current_user, self.login_response.get_json().get("user_id"))
+
+    def test_get_users_filtered_by_department_and_level(self):
+        """
+        Test the retrieval of users in a specific department and level.
         """
         for index, level_id in enumerate(self.level_ids):
             dept_id = self.dept_ids[index]
             response = self.client.get(
-                f"/api/v1/users/{dept_id}/{level_id}/5/1"
+                f"/api/v1/users/{dept_id}/{level_id}/{5}/{1}"
             )
             self.assertEqual(response.status_code, 200)
             self.assertLessEqual(len(response.get_json()), 5)
-    
-    def test_get_user(self):
+ 
+ 
+    def test_get_users_filtered_by_date(self):
         """
+        Test the retrieval of users created on a specific date.
         """
-        response = self.client.get(f"/api/v1/users/{self.user_ids[0]}")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("email", response.get_json())
-        self.assertIn("is_admin", response.get_json())
-        self.assertIn("email_verified", response.get_json())
-        self.assertIn("is_active", response.get_json())
-        self.assertIn("warnings_count", response.get_json())
-        self.assertIn("suspensions_count", response.get_json())
-        self.assertIn("department_id", response.get_json())
-        self.assertIn("level_id", response.get_json())
-        self.assertIn("department", response.get_json())
-        self.assertIn("course_files_added", response.get_json())
-        self.assertIn("tutorial_links_added", response.get_json())
-        self.assertIn("feedbacks_added", response.get_json())
-        self.assertIn("helps_added", response.get_json())
-        self.assertIn("reports_added", response.get_json())
-        self.assertNotIn("password", response.get_json())
+        created_at = (
+            self.client.get(f"/api/v1/users/{self.user_ids[0]}")
+            .get_json().get("created_at")
+        )
+        date_only = datetime.fromisoformat(created_at).date()
+
+        filtered_responses = self.client.get(
+            "/api/v1/users",
+            query_string=created_at
+        )
+        self.assertEqual(filtered_responses.status_code, 200)
+
+        for response_data in filtered_responses.get_json():
+            date_part = datetime.fromisoformat(response_data.get("created_at")).date()
+            self.assertEqual(date_part, date_only)
     
+
     def test_update_user(self):
         """
+        Test that a user's details is updated successfully.
         """
-        user1 = self.client.get(f"/api/v1/users/{self.user_ids[1]}")
-        logger.debug(user1.get_json())
-        self.assertEqual(user1.get_json().get("is_admin"), False)
+        get_user_response = self.client.get(f"/api/v1/users/{self.user_ids[1]}")
 
-        new_data = user1.get_json()
-        new_data.update({"is_admin": True})
-        logger.debug(new_data)
-        response = self.client.put(
-            f"/api/v1/users/{self.user_ids[0]}",
-            json=new_data
+        user_data = get_user_response.get_json()
+        self.assertFalse(user_data.get("is_admin"))
+
+        user_data.update({"is_admin": True})
+        update_user_response = self.client.put(
+            f"/api/v1/users/{self.user_ids[1]}",
+            json=user_data
         )
-        logger.debug(response.get_json())
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json().get("is_admin"), True)
+        self.assertEqual(update_user_response.status_code, 200)
+        self.assertTrue(update_user_response.get_json().get("is_admin"))
 
 
 if __name__ == "__main__":
