@@ -5,7 +5,7 @@
 """
 
 
-from flask import g, abort, jsonify
+from flask import g, abort, jsonify, request
 from typing import Any, Sequence
 import logging
 
@@ -22,43 +22,12 @@ from models.department import Department
 from models.level import Level
 
 
-
 logger = logging.getLogger(__name__)
-
-
-def create_first_user() -> User:
-    """
-    """
-    from api.v1.app import bcrypt
-
-    existing_user = storage.search_email("ikechukwumiriam@gmail.com")
-    if existing_user:
-        if not storage.count(Admin):
-            admin = Admin(user_id=existing_user.id)
-            admin.save()
-        return existing_user
-    
-    password = (
-        bcrypt
-        .generate_password_hash("Firstuser1234")  # type: ignore
-        .decode("utf-8")
-    )
-    user_data: dict[str, Any] = {
-        "email": "ikechukwumiriam@gmail.com",
-        "password": password,
-        "is_admin": True
-    }
-    first_user = User(**user_data)
-    first_user.save()
-
-    admin = Admin(user_id=first_user.id)
-    admin.save()
-
-    return first_user
 
 
 def get_user_dict(user: User) -> dict[str, Any]:
     """
+    Returns a json serializable dict for the given user object.
     """
     user_dict = user.to_dict()
     user_dict.pop("__User__", None)
@@ -78,6 +47,7 @@ def get_user_dict(user: User) -> dict[str, Any]:
 @app_views.route("/register", strict_slashes=False, methods=["POST"])
 def register_users():
     """
+    Implements route for registering users.
     """
     from api.v1.app import bcrypt
 
@@ -112,16 +82,40 @@ def register_users():
 
 
 @app_views.route(
-        "/users/<int:page_size>/<int:page_num>",
+        "/users",
         strict_slashes=False,
         methods=["GET"]
     )
-def get_all_users(page_size: int, page_num: int):
+def get_all_users():
     """
+    Returns all users in storage optionally filtered by
+    creation date, email and pagination.
     """
-    users = storage.all(User, page_size, page_num)
+    page_size: str | None = request.args.get("page_size")
+    page_num: str | None  = request.args.get("page_num")
+    created_at: str | None = request.args.get("created_at")
+    email_str: str | None = request.args.get("search_str")
+
+    pg_size: int | None = int(page_size) if page_size else None
+    pg_num: int | None = int(page_num) if page_num else None
+    
+    if email_str:
+        users = storage.search(
+            User,
+            email_str,
+            page_size=page_size,
+            page_num=page_num
+        )
+    else:
+        users = storage.all(
+            User,
+            page_size=pg_size,
+            page_num=pg_num,
+            date_time=created_at
+        )
+
     if not users:
-        abort(404, description="no level found")
+        abort(404, description="No user found.")
 
     all_users = [get_user_dict(user) for user in users]
     return jsonify(all_users), 200
@@ -139,6 +133,7 @@ def get_users_by_department_and_level(
     page_size: int, page_num: int
 ):
     """
+    Returns all users in a specific department and level.
     """
     department = get_obj(Department, department_id)
     if not department:
@@ -160,14 +155,13 @@ def get_users_by_department_and_level(
     users_list: list[dict[str, Any]] = [get_user_dict(user) for user in users]
     return jsonify(users_list), 200
 
+
 @app_views.route("/users/<user_id>", strict_slashes=False, methods=["GET"])
 def get_user(user_id: str):
     """
+    Returns a user by id or "me"
     """
-    if user_id == "me" and g.current_user == None:
-        abort(404, description="User does not exist.")
-    
-    if user_id == "me" and g.current_user:
+    if user_id == "me":
         user = g.current_user
     else:
         user = get_obj(User, user_id)
@@ -177,9 +171,11 @@ def get_user(user_id: str):
     user_dict = get_user_dict(user)
     return jsonify(user_dict), 200
 
+
 @app_views.route("/users/<user_id>", strict_slashes=False, methods=["PUT"])
 def update_user(user_id: str):
     """
+    Updates user details in the database.
     """
     valid_data = validate_request_data(UserUpdate)
 
@@ -210,7 +206,7 @@ def update_user(user_id: str):
     user_dict.pop("admin", None)
     return jsonify(user_dict), 200
 
-# allow only admins
+
 @app_views.route(""
 "/users/<user_id>",
 strict_slashes=False,
@@ -219,6 +215,7 @@ methods=["DELETE"]
 @admin_only
 def delete_user(user_id: str):
     """
+    Deletes a user from the database.
     """
     user = get_obj(User, user_id)
     if not user:
