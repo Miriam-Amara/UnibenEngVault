@@ -7,7 +7,6 @@ Defines the BaseModel class for all SQLAlchemy models in the system.
 from uuid import uuid4
 from copy import deepcopy
 from datetime import datetime
-from enum import Enum
 from typing import Any
 from sqlalchemy import String, DateTime
 from sqlalchemy.orm import DeclarativeBase, mapped_column
@@ -70,14 +69,6 @@ class BaseModel:
         from models import storage
         storage.delete(obj=self)
 
-    def normalize_enums(self, obj_dict: dict[str, Any]) -> dict[str, Any]:
-        """
-        """
-        for attr, value in obj_dict.items():
-            if isinstance(value, Enum):
-                obj_dict[attr] = value.value
-        return obj_dict
-
     def save(self) -> None:
         """Update 'updated_at' and save the instance to storage."""
         from models import storage
@@ -98,5 +89,5 @@ class BaseModel:
         obj_dict.pop("_sa_instance_state", None)
         obj_dict.pop("password", None)
 
-        return self.normalize_enums(obj_dict)
+        return obj_dict
 
