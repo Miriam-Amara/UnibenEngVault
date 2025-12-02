@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 """
-Defines courses routes.
+Implements routes for CRUD (Create, Read, Update and Delete)
+operations on courses.
 """
 
 
@@ -30,12 +31,13 @@ def get_course_dict(course: Course) -> dict[str, Any]:
     """
     course_dict = course.to_dict()
     course_dict["course_code"] = course_dict["course_code"].upper()
-    course_dict["course_level"] = course.level.name
+    course_dict["level"] = course.level.level_name
     course_dict["num_of_files_in_course"] = len(course.files)
-    course_dict["course_departments"] = [
-        department.name for department in course.departments
+    course_dict["departments"] = [
+        department.dept_name for department in course.departments
     ]
     course_dict["added_by"] = course.added_by.user.email
+    course_dict.pop("files", None)
     course_dict.pop("__class__", None)
 
     return course_dict
@@ -82,12 +84,13 @@ def get_all_courses():
     page_size: str | None = request.args.get("page_size")
     page_num: str | None = request.args.get("page_num")
     created_at: str | None = request.args.get("created_at")
-    search_str: str | None = request.args.get("search_str")
+    course_code: str | None = request.args.get("search")
 
-    if search_str:
-        courses = storage.search(
+    if course_code or created_at:
+        courses = storage.filter(
             Course,
-            search_str,
+            search_str=course_code,
+            date_str=created_at,
             page_size=page_size,
             page_num=page_num
         )
@@ -96,7 +99,6 @@ def get_all_courses():
             Course,
             page_size=page_size,
             page_num=page_num,
-            date_time=created_at
         )
  
     if not Course:
@@ -108,7 +110,7 @@ def get_all_courses():
 
 
 @app_views.route(
-        "/courses/<course_id>", methods=["GET"]
+        "/courses/<course_id>", strict_slashes=False, methods=["GET"]
     )
 @admin_only
 def get_course(course_id: str):
@@ -123,7 +125,7 @@ def get_course(course_id: str):
     return jsonify(course_dict), 200
 
 
-@app_views.route("/courses/<course_id>", methods=["PUT"])
+@app_views.route("/courses/<course_id>", strict_slashes=False, methods=["PUT"])
 @admin_only
 def update_course(course_id: str):
     """
@@ -150,7 +152,7 @@ def update_course(course_id: str):
     return jsonify(course_dict), 200
 
 
-@app_views.route("/courses/<course_id>", methods=["DELETE"])
+@app_views.route("/courses/<course_id>", strict_slashes=False, methods=["DELETE"])
 @admin_only
 def delete_course(course_id: str):
     """
