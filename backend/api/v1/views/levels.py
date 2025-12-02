@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 """
-
+Implements routes for Create, Read and Delete)
+operations on levels.
 """
 
 
@@ -61,15 +62,21 @@ def get_all_levels():
     page_size: str | None = request.args.get("page_size")
     page_num: str | None = request.args.get("page_num")
     created_at: str | None = request.args.get("created_at")
-    search_str: str | None = request.args.get("search_str")
+    level_name: str | None = request.args.get("search")
 
-    if search_str:
-        levels = storage.search(
-            Level, search_str, page_size=page_size, page_num=page_num
+    if created_at or level_name:
+        levels = storage.filter(
+            Level,
+            search_str=level_name,
+            date_str=created_at,
+            page_size=page_size,
+            page_num=page_num
         )
     else:
         levels = storage.all(
-            Level, page_size=page_size, page_num=page_num, date_time=created_at
+            Level,
+            page_size=page_size,
+            page_num=page_num
         )
 
     if not levels:
