@@ -77,9 +77,9 @@ def setup_logging() -> None:
     """Setup logging configurations"""
     os.makedirs("logs", exist_ok=True)
 
-    debug_mode = os.getenv("DEBUG_MODE", "False")
+    debug_mode = bool(os.getenv("FLASK_DEBUG", False))
     
-    log_level = "DEBUG" if debug_mode == "True" else "WARNING"
+    log_level = "DEBUG" if debug_mode else "WARNING"
     for logger in LOGGING_CONFIG["loggers"].values():
         logger["level"] = log_level
     return logging.config.dictConfig(LOGGING_CONFIG)
