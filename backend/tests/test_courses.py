@@ -21,7 +21,6 @@ from tests.requests_data import courses_data, levels_data
 
 logger = logging.getLogger(__name__)
 
-
 class TestCourseRoute(unittest.TestCase):
     """
     POST - /api/v1/courses
@@ -86,6 +85,7 @@ class TestCourseRoute(unittest.TestCase):
         """
         Create new courses before the execution of each test method.
         """
+        logger.debug("In courses setUp")
         self.add_levels()
         self.courses = courses_data
         self.course_ids: list[str] = []
@@ -158,7 +158,7 @@ class TestCourseRoute(unittest.TestCase):
         """
         response = self.client.get(
             "/api/v1/courses",
-            query_string={"search_str": "ide"}
+            query_string={"search": "ide"}
         )
         self.assertEqual(response.status_code, 200)
 
@@ -179,9 +179,9 @@ class TestCourseRoute(unittest.TestCase):
         self.assertIn("is_active", course_data)
         self.assertIn("level_id", course_data)
         self.assertIn("admin_id", course_data)
-        self.assertIn("course_level", course_data)
+        self.assertIn("level", course_data)
         self.assertIn("num_of_files_in_course", course_data)
-        self.assertIn("course_departments", course_data)
+        self.assertIn("departments", course_data)
         self.assertIn("added_by", course_data)
         self.assertNotIn("__class__", course_data)
 
