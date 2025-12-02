@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Defines the Level model for the system."""
+"""Defines level model for the system."""
 
 from sqlalchemy import Integer
 from sqlalchemy.orm import mapped_column, relationship
@@ -22,19 +22,13 @@ class Level(BaseModel, Base):
 
     __tablename__ = "levels"
 
-    name = mapped_column(Integer, unique=True, nullable=False)
+    level_name = mapped_column(Integer, unique=True, nullable=False)
 
-    users = relationship(
-        "User",
-        back_populates="level"
-    )
-    courses = relationship(
-        "Course",
-        back_populates="level",
-        cascade="all, delete-orphan"
-    )
     admin_permissions = relationship(
         "AdminPermission",
         back_populates="levels",
         cascade="all, delete-orphan"
     )
+    courses = relationship("Course", back_populates="level")
+    tutorial_links = relationship("TutorialLink", back_populates="level")
+    users = relationship("User", back_populates="level")
