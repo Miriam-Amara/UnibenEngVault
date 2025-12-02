@@ -53,20 +53,19 @@ def register_users():
     from api.v1.app import bcrypt
 
     valid_data = validate_request_data(UserCreate)
-    
+
     if "department_id" in valid_data:
         department = get_obj(Department, valid_data["department_id"])
         if not department:
             abort(404, description="Department does not exist.")
-    
+
     if "level_id" in valid_data:
         level = get_obj(Level, valid_data["level_id"])
         if not level:
             abort(404, description="Level does not exist.")
 
     valid_data["password"] = (
-        bcrypt
-        .generate_password_hash(valid_data["password"])  # type: ignore
+        bcrypt.generate_password_hash(valid_data["password"])  # type: ignore
         .decode("utf-8")
     )
 
@@ -82,28 +81,24 @@ def register_users():
     return jsonify(user_dict), 201
 
 
-@app_views.route(
-        "/users",
-        strict_slashes=False,
-        methods=["GET"]
-    )
+@app_views.route("/users", strict_slashes=False, methods=["GET"])
 def get_all_users():
     """
     Returns all users in storage optionally filtered by
     creation date, email and pagination.
     """
     page_size: str | None = request.args.get("page_size")
-    page_num: str | None  = request.args.get("page_num")
+    page_num: str | None = request.args.get("page_num")
     created_at: str | None = request.args.get("created_at")
     email_str: str | None = request.args.get("search")
-    
+
     if email_str or created_at:
         users = storage.filter(
             User,
             search_str=email_str,
             date_str=created_at,
             page_size=page_size,
-            page_num=page_num
+            page_num=page_num,
         )
     else:
         users = storage.all(
@@ -119,42 +114,51 @@ def get_all_users():
     return jsonify(all_users), 200
 
 
-# allow only admins
 @app_views.route(
-        "/users/<department_id>/<level_id>"
-        "/<int:page_size>/<int:page_num>",
-        strict_slashes=False, methods=["GET"]
-    )
+    "/users/<department_id>/<level_id>",
+    strict_slashes=False,
+    methods=["GET"],
+)
 @admin_only
 def get_users_by_department_and_level(
-    department_id: str, level_id:str,
-    page_size: int, page_num: int
+    department_id: str, level_id: str,
 ):
     """
     Returns all users in a specific department and level.
     """
+    page_size = request.args.get("page_size")
+    page_num = request.args.get("page_num")
+
     department = get_obj(Department, department_id)
     if not department:
         abort(404, description="Department does not exist.")
-    
+
     level = get_obj(Level, level_id)
     if not level:
         abort(404, description="Level does not exist.")
 
-    users: Sequence[User] | None = User.get_users_by_deparment_and_level(
-        department.id, level.id, page_size, page_num)
-    
+    users: Sequence[User] | None = storage.get_users_by_dept_and_level(
+        department.id,
+        level.id,
+        page_size=page_size,
+        page_num=page_num
+    )
+
     if not users:
         abort(
             404,
             description="Users not found for the department and level."
         )
-    
-    users_list: list[dict[str, Any]] = [get_user_dict(user) for user in users]
+
+    users_list: list[dict[str, Any]] = [
+        get_user_dict(user) for user in users
+    ]
     return jsonify(users_list), 200
 
 
-@app_views.route("/users/<user_id>", strict_slashes=False, methods=["GET"])
+@app_views.route(
+        "/users/<user_id>", strict_slashes=False, methods=["GET"]
+)
 def get_user(user_id: str):
     """
     Returns a user by id or "me"
@@ -165,12 +169,14 @@ def get_user(user_id: str):
         user = get_obj(User, user_id)
         if not user:
             abort(404, description="User does not exist")
-    
+
     user_dict = get_user_dict(user)
     return jsonify(user_dict), 200
 
 
-@app_views.route("/users/<user_id>", strict_slashes=False, methods=["PUT"])
+@app_views.route(
+        "/users/<user_id>", strict_slashes=False, methods=["PUT"]
+)
 def update_user(user_id: str):
     """
     Updates user details in the database.
@@ -181,7 +187,7 @@ def update_user(user_id: str):
         department = get_obj(Department, valid_data["department_id"])
         if not department:
             abort(404, description="Department does not exist.")
-    
+
     if "level_id" in valid_data:
         level = get_obj(Level, valid_data["level_id"])
         if not level:
@@ -190,7 +196,7 @@ def update_user(user_id: str):
     user = get_obj(User, user_id)
     if not user:
         abort(404, description="User does not exist.")
-    
+
     for attr, value in valid_data.items():
         setattr(user, attr, value)
     db = DatabaseOp()
@@ -205,10 +211,8 @@ def update_user(user_id: str):
     return jsonify(user_dict), 200
 
 
-@app_views.route(""
-"/users/<user_id>",
-strict_slashes=False,
-methods=["DELETE"]
+@app_views.route(
+        "/users/<user_id>", strict_slashes=False, methods=["DELETE"]
 )
 @admin_only
 def delete_user(user_id: str):
@@ -218,7 +222,7 @@ def delete_user(user_id: str):
     user = get_obj(User, user_id)
     if not user:
         abort(404, description="User does not exist.")
-    
+
     db = DatabaseOp()
     db.delete(user)
     db.commit()

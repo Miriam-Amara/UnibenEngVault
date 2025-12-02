@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-
+Implements login and logout routes for users.
 """
 
 
@@ -17,9 +17,13 @@ from api.v1.auth.authentication import LoginAuth
 load_dotenv()
 logger = logging.getLogger(__name__)
 
-@app_views.route("/auth_session/login", strict_slashes=False, methods=["POST"])
+
+@app_views.route(
+        "/auth_session/login", strict_slashes=False, methods=["POST"]
+)
 def login():
     """
+    Implements login route.
     """
     login_auth = LoginAuth()
     login_data = login_auth.login_user()
@@ -36,15 +40,20 @@ def login():
         secure=False,
         httponly=True,
         samesite="Lax",
-        path="/"
+        path="/",
     )
     return response, 200
 
-@app_views.route("/auth_session/logout", strict_slashes=False, methods=["DELETE"])
+
+@app_views.route(
+        "/auth_session/logout", strict_slashes=False, methods=["DELETE"]
+)
 def logout():
     """
+    Implements logout routes.
     """
     from api.v1.app import auth
+
     if not auth.destroy_session():
         abort(404)
     return jsonify({}), 200

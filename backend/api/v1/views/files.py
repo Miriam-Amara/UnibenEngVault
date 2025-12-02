@@ -32,7 +32,7 @@ def get_file_dict(file: File) -> dict[str, Any]:
     """
     if not file:
         return
-    
+
     file_dict = file.to_dict()
 
     file_dict["course"] = file.course.course_code
@@ -47,20 +47,22 @@ def get_file_dict(file: File) -> dict[str, Any]:
     return file_dict
 
 
-def handle_approved_files(file: File, uploader: FileUpload):
+def handle_approved_files(file: File, uploader: FileUpload) -> None:
     """
     Move file to permanent S3 bucket if approved.
     """
     new_path: str | None = uploader.upload_file_to_s3_perm(
-            file.temp_filepath
-        )
+        file.temp_filepath
+    )
     if new_path:
         file.permanent_filepath = new_path
     else:
         file.status = "pending"
 
 
-def handle_rejected_files(file: File, uploader: FileUpload, db: DatabaseOp):
+def handle_rejected_files(
+        file: File, uploader: FileUpload, db: DatabaseOp
+) -> None:
     """
     Delete file completely if rejected.
     """
@@ -73,12 +75,7 @@ def handle_rejected_files(file: File, uploader: FileUpload, db: DatabaseOp):
         return
 
 
-
-@app_views.route(
-        "/files",
-        strict_slashes=False,
-        methods=["POST"]
-    )
+@app_views.route("/files", strict_slashes=False, methods=["POST"])
 def add_file():
     """
     Uploads to temporary s3 bucket waiting for approval of an admin.
@@ -93,8 +90,8 @@ def add_file():
 
     file = File(**file_metadata)
     db = DatabaseOp()
-    db.save(file)    
-    
+    db.save(file)
+
     # upload to s3 bucket
     file_obj = file_data["file_obj"]
     file_upload.upload_file_to_s3_temp(file_obj, file.temp_filepath)
@@ -112,11 +109,8 @@ def add_file():
     return jsonify(file_dict), 201
 
 
-# allow only admins
 @app_views.route(
-        "/files",
-        strict_slashes=False,
-        methods=["GET"]
+        "/files", strict_slashes=False, methods=["GET"]
 )
 @admin_only
 def get_all_files():
@@ -132,7 +126,7 @@ def get_all_files():
     created_at = request.args.get("date_time")
     file_name = request.args.get("search")
     file_status = request.args.get("file_status")
-    
+
     if created_at or file_name or file_status:
         files = storage.filter(
             File,
@@ -140,7 +134,7 @@ def get_all_files():
             file_status=file_status,
             date_str=created_at,
             page_num=page_num,
-            page_size=page_size
+            page_size=page_size,
         )
     else:
         files = storage.all(
@@ -148,14 +142,15 @@ def get_all_files():
             page_num=page_num,
             page_size=page_size
         )
-    
+
     all_files = [get_file_dict(file) for file in files]
 
-    
     return jsonify(all_files), 200
 
 
-@app_views.route("/files/<file_id>", strict_slashes=False, methods=["GET"])
+@app_views.route(
+        "/files/<file_id>", strict_slashes=False, methods=["GET"]
+)
 def get_file(file_id: str):
     """
     Returns file metadata and a presigned url to allow users
@@ -170,24 +165,21 @@ def get_file(file_id: str):
         url = file_upload.get_presigned_url(file.temp_filepath)
     else:
         url = file_upload.get_presigned_url(file.permanent_filepath)
-    
+
     file_dict = get_file_dict(file)
     file_dict["url"] = url
 
     return jsonify(file_dict), 200
 
 
-# allow only admins
 @app_views.route(
-        "/files/<file_id>",
-        strict_slashes=False,
-        methods=["PUT"]
-    )
+        "/files/<file_id>", strict_slashes=False, methods=["PUT"]
+)
 @admin_only
 def update_file_metadata(file_id: str):
     """
     Updates a file metadata and save in database.
-    Moves file to permanent s3 bucket if file status is approved. Or 
+    Moves file to permanent s3 bucket if file status is approved. Or
     Deletes file if file status is rejected.
     """
     admin = cast(Admin, g.current_user.admin)
@@ -204,7 +196,7 @@ def update_file_metadata(file_id: str):
 
     for attr, value in metadata.items():
         setattr(file, attr, value)
-    
+
     # move to permanent s3 storage
     if file.status == "approved":
         handle_approved_files(file, uploader)
@@ -218,15 +210,13 @@ def update_file_metadata(file_id: str):
     return jsonify(file_dict), 200
 
 
-# allow only admins
 @app_views.route(
-        "/files/<file_id>",
-        strict_slashes=False,
-        methods=["DELETE"]
-    )
+        "/files/<file_id>", strict_slashes=False, methods=["DELETE"]
+)
 @admin_only
 def delete_file(file_id: str):
     """
+    Delete file from database and aws s3 bucket.
     """
     file = get_obj(File, file_id)
     if not file:
@@ -238,7 +228,7 @@ def delete_file(file_id: str):
         file_upload.delete_file(file.permanent_filepath)
     else:
         file_upload.delete_file(file.temp_filepath)
-    
+
     db = DatabaseOp()
     db.delete(file)
     db.commit()

@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 
 """
-
+Contains users, departments, levels and courses data
+used for unittests.
 """
 
 from typing import Any
 
 users_data: list[dict[str, Any]] = [
-    {"email": "firstuser@gmail.com", "password": "Firstuser1234", "is_admin": True},
+    {
+        "email": "firstuser@gmail.com",
+        "password": "Firstuser1234",
+        "is_admin": True
+    },
     {"email": "seconduser@gmail.com", "password": "Seconduser1234"},
     {"email": "thirduser@gmail.com", "password": "Thirduser1234"},
     {"email": "fourthuser@gmail.com", "password": "Fourthuser1234"},
@@ -23,11 +28,14 @@ departments_data: list[dict[str, str]] = [
     {"dept_name": "mechanical engineering", "dept_code": "mee"},
     {"dept_name": "mechatronics engineering", "dept_code": "mte"},
     {"dept_name": "marine engineering", "dept_code": "mre"},
-    {"dept_name": "material and metallurgical engineering", "dept_code": "mme"},
+    {
+        "dept_name": "material and metallurgical engineering",
+        "dept_code": "mme"
+    },
     {"dept_name": "industrial engineering", "dept_code": "ide"},
     {"dept_name": "petroleum engineering", "dept_code": "pee"},
     {"dept_name": "production engineering", "dept_code": "pre"},
-    {"dept_name": "structural engineering", "dept_code": "ste"}
+    {"dept_name": "structural engineering", "dept_code": "ste"},
 ]
 
 levels_data = [
@@ -75,4 +83,3 @@ courses_data: list[dict[str, Any]] = [
         "outline": "Machine tools and Practice",
     },
 ]
-

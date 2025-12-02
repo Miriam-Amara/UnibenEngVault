@@ -33,6 +33,7 @@ notification_reads = Table(
     )
 )
 
+
 class Notification(BaseModel, Base):
     """
     Represents a notification sent to a user.
@@ -54,7 +55,7 @@ class Notification(BaseModel, Base):
         secondary="notification_reads",
         back_populates="notifications",
     )
-    
+
     # @classmethod
     # def get_notifications(cls, user: User):
     #     """

@@ -13,6 +13,7 @@ import os
 
 from api.v1.utils.utility import UserDisplineHandler
 from api.v1.utils.data_validations import UserLogin, validate_request_data
+from models import storage
 from models.user import User
 
 
@@ -21,15 +22,13 @@ load_dotenv()
 
 
 class BaseAuth:
-    """
-    
-    """
+    """ """
+
     def require_auth(self, path: str, excluded_paths: list[str]) -> bool:
-        """
-        """
+        """ """
         if not path or not excluded_paths:
             return True
-        
+
         if not path.endswith("/"):
             path += "/"
 
@@ -37,10 +36,9 @@ class BaseAuth:
             if path.startswith(excluded):
                 return False
         return True
-    
+
     def session_cookie(self) -> str | None:
-        """
-        """
+        """ """
         cookie_name = os.getenv("SESSION_NAME")
         if not cookie_name:
             logger.error("SESSION_NAME environment variable not set")
@@ -52,10 +50,8 @@ class BaseAuth:
         pass
 
 
-
 class LoginAuth:
-    """
-    """
+    """ """
 
     def __init__(self) -> None:
         """
@@ -73,18 +69,19 @@ class LoginAuth:
         """
         from api.v1.app import bcrypt
 
-        user = User.search_email(email)
+        user = storage.search_email(email)
         if not user:
             abort(404, description="Invalid email")
-        
-        if not bcrypt.check_password_hash(user.password, password): # type: ignore
+
+        if not bcrypt.check_password_hash(  # type: ignore
+            user.password, password
+        ):
             abort(401, description="wrong password")
-        
+
         return user
 
     def create_user_session(self, user: User) -> tuple[str, str]:
-        """
-        """
+        """ """
         from api.v1.app import auth
 
         session_id = auth.create_session(user.id)
@@ -94,10 +91,7 @@ class LoginAuth:
 
         return cast(str, self.cookie_name), session_id
 
-    def get_user_session(
-            self,
-            user: User
-    ) -> tuple[str, str] | None:
+    def get_user_session(self, user: User) -> tuple[str, str] | None:
         """
         Retrieves an existing session for the given user, if any.
         """
@@ -110,8 +104,7 @@ class LoginAuth:
         return cast(str, self.cookie_name), session_id
 
     def ensure_user_is_active(self, user: User):
-        """
-        """
+        """ """
         discpline_handler = UserDisplineHandler()
         if not discpline_handler.active_user(user):
             abort(403, description="account suspended. Try again later!")
@@ -129,7 +122,7 @@ class LoginAuth:
 
         if not email:
             abort(400, description="Email required")
-        
+
         if not password:
             abort(400, description="Password required")
 
@@ -142,8 +135,4 @@ class LoginAuth:
         else:
             cookie, session_id = self.create_user_session(user)
 
-        return {
-            "cookie": cookie,
-            "session_id": session_id,
-            "user_id": user.id
-        }
+        return {"cookie": cookie, "session_id": session_id, "user_id": user.id}

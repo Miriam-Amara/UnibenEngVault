@@ -41,10 +41,10 @@ def get_course_dict(course: Course) -> dict[str, Any]:
 
 
 @app_views.route(
-        "/courses/<course_id>/departments/<department_id>",
-        strict_slashes=False,
-        methods=["POST"]
-    )
+    "/courses/<course_id>/departments/<department_id>",
+    strict_slashes=False,
+    methods=["POST"],
+)
 @admin_only
 def add_department_to_course(course_id: str, department_id: str):
     """
@@ -57,7 +57,7 @@ def add_department_to_course(course_id: str, department_id: str):
     department = get_obj(Department, department_id)
     if not department:
         abort(404, description="Department does not exist.")
-    
+
     if department not in course.departments:
         course.departments.append(department)
         db = DatabaseOp()
@@ -68,10 +68,10 @@ def add_department_to_course(course_id: str, department_id: str):
 
 
 @app_views.route(
-        "/departments/<department_id>/courses/<course_id>",
-        strict_slashes=False,
-        methods=["POST"]
-    )
+    "/departments/<department_id>/courses/<course_id>",
+    strict_slashes=False,
+    methods=["POST"],
+)
 @admin_only
 def add_course_to_department(department_id: str, course_id: str):
     """
@@ -84,7 +84,7 @@ def add_course_to_department(department_id: str, course_id: str):
     course = get_obj(Course, course_id)
     if not course:
         abort(404, description="Course does not exist.")
-    
+
     if course not in department.courses:
         department.courses.append(course)
         db = DatabaseOp()
@@ -93,18 +93,19 @@ def add_course_to_department(department_id: str, course_id: str):
     dept_dict = get_course_dict(course)
     return jsonify(dept_dict), 201
 
+
 @app_views.route(
-        "/departments/<department_id>/levels/<level_id>/courses",
-        strict_slashes=False,
-        methods=["GET"]
-    )
+    "/departments/<department_id>/levels/<level_id>/courses",
+    strict_slashes=False,
+    methods=["GET"],
+)
 def get_courses_by_department_and_level(department_id: str, level_id: str):
     """
     Retrieves all courses offered by a specific department and level and
     optionally filter by semester.
     """
     semester: str | None = request.args.get("semester")
-    
+
     department = get_obj(Department, department_id)
     if not department:
         abort(404, description="Department does not exist.")
@@ -112,11 +113,9 @@ def get_courses_by_department_and_level(department_id: str, level_id: str):
     level = get_obj(Level, level_id)
     if not level:
         abort(404, description="Level does not exist.")
-    
+
     courses = storage.get_courses_by_dept_and_level(
-        department.id,
-        level.id,
-        semester=semester
+        department.id, level.id, semester=semester
     )
 
     if not courses:
@@ -127,16 +126,16 @@ def get_courses_by_department_and_level(department_id: str, level_id: str):
 
     courses_dict: list[dict[str, Any]] = [
         get_course_dict(course) for course in courses
-    ]    
+    ]
 
     return jsonify(courses_dict), 200
 
 
 @app_views.route(
-        "/courses/<course_id>/departments/<department_id>",
-        strict_slashes=False,
-        methods=["DELETE"]
-    )
+    "/courses/<course_id>/departments/<department_id>",
+    strict_slashes=False,
+    methods=["DELETE"],
+)
 @admin_only
 def delete_department_from_course(course_id: str, department_id: str):
     """
@@ -145,7 +144,7 @@ def delete_department_from_course(course_id: str, department_id: str):
     course = get_obj(Course, course_id)
     if not course:
         abort(404, description="Course does not exist.")
-    
+
     department = get_obj(Department, department_id)
     if not department:
         abort(404, description="Department does not exist.")
@@ -159,10 +158,10 @@ def delete_department_from_course(course_id: str, department_id: str):
 
 
 @app_views.route(
-        "/departments/<department_id>/courses/<course_id>",
-        strict_slashes=False,
-        methods=["DELETE"]
-    )
+    "/departments/<department_id>/courses/<course_id>",
+    strict_slashes=False,
+    methods=["DELETE"],
+)
 @admin_only
 def delete_course_from_department(department_id: str, course_id: str):
     """

@@ -19,7 +19,9 @@ from models.course import Course
 from models.department import Department
 from models.level import Level
 from models.user import User
-from tests.requests_data import courses_data, levels_data, departments_data
+from tests.requests_data import (
+    courses_data, levels_data, departments_data
+)
 
 
 logger = logging.getLogger(__name__)
@@ -28,16 +30,17 @@ logger = logging.getLogger(__name__)
 class TestCourseRoute(unittest.TestCase):
     """
     POST - /api/v1/courses/<course_id>/files
-    GET - /api/v1/files/<status>/<int:page_size>/<int:page_num>
-    GET - /api/v1/courses/<course_id>/files/approved
+    GET - /api/v1/files
     GET - /api/v1/<file_id>
     UPDATE - /api/v1/files/<file_id>
     DELETE - /api/v1/files/<file_id>
     """
+
     @classmethod
     def setUpClass(cls) -> None:
         """
-        Creates and login an admin user before execution of the test methods.
+        Creates and login an admin user before
+        execution of the test methods.
         """
         cls.app: Flask = create_app()
         cls.client: FlaskClient = cls.app.test_client()
@@ -48,19 +51,18 @@ class TestCourseRoute(unittest.TestCase):
                 "email": "test@gmail.com",
                 "password": "Test1234",
                 "is_admin": True
-            }
+            },
         )
         response = cls.client.post(
             "/api/v1/auth_session/login",
-            json={"email": "test@gmail.com", "password": "Test1234"}
+            json={"email": "test@gmail.com", "password": "Test1234"},
         )
         cls.user_id = response.get_json().get("user_id")
 
         session_cookie = response.headers.get("Set-Cookie")
         if session_cookie:
-            cookie_name, session_id = (
-                session_cookie.split(";", 1)[0].split("=", 1)
-            )
+            cookie_name, session_id = session_cookie.split(
+                ";", 1)[0].split("=", 1)
             cls.client.set_cookie(cookie_name, session_id)
 
     def add_levels(self) -> None:
@@ -71,12 +73,8 @@ class TestCourseRoute(unittest.TestCase):
         self.level_ids: list[str] = []
 
         for level in self.levels:
-            response = self.client.post(
-                "/api/v1/levels",
-                json=level
-            )
+            response = self.client.post("/api/v1/levels", json=level)
             self.level_ids.append(response.get_json().get("id"))
-
 
     def add_courses(self) -> None:
         """
@@ -88,12 +86,9 @@ class TestCourseRoute(unittest.TestCase):
 
         for index, course in enumerate(self.courses):
             course["level_id"] = self.level_ids[index]
-            response = self.client.post(
-                f"/api/v1/courses",
-                json=course
-            )
+            response = self.client.post(f"/api/v1/courses", json=course)
             self.course_ids.append(response.get_json().get("id"))
-    
+
     def add_departments(self) -> None:
         """
         Create new departments.
@@ -102,12 +97,9 @@ class TestCourseRoute(unittest.TestCase):
         self.dept_ids: list[str] = []
 
         for dept in self.departments:
-            response = self.client.post(
-                "/api/v1/departments",
-                json=dept
-            )
+            response = self.client.post("/api/v1/departments", json=dept)
             self.dept_ids.append(response.get_json().get("id"))
-        
+
         for course_id in self.course_ids:
             for dept_id in self.dept_ids:
                 self.client.post(
@@ -119,27 +111,21 @@ class TestCourseRoute(unittest.TestCase):
         Delete created levels.
         """
         for level_id in self.level_ids:
-            self.client.delete(
-                f"/api/v1/levels/{level_id}"
-            )
+            self.client.delete(f"/api/v1/levels/{level_id}")
 
     def delete_courses(self) -> None:
         """
         Delete created courses.
         """
         for course_id in self.course_ids:
-            self.client.delete(
-                f"/api/v1/courses/{course_id}"
-            )
-    
+            self.client.delete(f"/api/v1/courses/{course_id}")
+
     def delete_departments(self) -> None:
         """
         Delete the created departmnets.
         """
         for dept_id in self.dept_ids:
-            self.client.delete(
-                f"/api/v1/departments/{dept_id}"
-            )
+            self.client.delete(f"/api/v1/departments/{dept_id}")
 
     def setUp(self) -> None:
         """
@@ -152,22 +138,39 @@ class TestCourseRoute(unittest.TestCase):
         self.responses: list[dict[str, Any]] = []
 
         self.files = [
-            (io.BytesIO(
-                b"%PDF-1.4\n%Fake PDF content that is a bit longer to simulate a real PDF..."
-                ),"sample1.pdf"
+            (
+                io.BytesIO(
+                    b"%PDF-1.4\n%Fake PDF content that simulate a real PDF..."
+                ),
+                "sample1.pdf",
             ),
-            (io.BytesIO(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR...fake png data..."), "sample3.png"),
-            (io.BytesIO(b"Hello World\nThis is text file content for testing."), "sample4.txt"),
-            (io.BytesIO(b"%PDF-1.4\n%Another fake but bigger PDF content..."), "sample5.pdf"),
+            (
+                io.BytesIO(
+                    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR...fake png data..."
+                ),
+                "sample3.png",
+            ),
+            (
+                io.BytesIO(
+                    b"Hello World\nThis is text file content for testing."
+                ),
+                "sample4.txt",
+            ),
+            (
+                io.BytesIO(
+                    b"%PDF-1.4\n%Another fake but bigger PDF content..."
+                ),
+                "sample5.pdf",
+            ),
         ]
-    
+
         for index, (file_io, filename) in enumerate(self.files):
 
             data: dict[str, Any] = {
                 "file": (file_io, filename),
                 "file_type": "lecture material",
                 "session": "2024/2025",
-                "course_id": self.course_ids[index]
+                "course_id": self.course_ids[index],
             }
 
             response = self.client.post(
@@ -178,15 +181,12 @@ class TestCourseRoute(unittest.TestCase):
             self.file_ids.append(response.get_json().get("id"))
             self.responses.append(response.get_json())
 
-        
     def tearDown(self) -> None:
         """
         Deletes created files after each test execution.
         """
         for file_id in self.file_ids:
-            self.client.delete(
-                f"/api/v1/files/{file_id}"
-            )
+            self.client.delete(f"/api/v1/files/{file_id}")
 
         self.delete_courses()
         self.delete_levels()
@@ -199,22 +199,19 @@ class TestCourseRoute(unittest.TestCase):
         if storage.count(Department):
             raise ValueError("Department deletion was not successful.")
 
-    
     @classmethod
     def tearDownClass(cls) -> None:
         """
         Deletes the admin user after executing the class.
         """
-        cls.client.delete(
-            f"/api/v1/users/{cls.user_id}"
-        )
+        cls.client.delete(f"/api/v1/users/{cls.user_id}")
         if storage.count(User):
             raise ValueError("Users deletion was not successful")
-    
+
     def test_add_files(self):
         """
-        Test that file metadata is successfully saved in the database and the
-        file object uploaded to aws s3 bucket.
+        Test that file metadata is successfully saved
+        in the database and the file object uploaded to aws s3 bucket.
         """
         for data in self.responses:
             self.assertIn("id", data)
@@ -232,7 +229,8 @@ class TestCourseRoute(unittest.TestCase):
 
     def test_get_files_with_pagination(self):
         """
-        Verifies all files metadata are returned successfully from the database.
+        Verifies all files metadata are returned
+        successfully from the database.
         """
         page_size = len(self.files) - 2
         response = self.client.get(
@@ -241,7 +239,7 @@ class TestCourseRoute(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertLess(len(response.get_json()), len(self.files))
-    
+
     def test_get_pending_files(self):
         """
         Verifies that only pending files are returned.
@@ -249,11 +247,11 @@ class TestCourseRoute(unittest.TestCase):
         response = self.client.get("/api/v1/files?search=pending")
         for data in response.get_json():
             self.assertEqual(data.get("status"), "pending")
-    
+
     def test_get_file(self):
         """
-        Test that a presigned url to download or view file is returned along
-        with file metadata.
+        Test that a presigned url to download or view file
+        is returned along with file metadata.
         """
         for file_id in self.file_ids:
             response = self.client.get(f"/api/v1/files/{file_id}")
@@ -278,23 +276,21 @@ class TestCourseRoute(unittest.TestCase):
             f"/api/v1/files/{self.file_ids[0]}",
             json={"status": "rejected"}
         )
-        import json
-        logger.debug(json.dumps(response.get_json(), indent=4))
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
             response.get_json()["error"],
-            "Rejection reason required for rejected files.")
+            "Rejection reason required for rejected files.",
+        )
 
         response = self.client.put(
             f"/api/v1/files/{self.file_ids[0]}",
             json={"file_type": "past question"}
         )
-        logger.debug(json.dumps(response.get_json(), indent=4))
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
             response.get_json()["error"],
-            "Past question(s) must have session.")
-
+            "Past question(s) must have session."
+        )
 
     def test_updated_file(self):
         """
@@ -309,11 +305,15 @@ class TestCourseRoute(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json().get("status"), "approved")
-    
+        self.assertEqual(
+            response.get_json().get("status"),
+            "approved"
+        )
+
     def test_delete_rejected_file(self):
         """
-        Tests that files with status = 'rejected' are deleted from the database
+        Tests that files with status = 'rejected'
+        are deleted from the database
         and s3 bucket.
         """
         response = self.client.put(
@@ -321,13 +321,14 @@ class TestCourseRoute(unittest.TestCase):
             json={
                 "status": "rejected",
                 "rejection_reason": "Invalid file content."
-            }
+            },
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            self.client.get(f"/api/v1/files/{self.file_ids[1]}").status_code,
-            404
+            self.client.get(
+                f"/api/v1/files/{self.file_ids[1]}"
+            ).status_code, 404
         )
 
 

@@ -45,16 +45,37 @@ class TutorialLink(BaseModel, Base):
     url = mapped_column(String(1024), nullable=False)
     title = mapped_column(String(200), nullable=False)
     content_type = mapped_column(
-        Enum(ContentType, name="content_type", create_type=True), nullable=False
+        Enum(
+            ContentType,
+            name="content_type",
+            create_type=True
+        ),
+        nullable=False
     )
     status = mapped_column(
-        Enum(TutorialLinkStatus, name="tutorial_link_status", create_type=True),
+        Enum(
+            TutorialLinkStatus,
+            name="tutorial_link_status",
+            create_type=True
+        ),
         nullable=False, default="pending"
     )
-    level_id = mapped_column(ForeignKey("levels.id", ondelete="SET NULL"))
-    user_id = mapped_column(String(36), ForeignKey("users.id", ondelete="SET NULL"))
-    admin_id = mapped_column(String(36), ForeignKey("admins.id", ondelete="SET NULL"))
+    level_id = mapped_column(
+        ForeignKey("levels.id", ondelete="SET NULL")
+    )
+    user_id = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    admin_id = mapped_column(
+        String(36), ForeignKey("admins.id", ondelete="SET NULL")
+    )
 
-    added_by = relationship("User", back_populates="tutorial_links_added")
-    approved_by = relationship("Admin", back_populates="tutorial_links_approved")
-    level = relationship("Level", back_populates="tutorial_links")
+    added_by = relationship(
+        "User", back_populates="tutorial_links_added"
+    )
+    approved_by = relationship(
+        "Admin", back_populates="tutorial_links_approved"
+    )
+    level = relationship(
+        "Level", back_populates="tutorial_links"
+    )

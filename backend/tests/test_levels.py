@@ -22,14 +22,16 @@ logger = logging.getLogger(__name__)
 class TestLevelRoute(unittest.TestCase):
     """
     POST - /api/v1/levels
-    GET - /api/v1/levels/<int:page_size>/<int:page_num>
+    GET - /api/v1/levels
     GET - /api/v1/levels/<level_id>
     DELETE - /api/v1/levels/<level_id>
     """
+
     @classmethod
     def setUpClass(cls) -> None:
         """
-        Creates and login an admin user before execution of the test methods.
+        Creates and login an admin user before
+        execution of the test methods.
         """
         cls.app: Flask = create_app()
         cls.client: FlaskClient = cls.app.test_client()
@@ -40,21 +42,20 @@ class TestLevelRoute(unittest.TestCase):
                 "email": "test@gmail.com",
                 "password": "Test1234",
                 "is_admin": True
-            }
+            },
         )
         response = cls.client.post(
             "/api/v1/auth_session/login",
-            json={"email": "test@gmail.com", "password": "Test1234"}
+            json={"email": "test@gmail.com", "password": "Test1234"},
         )
         cls.user_id = response.get_json().get("user_id")
 
         session_cookie = response.headers.get("Set-Cookie")
         if session_cookie:
-            cookie_name, session_id = (
-                session_cookie.split(";", 1)[0].split("=", 1)
-            )
+            cookie_name, session_id = session_cookie.split(
+                ";", 1)[0].split("=", 1)
             cls.client.set_cookie(cookie_name, session_id)
-        
+
     def setUp(self) -> None:
         """
         Create levels before executing each test method.
@@ -63,10 +64,7 @@ class TestLevelRoute(unittest.TestCase):
         self.level_ids: list[str] = []
 
         for level in self.levels:
-            self.response = self.client.post(
-                "/api/v1/levels",
-                json=level
-            )
+            self.response = self.client.post("/api/v1/levels", json=level)
             self.level_ids.append(self.response.get_json().get("id"))
 
     def tearDown(self) -> None:
@@ -74,20 +72,16 @@ class TestLevelRoute(unittest.TestCase):
         Delete the levels created after executing each test method.
         """
         for level_id in self.level_ids:
-            self.client.delete(
-                f"/api/v1/levels/{level_id}"
-            )
+            self.client.delete(f"/api/v1/levels/{level_id}")
         if storage.count(Level):
             raise ValueError("Levels deletion was not successful.")
-    
+
     @classmethod
     def tearDownClass(cls) -> None:
         """
         Deletes the admin user after executing the class.
         """
-        cls.client.delete(
-            f"/api/v1/users/{cls.user_id}"
-        )
+        cls.client.delete(f"/api/v1/users/{cls.user_id}")
         if storage.count(User):
             raise ValueError("Users deletion was not successful")
 
@@ -97,7 +91,7 @@ class TestLevelRoute(unittest.TestCase):
         """
         self.assertEqual(self.response.status_code, 201)
         self.assertIn("level_name", self.response.get_json())
-    
+
     def test_get_all_levels(self):
         """
         Test that all levels are retrieved from the database
@@ -105,18 +99,17 @@ class TestLevelRoute(unittest.TestCase):
         response = self.client.get("/api/v1/levels")
         self.assertEqual(response.status_code, 200)
         self.assertLessEqual(len(response.get_json()), len(self.levels))
-    
+
     def test_get_all_levels_with_pagination(self):
         """
         Test that levels are returned with pagination.
         """
         response = self.client.get(
-            "/api/v1/levels",
-            query_string={"page_size": 2, "page_num": 1}
+            "/api/v1/levels", query_string={"page_size": 2, "page_num": 1}
         )
         self.assertEqual(response.status_code, 200)
         self.assertLessEqual(len(response.get_json()), 2)
-    
+
     def test_get_level(self):
         """
         Test that a level is retrieved by its id.

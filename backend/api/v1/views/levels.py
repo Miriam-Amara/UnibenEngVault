@@ -28,7 +28,7 @@ def get_level_dict(level: Level) -> dict[str, int]:
     """
     level_dict = level.to_dict()
     level_dict["no_of_users_in_level"] = len(level.users)
-    level_dict["no_of_courses_in_level"] = len(level.courses) 
+    level_dict["no_of_courses_in_level"] = len(level.courses)
     level_dict.pop("__class__", None)
 
     return level_dict
@@ -50,14 +50,11 @@ def create_level():
     return jsonify(level_dict), 201
 
 
-@app_views.route(
-        "/levels",
-        strict_slashes=False,
-        methods=["GET"]
-    )
+@app_views.route("/levels", strict_slashes=False, methods=["GET"])
 def get_all_levels():
     """
-    Returns all levels with optional date filtering, search and pagination.
+    Returns all levels with optional filtering by,
+    date, search and pagination.
     """
     page_size: str | None = request.args.get("page_size")
     page_num: str | None = request.args.get("page_num")
@@ -70,7 +67,7 @@ def get_all_levels():
             search_str=level_name,
             date_str=created_at,
             page_size=page_size,
-            page_num=page_num
+            page_num=page_num,
         )
     else:
         levels = storage.all(
@@ -87,10 +84,8 @@ def get_all_levels():
 
 
 @app_views.route(
-        "/levels/<level_id>",
-        strict_slashes=False,
-        methods=["GET"]
-    )
+        "/levels/<level_id>", strict_slashes=False, methods=["GET"]
+)
 def get_level(level_id: str):
     """
     Return a level by its id.
@@ -103,10 +98,8 @@ def get_level(level_id: str):
 
 
 @app_views.route(
-        "/levels/<level_id>",
-        strict_slashes=False,
-        methods=["DELETE"]
-    )
+        "/levels/<level_id>", strict_slashes=False, methods=["DELETE"]
+)
 @admin_only
 def delete_level(level_id: str):
     """
@@ -115,7 +108,7 @@ def delete_level(level_id: str):
     level = get_obj(Level, level_id)
     if not level:
         abort(404, description="Level does not exist.")
-    
+
     db = DatabaseOp()
     db.delete(level)
     db.commit()

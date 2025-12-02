@@ -119,7 +119,8 @@ class AdminPermission(BaseModel, Base):
         primary_key=True, nullable=False
     )
     level_id = mapped_column(
-        String(36), ForeignKey("levels.id", ondelete="CASCADE"), primary_key=True, nullable=False
+        String(36), ForeignKey("levels.id", ondelete="CASCADE"),
+        primary_key=True, nullable=False
     )
     permission_id = mapped_column(
         String(36), ForeignKey("permissions.id", ondelete="CASCADE"),

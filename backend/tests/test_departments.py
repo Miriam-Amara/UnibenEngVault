@@ -24,11 +24,12 @@ logger = logging.getLogger(__name__)
 class TestDepartmentRoute(unittest.TestCase):
     """
     POST - /api/v1/departments
-    GET - /api/v1/departments/<int:page_size>/<int:page_num>
+    GET - /api/v1/departments
     GET - /api/v1/departments/<dept_id>
     UPDATE - /api/v1/departments/<dept_id>
     DELETE - /api/v1/departments/<dept_id>
     """
+
     @classmethod
     def setUpClass(cls) -> None:
         """
@@ -43,21 +44,23 @@ class TestDepartmentRoute(unittest.TestCase):
                 "email": "test@gmail.com",
                 "password": "Test1234",
                 "is_admin": True
-            }
+            },
         )
         response = cls.client.post(
             "/api/v1/auth_session/login",
-            json={"email": "test@gmail.com", "password": "Test1234"}
+            json={
+                "email": "test@gmail.com",
+                "password": "Test1234"
+            },
         )
         cls.user_id = response.get_json().get("user_id")
 
         session_cookie = response.headers.get("Set-Cookie")
         if session_cookie:
-            cookie_name, session_id = (
-                session_cookie.split(";", 1)[0].split("=", 1)
-            )
+            cookie_name, session_id = session_cookie.split(
+                ";", 1)[0].split("=", 1)
             cls.client.set_cookie(cookie_name, session_id)
-    
+
     def setUp(self) -> None:
         """
         Create departments before each test case execution.
@@ -68,8 +71,7 @@ class TestDepartmentRoute(unittest.TestCase):
 
         for dept in self.departments:
             add_dept_response = self.client.post(
-                "/api/v1/departments",
-                json=dept
+                "/api/v1/departments", json=dept
             )
             self.dept_ids.append(add_dept_response.get_json().get("id"))
             self.add_dept_responses.append(add_dept_response.get_json())
@@ -79,26 +81,23 @@ class TestDepartmentRoute(unittest.TestCase):
         Delete created departments after each test case execution.
         """
         for dept_id in self.dept_ids:
-            self.client.delete(
-                f"/api/v1/departments/{dept_id}"
-            )
+            self.client.delete(f"/api/v1/departments/{dept_id}")
         if storage.count(Department):
             raise ValueError("Departments deletion was not successful.")
-    
+
     @classmethod
     def tearDownClass(cls) -> None:
         """
         Deletes created admin user after class execution.
         """
-        cls.client.delete(
-            f"/api/v1/users/{cls.user_id}"
-        )
+        cls.client.delete(f"/api/v1/users/{cls.user_id}")
         if storage.count(User):
             raise ValueError("Users deletion was not successful")
-        
+
     def test_add_department(self):
         """
-        Test that department is created and added to the database successfully.
+        Test that department is created and added
+        to the database successfully.
         """
         for department in self.add_dept_responses:
             self.assertIn("dept_name", department)
@@ -106,7 +105,7 @@ class TestDepartmentRoute(unittest.TestCase):
             self.assertIn("num_of_courses", department)
             self.assertIn("num_of_users", department)
             self.assertNotIn("__class__", department)
-        
+
     def test_get_all_departments_with_pagination(self):
         """
         Test the retrieval of departmens by pagination.
@@ -118,7 +117,7 @@ class TestDepartmentRoute(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertLessEqual(len(response.get_json()), 5)
-    
+
     def test_get_all_departments_without_pagination(self):
         """
         Test the retrieval of all departments without pagination
@@ -127,11 +126,15 @@ class TestDepartmentRoute(unittest.TestCase):
         response = self.client.get("/api/v1/departments")
 
         self.assertEqual(response.status_code, 200)
-        self.assertLessEqual(len(response.get_json()), len(self.departments))
-    
+        self.assertLessEqual(
+            len(response.get_json()),
+            len(self.departments)
+        )
+
     def test_search_for_departments(self):
         """
-        Test the retrieval of all departments that matches a search string.
+        Test the retrieval of all departments
+        that matches a search string.
         """
         response = self.client.get(
             "api/v1/departments",
@@ -141,28 +144,31 @@ class TestDepartmentRoute(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         for department in response.get_json():
             self.assertIn("me", department["dept_name"])
-    
+
     def test_get_department(self):
         """
         Test the retrieval of a given department by its id.
         """
-        response = self.client.get(f"/api/v1/departments/{self.dept_ids[0]}")
+        response = self.client.get(
+            f"/api/v1/departments/{self.dept_ids[0]}"
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("dept_name", response.get_json())
         self.assertIn("dept_code", response.get_json())
         self.assertIn("num_of_users", response.get_json())
         self.assertIn("num_of_courses", response.get_json())
-    
+
     def test_update_department(self):
         """
-        Test that a department is successfully updated with new details.
+        Test that a department is successfully
+        updated with new details.
         """
         response = self.client.put(
             f"/api/v1/departments/{self.dept_ids[0]}",
-            json={"dept_name": "Medical Engineering"}
+            json={"dept_name": "Medical Engineering"},
         )
-        
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.get_json().get("dept_name"),

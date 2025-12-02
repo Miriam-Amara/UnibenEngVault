@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Defines the Report model for the system."""
+"""Defines report model for the system."""
 
 from sqlalchemy import String, Enum, ForeignKey
 from sqlalchemy.orm import mapped_column, relationship

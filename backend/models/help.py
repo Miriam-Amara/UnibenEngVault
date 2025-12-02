@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Defines the Help model for the system."""
+"""Defines help model for the system."""
 
 
 from sqlalchemy import String, Boolean, Enum, ForeignKey
@@ -62,9 +62,5 @@ class Help(BaseModel, Base):
         String(36), ForeignKey("admins.id", ondelete="SET NULL")
     )
 
-    added_by = relationship(
-        "User", back_populates="helps_added"
-    )
-    reviewed_by = relationship(
-        "Admin", back_populates="helps_reviewed"
-    )
+    added_by = relationship("User", back_populates="helps_added")
+    reviewed_by = relationship("Admin", back_populates="helps_reviewed")

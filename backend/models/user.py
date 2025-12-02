@@ -10,7 +10,6 @@ from sqlalchemy import (
     String, ForeignKey, Boolean, Integer, DateTime
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import Sequence
 import logging
 
 from models.basemodel import BaseModel, Base
@@ -88,32 +87,6 @@ class User(BaseModel, Base):
         cascade="all, delete-orphan",
     )
 
-    @classmethod
-    def get_users_by_deparment_and_level(
-        cls,
-        department_id: str, level_id: str,
-        page_size: int, page_num: int
-    ):
-        """
-        Returns users that belond to a specific department and level if found,
-        otherwise return None.
-        """
-        from models import storage
-        users: Sequence[User] | None = storage.get_users_by_dept_and_level(
-            department_id, level_id, page_size, page_num
-        )
-        return users
-    
-    @classmethod
-    def search_email(cls, email: str):
-        """
-        Search for a user email in the database.
-        Returns the user if found or None otherwise.
-        """
-        from models import storage
-        return storage.search_email(email)
-        
-
 
 class UserWarning(BaseModel, Base):
     """
@@ -130,8 +103,12 @@ class UserWarning(BaseModel, Base):
     __tablename__ = "user_warnings"
 
     reason = mapped_column(String(1024), nullable=False)
-    user_id = mapped_column(String(36), ForeignKey("users.id", ondelete="SET NULL"))
-    admin_id = mapped_column(String(36), ForeignKey("admins.id", ondelete="SET NULL"))
+    user_id = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    admin_id = mapped_column(
+        String(36), ForeignKey("admins.id", ondelete="SET NULL")
+    )
 
     issued_to: Mapped[User] = relationship(
         "User", back_populates="warnings", uselist=False

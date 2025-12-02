@@ -32,6 +32,7 @@ course_departments = Table(
     )
 )
 
+
 class Course(BaseModel, Base):
     """
     Represents a course offered in the system.

@@ -41,9 +41,15 @@ class File(BaseModel, Base):
     rejection_reason = mapped_column(String(1024))
     temp_filepath = mapped_column(String(300), nullable=False)
     permanent_filepath = mapped_column(String(300))
-    course_id = mapped_column(String(36), ForeignKey("courses.id", ondelete="SET NULL"))
-    user_id = mapped_column(String(36), ForeignKey("users.id", ondelete="SET NULL"))
-    admin_id = mapped_column(String(36), ForeignKey("admins.id", ondelete="SET NULL"))
+    course_id = mapped_column(
+        String(36), ForeignKey("courses.id", ondelete="SET NULL")
+    )
+    user_id = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    admin_id = mapped_column(
+        String(36), ForeignKey("admins.id", ondelete="SET NULL")
+    )
 
     course = relationship(
         "Course",

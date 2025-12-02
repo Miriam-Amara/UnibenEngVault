@@ -10,19 +10,23 @@ from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
 import sys
 import traceback
 
+
 def bad_request(error: HTTPException):
     """Handles 400 bad request errors"""
     if error.description:
         return jsonify({"error": error.description}), 400
     return jsonify({"error": "bad request"}), 400
 
+
 def unauthorized(error: HTTPException):
     """Handles 401 unauthorized request errors"""
     return jsonify({"error": "Unauthorized"}), 401
 
+
 def forbidden(error: HTTPException):
     """Handles 403 forbidden request errors"""
     return jsonify({"error": "Forbidden"}), 403
+
 
 def not_found(error: HTTPException):
     """Handles 404 request errors"""
@@ -30,25 +34,42 @@ def not_found(error: HTTPException):
         return jsonify({"error": error.description}), 404
     return jsonify({"Error": "Not found"}), 404
 
+
 def method_not_allowed(error: HTTPException):
     """Handles 405 request errors"""
     if error.description:
         return jsonify({"error": error.description}), 405
     return jsonify({"Error": "Method not allowed"}), 405
 
+
 def conflict_error(error: HTTPException):
     """Handles 409 data conflict errors"""
     return jsonify({"error": error.description}), 409
 
+
 def server_error(error: HTTPException):
     """Handles 500 server request errors"""
+
     # This forces the full traceback to print to the console
     traceback.print_exc(file=sys.stderr)
-    return jsonify(
-        {"error": "An internal server error occurred. Check server logs for details."}
-    ), 500
+    err_message = (
+        "An internal server error occurred."
+        " Check server logs for details."
+    )
+    return (
+        jsonify(
+            {
+                "error": err_message
+            }
+        ),
+        500,
+    )
+
 
 def large_request_error(error: RequestEntityTooLarge):
     """Handles files too large errors"""
-    return jsonify({"error": "File too large! Max upload size is 1GB."}), 413
-
+    return jsonify(
+        {
+            "error": "File too large! Max upload size is 1GB."
+        }
+    ), 413

@@ -5,7 +5,7 @@ Runs app an instance of Flask.
 """
 
 from dotenv import load_dotenv
-from flask_bcrypt import Bcrypt # type: ignore
+from flask_bcrypt import Bcrypt  # type: ignore
 from flask_cors import CORS
 from flask import Flask, g, request, abort
 from typing import Optional
@@ -14,8 +14,14 @@ import os
 from api.v1.views import app_views
 from api.v1.auth.session_db_auth import SessionDBAuth
 from api.v1.utils.error_handlers import (
-    bad_request, not_found, conflict_error, large_request_error,
-    method_not_allowed, forbidden, unauthorized, server_error
+    bad_request,
+    not_found,
+    conflict_error,
+    large_request_error,
+    method_not_allowed,
+    forbidden,
+    unauthorized,
+    server_error,
 )
 from models import storage
 from models.user import User
@@ -25,27 +31,30 @@ load_dotenv()
 bcrypt = Bcrypt()
 auth = SessionDBAuth()
 
+
 def verify_auth():
     """ """
-    if request.method == 'OPTIONS':
+    if request.method == "OPTIONS":
         return  # Allow the OPTIONS request to proceed unauthenticated
 
     if not auth.require_auth(
         request.path,
         [
-            "/api/v1/stats/", "/api/v1/register/",
+            "/api/v1/stats/",
+            "/api/v1/register/",
             "/api/v1/auth_session/login/",
-        ]
+        ],
     ):
         return
-    
+
     if not auth.session_cookie():
         abort(401)
-    
+
     user: User | None = auth.current_user()
     if not user:
         abort(401)
     g.current_user = user
+
 
 def close_db(exception: Optional[BaseException]) -> None:
     """
@@ -54,25 +63,28 @@ def close_db(exception: Optional[BaseException]) -> None:
     storage.close()
 
 
-def create_app(config_name: str | None=None) -> Flask:
+def create_app(config_name: str | None = None) -> Flask:
     """
     Creates and returns a Flask instance app.
     """
     app = Flask(__name__)
-    
+
     if config_name == "test":
         app.config.from_mapping(TESTING=True)
     else:
         app.config.from_mapping(TESTING=False)
-    
+
     app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024 * 1024
-    bcrypt.init_app(app) # type: ignore
+    bcrypt.init_app(app)  # type: ignore
     CORS(
         app,
-        origins=["http://localhost:5173", "https://uniben-eng-vault.vercel.app"],
+        origins=[
+            "http://localhost:5173",
+            "https://uniben-eng-vault.vercel.app"
+        ],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization", "X-Custom-Header"],
-        supports_credentials=True
+        supports_credentials=True,
     )
     app.register_blueprint(app_views)
     app.before_request(verify_auth)

@@ -21,6 +21,7 @@ from tests.requests_data import courses_data, levels_data
 
 logger = logging.getLogger(__name__)
 
+
 class TestCourseRoute(unittest.TestCase):
     """
     POST - /api/v1/courses
@@ -29,10 +30,12 @@ class TestCourseRoute(unittest.TestCase):
     UPDATE - /api/v1/courses/<course_id>
     DELETE - /api/v1/courses/<course_id>
     """
+
     @classmethod
     def setUpClass(cls) -> None:
         """
-        Creates and login an admin user before execution of the test methods.
+        Creates and login an admin user before
+        execution of the test methods.
         """
         cls.app: Flask = create_app()
         cls.client: FlaskClient = cls.app.test_client()
@@ -43,19 +46,18 @@ class TestCourseRoute(unittest.TestCase):
                 "email": "test@gmail.com",
                 "password": "Test1234",
                 "is_admin": True
-            }
+            },
         )
         response = cls.client.post(
             "/api/v1/auth_session/login",
-            json={"email": "test@gmail.com", "password": "Test1234"}
+            json={"email": "test@gmail.com", "password": "Test1234"},
         )
         cls.user_id = response.get_json().get("user_id")
 
         session_cookie = response.headers.get("Set-Cookie")
         if session_cookie:
-            cookie_name, session_id = (
-                session_cookie.split(";", 1)[0].split("=", 1)
-            )
+            cookie_name, session_id = session_cookie.split(
+                ";", 1)[0].split("=", 1)
             cls.client.set_cookie(cookie_name, session_id)
 
     def add_levels(self) -> None:
@@ -66,10 +68,7 @@ class TestCourseRoute(unittest.TestCase):
         self.level_ids: list[str] = []
 
         for level in self.levels:
-            response = self.client.post(
-                "/api/v1/levels",
-                json=level
-            )
+            response = self.client.post("/api/v1/levels", json=level)
             self.level_ids.append(response.get_json().get("id"))
 
     def delete_levels(self) -> None:
@@ -77,9 +76,7 @@ class TestCourseRoute(unittest.TestCase):
         Delete levels created.
         """
         for level_id in self.level_ids:
-            self.client.delete(
-                f"/api/v1/levels/{level_id}"
-            )
+            self.client.delete(f"/api/v1/levels/{level_id}")
 
     def setUp(self) -> None:
         """
@@ -93,10 +90,7 @@ class TestCourseRoute(unittest.TestCase):
 
         for index, course in enumerate(self.courses):
             course["level_id"] = self.level_ids[index]
-            response = self.client.post(
-                f"/api/v1/courses",
-                json=course
-            )
+            response = self.client.post(f"/api/v1/courses", json=course)
             self.course_ids.append(response.get_json().get("id"))
             self.add_course_responses.append(response.get_json())
 
@@ -105,34 +99,30 @@ class TestCourseRoute(unittest.TestCase):
         Deletes created courses after each test execution.
         """
         for course_id in self.course_ids:
-            self.client.delete(
-                f"/api/v1/courses/{course_id}"
-            )
+            self.client.delete(f"/api/v1/courses/{course_id}")
 
         self.delete_levels()
         if storage.count(Level):
             raise ValueError("Level deletion was not successful.")
         if storage.count(Course):
             raise ValueError("Course deletion was not successful.")
-    
+
     @classmethod
     def tearDownClass(cls) -> None:
         """
         Deletes the admin user after executing the class.
         """
-        cls.client.delete(
-            f"/api/v1/users/{cls.user_id}"
-        )
+        cls.client.delete(f"/api/v1/users/{cls.user_id}")
         if storage.count(User):
             raise ValueError("Users deletion was not successful")
-    
+
     def test_add_courses(self):
         """
         Test that a course is successfully created.
         """
         for response_json in self.add_course_responses:
             self.assertIn("course_code", response_json)
-    
+
     def test_get_all_courses(self):
         """
         Test that all courses in the database are returned.
@@ -140,21 +130,21 @@ class TestCourseRoute(unittest.TestCase):
         response = self.client.get("/api/v1/courses")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.get_json()), len(self.courses))
-    
+
     def test_get_all_courses_with_pagination(self):
         """
         Test that courses retrieval are limited by the page size given.
         """
         response = self.client.get(
-            "/api/v1/courses",
-            query_string={"page_size": 3, "page_num": 1}
+            "/api/v1/courses", query_string={"page_size": 3, "page_num": 1}
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.get_json()), 3)
-    
+
     def test_search_courses_by_course_codes(self):
         """
-        Test that only the courses that match the search string are retrieved.
+        Test that only the courses that match the
+        search string are retrieved.
         """
         response = self.client.get(
             "/api/v1/courses",
@@ -167,7 +157,9 @@ class TestCourseRoute(unittest.TestCase):
         Test that a course is retrieved successfully.
         Verify __class__ is not in the response.
         """
-        response = self.client.get(f"/api/v1/courses/{self.course_ids[0]}")
+        response = self.client.get(
+            f"/api/v1/courses/{self.course_ids[0]}"
+        )
 
         course_data = response.get_json()
         self.assertEqual(response.status_code, 200)
@@ -189,17 +181,20 @@ class TestCourseRoute(unittest.TestCase):
         """
         Test that a course is updated successfully.
         """
-        course = self.client.get(f"/api/v1/courses/{self.course_ids[0]}")
+        course = self.client.get(
+            f"/api/v1/courses/{self.course_ids[0]}"
+        )
         self.assertEqual(course.get_json().get("semester"), "first")
 
         new_data = {"semester": "second"}
         response = self.client.put(
-            f"/api/v1/courses/{self.course_ids[0]}",
-            json=new_data
+            f"/api/v1/courses/{self.course_ids[0]}", json=new_data
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json().get("semester"), new_data["semester"])
-
+        self.assertEqual(
+            response.get_json().get("semester"),
+            new_data["semester"]
+        )
 
 
 if __name__ == "__main__":

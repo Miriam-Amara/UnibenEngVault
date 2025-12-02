@@ -30,20 +30,24 @@ class FileStatus(str, Enum):
     approved = "approved"
     rejected = "rejected"
 
+
 class ReportType(str, Enum):
     file = "file"
     tutorial_link = "tutorial link"
     content = "content"
     other = "other"
 
+
 class ReportStatus(str, Enum):
     pending = "pending"
     in_progress = "in progress"
     resolved = "resolved"
 
+
 class ReportPriority(str, Enum):
     normal = "normal"
     high = "high"
+
 
 class Semester(str, Enum):
     first_semester = "first"
@@ -54,19 +58,24 @@ class CourseCreate(BaseModel):
     """
     Validation class for creating courses.
     """
+
     course_code: Annotated[
         str,
         StringConstraints(
-        pattern=r'^[a-z]{3}\d{3}$',
-        min_length=6,
-        max_length=6,
-        strip_whitespace=True
-    )]
+            pattern=r"^[a-z]{3}\d{3}$",
+            min_length=6,
+            max_length=6,
+            strip_whitespace=True,
+        ),
+    ]
     semester: Semester
     credit_load: Annotated[int, PositiveInt]
     title: Annotated[
         str,
-        StringConstraints(min_length=3, max_length=500)
+        StringConstraints(
+            min_length=3,
+            max_length=500
+        )
     ]
     level_id: Annotated[
         str,
@@ -78,7 +87,10 @@ class CourseCreate(BaseModel):
     ]
     outline: Annotated[
         str,
-        StringConstraints(min_length=5, max_length=2000)
+        StringConstraints(
+            min_length=5,
+            max_length=2000
+        )
     ]
     is_active: Optional[StrictBool] = True
 
@@ -90,7 +102,8 @@ class CourseCreate(BaseModel):
         """
         if credit_load < 1 or credit_load > 10:
             raise ValueError(
-                "Credit load must not be less than one or greater than ten"
+                "Credit load must not be less than"
+                " one or greater than ten"
             )
         return credit_load
 
@@ -110,32 +123,53 @@ class CourseUpdate(BaseModel):
     """
     Validation class for updating courses.
     """
-    course_code: Optional[Annotated[
-        str,
-        StringConstraints(
-        pattern=r'^[a-z]{3}\d{3}$',
-        min_length=6,
-        max_length=6,
-        strip_whitespace=True
-    )]] = None
+
+    course_code: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                pattern=r"^[a-z]{3}\d{3}$",
+                min_length=6,
+                max_length=6,
+                strip_whitespace=True,
+            ),
+        ]
+    ] = None
     semester: Optional[Semester] = None
-    credit_load: Optional[Annotated[int, PositiveInt]] = None
-    level_id: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=36,
-            max_length=36,
-            strip_whitespace=True
-        )
-    ]] = None
-    title: Optional[Annotated[
-        str,
-        StringConstraints(min_length=3, max_length=500)
-    ]] = None
-    outline: Optional[Annotated[
-        str,
-        StringConstraints(min_length=5, max_length=2000)
-    ]] = None
+    credit_load: Optional[
+        Annotated[
+            int,
+            PositiveInt
+        ]
+    ] = None
+    level_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=36,
+                max_length=36,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
+    title: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=3,
+                max_length=500
+            )
+        ]
+    ] = None
+    outline: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=5,
+                max_length=2000
+            )
+        ]
+    ] = None
     is_active: Optional[StrictBool] = None
 
     @field_validator("credit_load")
@@ -166,6 +200,7 @@ class DepartmentCreate(BaseModel):
     """
     Validation class for creating departments.
     """
+
     dept_name: Annotated[
         str,
         StringConstraints(
@@ -198,22 +233,27 @@ class DepartmentUpdate(BaseModel):
     """
     Validation class for updating department requests.
     """
-    dept_name: Optional[Annotated[
-        str,
-        StringConstraints(
-            pattern=r".*\bengineering$",
-            strip_whitespace=True
-        )
-    ]] = None
-    dept_code: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=3,
-            max_length=3,
-            strip_whitespace=True
-        )
-    ]] = None
-    
+
+    dept_name: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                pattern=r".*\bengineering$",
+                strip_whitespace=True
+            )
+        ]
+    ] = None
+    dept_code: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=3,
+                max_length=3,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
+
     @model_validator(mode="before")
     @classmethod
     def set_to_lowercase(cls, request_data: Any):
@@ -225,10 +265,12 @@ class DepartmentUpdate(BaseModel):
                 request_data[attr] = value.lower()
         return request_data
 
+
 class FileCreate(BaseModel):
     """
     Validation class for file creation.
     """
+
     course_id: Annotated[
         str,
         StringConstraints(
@@ -239,12 +281,19 @@ class FileCreate(BaseModel):
     ]
     file_type: Annotated[
         str,
-        StringConstraints(strip_whitespace=True)
+        StringConstraints(
+            strip_whitespace=True
+        )
     ]
-    session: Optional[Annotated[
-        str,
-        StringConstraints(pattern=r"^\d{4}/\d{4}$", strip_whitespace=True)
-    ]] = None
+    session: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                pattern=r"^\d{4}/\d{4}$",
+                strip_whitespace=True
+            )
+        ]
+    ] = None
 
     @field_validator("file_type")
     @classmethod
@@ -253,50 +302,64 @@ class FileCreate(BaseModel):
         Validate the type of files given in the request.
         """
         valid_file_types = [
-            "lecture material", "note", "past question",
+            "lecture material",
+            "note",
+            "past question",
             "past questions",
         ]
         if v.lower() not in valid_file_types:
             raise ValueError(
-            "file type must be any of these: lecture material, note,"
-            " past question, past questions"
-        )
+                "file type must be any of these: lecture material, note,"
+                " past question, past questions"
+            )
         return v.lower()
+
 
 class FileUpdate(BaseModel):
     """
     Validation class for updating files.
     """
-    course_id: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=36,
-            max_length=36,
-            strip_whitespace=True
-        )
-    ]] = None
-    file_type: Optional[Annotated[
-        str,
-        StringConstraints(strip_whitespace=True)
-    ]] = None
-    session: Optional[Annotated[
-        str,
-        StringConstraints(
-            pattern=r"^\d{4}/\d{4}$",
-            strip_whitespace=True
-        )
-    ]] = None
+
+    course_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=36,
+                max_length=36,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
+    file_type: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                strip_whitespace=True
+            )
+        ]
+    ] = None
+    session: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                pattern=r"^\d{4}/\d{4}$",
+                strip_whitespace=True
+            )
+        ]
+    ] = None
 
     status: Optional[FileStatus] = None
-    rejection_reason: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=5,
-            max_length=1024,
-            to_lower=True,
-            strip_whitespace=True
-        )
-    ]] = None
+    rejection_reason: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=5,
+                max_length=1024,
+                to_lower=True,
+                strip_whitespace=True
+            ),
+        ]
+    ] = None
 
     @field_validator("file_type")
     @classmethod
@@ -305,21 +368,24 @@ class FileUpdate(BaseModel):
         validates the type of files given in the request data.
         """
         valid_file_types = [
-            "lecture material", "note", "past question",
+            "lecture material",
+            "note",
+            "past question",
             "past questions",
         ]
         if v.lower() not in valid_file_types:
             raise ValueError(
-            "file type must be any of these: lecture material, note,"
-            " past question, past questions"
-        )
+                "file type must be any of these: lecture material, note,"
+                " past question, past questions"
+            )
         return v.lower()
-    
+
 
 class LevelCreate(BaseModel):
     """
     Validation class for creating levels.
     """
+
     level_name: Annotated[int, PositiveInt]
 
     @field_validator("level_name")
@@ -327,9 +393,7 @@ class LevelCreate(BaseModel):
     def validate_level(cls, v: int) -> int:
         valid_levels = [100, 200, 300, 400, 500, 600]
         if v not in valid_levels:
-            raise ValueError(
-                "Level must be 100, 200, 300, 400, 500 or 600"
-            )
+            raise ValueError("Level must be 100, 200, 300, 400, 500 or 600")
         return v
 
 
@@ -337,6 +401,7 @@ class ReportCreate(BaseModel):
     """
     Validation class for creating reports.
     """
+
     report_type: ReportType
     message: Annotated[
         str,
@@ -346,22 +411,26 @@ class ReportCreate(BaseModel):
             strip_whitespace=True
         )
     ]
-    file_id: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=36,
-            max_length=36,
-            strip_whitespace=True
-        )
-    ]] = None
-    tutorial_link_id: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=36,
-            max_length=36,
-            strip_whitespace=True
-        )
-    ]] = None
+    file_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=36,
+                max_length=36,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
+    tutorial_link_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=36,
+                max_length=36,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -373,21 +442,25 @@ class ReportCreate(BaseModel):
             if isinstance(value, str):
                 request_data[attr] = value.lower()
         return request_data
+
 
 class ReportUpdate(BaseModel):
     """
     Validation class for updating reports.
     """
+
     priority: Optional[ReportPriority] = None
     status: Optional[ReportStatus] = None
-    response: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=5,
-            max_length=2000,
-            strip_whitespace=True
-        )
-    ]] = None
+    response: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=5,
+                max_length=2000,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -399,7 +472,7 @@ class ReportUpdate(BaseModel):
             if isinstance(value, str):
                 request_data[attr] = value.lower()
         return request_data
-    
+
 
 class UserLogin(BaseModel):
     """
@@ -436,10 +509,12 @@ class UserLogin(BaseModel):
             raise ValueError("Must contain a digit")
         return v
 
+
 class UserCreate(BaseModel):
     """
     Validation class for creating users.
     """
+
     email: EmailStr
     password: Annotated[
         str,
@@ -450,28 +525,32 @@ class UserCreate(BaseModel):
         )
     ]
     is_admin: Optional[StrictBool] = None
-    department_id: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=36,
-            max_length=36,
-            strip_whitespace=True
-        )
-    ]] = None
-    level_id: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=36,
-            max_length=36,
-            strip_whitespace=True
-        )
-    ]] = None
+    department_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=36,
+                max_length=36,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
+    level_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=36,
+                max_length=36,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
 
     @field_validator("email")
     @classmethod
     def lowercase_email(cls, v: EmailStr) -> EmailStr:
         return v.lower()
-    
+
     @field_validator("password")
     @classmethod
     def check_complexity(cls, v: Any):
@@ -486,29 +565,35 @@ class UserUpdate(BaseModel):
     """
     Validation class for updating users.
     """
+
     is_admin: Optional[StrictBool] = None
-    department_id: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=36,
-            max_length=36,
-            strip_whitespace=True
-        )
-    ]] = None
-    level_id: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=36,
-            max_length=36,
-            strip_whitespace=True
-        )
-    ]] = None
+    department_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=36,
+                max_length=36,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
+    level_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=36,
+                max_length=36,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
 
 
 class UserWarningCreate(BaseModel):
     """
     Validation class for creating user warning.
     """
+
     reason: Annotated[
         str,
         StringConstraints(
@@ -516,7 +601,7 @@ class UserWarningCreate(BaseModel):
             max_length=1024,
             strip_whitespace=True,
             to_lower=True
-        )
+        ),
     ]
 
 
@@ -524,23 +609,28 @@ class UserWarningUpdate(BaseModel):
     """
     Validation class for updating user warning.
     """
-    reason: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=3,
-            max_length=1024,
-            strip_whitespace=True,
-            to_lower=True
-        )
-    ]] = None
-    user_id: Optional[Annotated[
-        str,
-        StringConstraints(
-            min_length=36,
-            max_length=36,
-            strip_whitespace=True
-        )
-    ]] = None
+
+    reason: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=3,
+                max_length=1024,
+                strip_whitespace=True,
+                to_lower=True
+            ),
+        ]
+    ] = None
+    user_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(
+                min_length=36,
+                max_length=36,
+                strip_whitespace=True
+            )
+        ]
+    ] = None
 
 
 def get_request_data() -> dict[str, Any]:
@@ -555,8 +645,8 @@ def get_request_data() -> dict[str, Any]:
 
 
 def validate_form_data(
-        validation_cls: Type[BaseModel]
-    ) -> Tuple[dict[str, Any], FileStorage | None]:
+    validation_cls: Type[BaseModel],
+) -> Tuple[dict[str, Any], FileStorage | None]:
     """
     Validates file metadata if validation_cls is either FileCreate or
     FileUpadate.
@@ -570,7 +660,7 @@ def validate_form_data(
 
     if not file_metadata and not file_obj:
         file_metadata = get_request_data()
-    
+
     try:
         valid_data = validation_cls(**file_metadata)
     except ValidationError as e:
@@ -579,14 +669,14 @@ def validate_form_data(
     if not valid_data.model_dump(exclude_none=True) and not file_obj:
         abort(400, description="Request data cannot be empty")
     return valid_data.model_dump(exclude_unset=True), file_obj
-    
 
 
 def validate_request_data(
         validation_cls: Type[BaseModel]
-    ) -> dict[str, Any]:
+) -> dict[str, Any]:
     """
-    Returns validated request data or aborts the request on validation error.
+    Returns validated request data or
+    aborts the request on validation error.
     """
     if not issubclass(validation_cls, BaseModel):  # type: ignore
         logger.error(

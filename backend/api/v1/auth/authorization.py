@@ -16,8 +16,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 def admin_only(func: F) -> F:
     @functools.wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        """
-        """
+        """ """
         user = getattr(g, "current_user", None)
         if not user:
             abort(403)
@@ -25,4 +24,5 @@ def admin_only(func: F) -> F:
         if not user.is_admin:
             abort(403)
         return func(*args, **kwargs)
+
     return cast(F, wrapper)
