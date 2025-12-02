@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Defines the Course model for the system."""
+"""Defines course model for the system."""
 
 from sqlalchemy import String, Integer, Boolean, ForeignKey, Enum
 from sqlalchemy import Table, Column
@@ -54,7 +54,7 @@ class Course(BaseModel, Base):
     title = mapped_column(String(500), nullable=False)
     outline = mapped_column(String(2000), nullable=False)
     is_active = mapped_column(Boolean, nullable=False, default=True)
-    level_id = mapped_column(ForeignKey("levels.id"), nullable=False)
+    level_id = mapped_column(ForeignKey("levels.id", ondelete="SET NULL"))
     admin_id = mapped_column(ForeignKey("admins.id", ondelete="SET NULL"))
 
     level = relationship(
@@ -68,10 +68,9 @@ class Course(BaseModel, Base):
     files = relationship(
         "File",
         back_populates="course",
-        cascade="all, delete-orphan"
     )
     departments = relationship(
         "Department",
         secondary="course_departments",
-        back_populates="courses"
+        back_populates="courses",
     )
