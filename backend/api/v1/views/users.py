@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 """
-
+Implements routes for CRUD (Create, Read, Update and Delete)
+operations on users.
 """
 
 
@@ -35,7 +36,7 @@ def get_user_dict(user: User) -> dict[str, Any]:
     if user.department:
         user_dict["department"] = user.department.dept_code.upper()
     if user.level:
-        user_dict["level"] = user.level.name
+        user_dict["level"] = user.level.level_name
     user_dict["course_files_added"] = len(user.course_files_added)
     user_dict["tutorial_links_added"] = len(user.tutorial_links_added)
     user_dict["feedbacks_added"] = len(user.feedbacks_added)
@@ -94,24 +95,21 @@ def get_all_users():
     page_size: str | None = request.args.get("page_size")
     page_num: str | None  = request.args.get("page_num")
     created_at: str | None = request.args.get("created_at")
-    email_str: str | None = request.args.get("search_str")
-
-    pg_size: int | None = int(page_size) if page_size else None
-    pg_num: int | None = int(page_num) if page_num else None
+    email_str: str | None = request.args.get("search")
     
-    if email_str:
-        users = storage.search(
+    if email_str or created_at:
+        users = storage.filter(
             User,
-            email_str,
+            search_str=email_str,
+            date_str=created_at,
             page_size=page_size,
             page_num=page_num
         )
     else:
         users = storage.all(
             User,
-            page_size=pg_size,
-            page_num=pg_num,
-            date_time=created_at
+            page_size=page_size,
+            page_num=page_num,
         )
 
     if not users:
