@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Defines the File model for the system."""
+"""Defines file model for the system."""
 
 from sqlalchemy import String, Integer, ForeignKey, Enum
 from sqlalchemy.orm import mapped_column, relationship
@@ -31,9 +31,9 @@ class File(BaseModel, Base):
 
     file_name = mapped_column(String(200), nullable=False)
     file_type = mapped_column(String(100), nullable=False)
-    file_format = mapped_column(String(10), nullable=False)
+    file_ext = mapped_column(String(10), nullable=False)
+    file_size = mapped_column(Integer, nullable=False)  # in kilobytes
     session = mapped_column(String(20))
-    size = mapped_column(Integer, nullable=False)  # in kilobytes
     status = mapped_column(
         Enum(FileStatus, name="file_status", create_type=True),
         nullable=False, default="pending"
@@ -41,9 +41,7 @@ class File(BaseModel, Base):
     rejection_reason = mapped_column(String(1024))
     temp_filepath = mapped_column(String(300), nullable=False)
     permanent_filepath = mapped_column(String(300))
-    course_id = mapped_column(
-        String(36), ForeignKey("courses.id"), nullable=False
-    )
+    course_id = mapped_column(String(36), ForeignKey("courses.id", ondelete="SET NULL"))
     user_id = mapped_column(String(36), ForeignKey("users.id", ondelete="SET NULL"))
     admin_id = mapped_column(String(36), ForeignKey("admins.id", ondelete="SET NULL"))
 
