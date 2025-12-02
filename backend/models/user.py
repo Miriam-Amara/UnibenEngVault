@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-"""Defines user-related models for the system."""
+"""
+Defines user-related models for the system.
+"""
 
 
 from datetime import datetime
@@ -52,11 +54,11 @@ class User(BaseModel, Base):
     warnings = relationship(
         "UserWarning",
         back_populates="issued_to",
-        viewonly=True
     )
     suspension = relationship(
         "UserSuspension",
         back_populates="issued_to",
+        cascade="all, delete-orphan",
         uselist=False
     )
     admin = relationship(
@@ -93,6 +95,8 @@ class User(BaseModel, Base):
         page_size: int, page_num: int
     ):
         """
+        Returns users that belond to a specific department and level if found,
+        otherwise return None.
         """
         from models import storage
         users: Sequence[User] | None = storage.get_users_by_dept_and_level(
@@ -103,6 +107,8 @@ class User(BaseModel, Base):
     @classmethod
     def search_email(cls, email: str):
         """
+        Search for a user email in the database.
+        Returns the user if found or None otherwise.
         """
         from models import storage
         return storage.search_email(email)
@@ -124,16 +130,14 @@ class UserWarning(BaseModel, Base):
     __tablename__ = "user_warnings"
 
     reason = mapped_column(String(1024), nullable=False)
-    user_id = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
-    admin_id = mapped_column(
-        String(36), ForeignKey("admins.id"), nullable=False
-    )
+    user_id = mapped_column(String(36), ForeignKey("users.id", ondelete="SET NULL"))
+    admin_id = mapped_column(String(36), ForeignKey("admins.id", ondelete="SET NULL"))
 
     issued_to: Mapped[User] = relationship(
-        "User", back_populates="warnings", viewonly=False, uselist=False
+        "User", back_populates="warnings", uselist=False
     )
     issued_by = relationship(
-        "Admin", back_populates="user_warnings_issued", viewonly=True
+        "Admin", back_populates="user_warnings_issued"
     )
 
 
@@ -156,9 +160,7 @@ class UserSuspension(BaseModel, Base):
         DateTime, nullable=False, default=datetime.now, sort_order=-2
     )
     user_id = mapped_column(
-        String(36), ForeignKey("users.id"), unique=True, nullable=False
+        String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False,
     )
 
-    issued_to = relationship(
-        "User", back_populates="suspension", viewonly=True
-    )
+    issued_to = relationship("User", back_populates="suspension")
