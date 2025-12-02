@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
 """
+Implements custom error handlers with custom messages.
 """
 
 
 from flask import jsonify
 from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
+import sys
+import traceback
 
 def bad_request(error: HTTPException):
     """Handles 400 bad request errors"""
@@ -39,7 +42,11 @@ def conflict_error(error: HTTPException):
 
 def server_error(error: HTTPException):
     """Handles 500 server request errors"""
-    return jsonify({"error": "Internal Server Error"}), 500
+    # This forces the full traceback to print to the console
+    traceback.print_exc(file=sys.stderr)
+    return jsonify(
+        {"error": "An internal server error occurred. Check server logs for details."}
+    ), 500
 
 def large_request_error(error: RequestEntityTooLarge):
     """Handles files too large errors"""
