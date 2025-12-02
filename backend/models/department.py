@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Defines the Department model for the system.
+Defines department model for the system.
 """
 
 from sqlalchemy import String
@@ -24,7 +24,7 @@ class Department(BaseModel, Base):
 
     __tablename__ = "departments"
 
-    name = mapped_column(String(200), unique=True, nullable=False)
+    dept_name = mapped_column(String(200), unique=True, nullable=False)
     dept_code = mapped_column(String(20), unique=True, nullable=False)
     users = relationship(
         "User",
