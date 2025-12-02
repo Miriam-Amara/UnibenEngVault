@@ -7,6 +7,7 @@
 
 from flask import Flask
 from flask.testing import FlaskClient
+from typing import cast
 import logging
 import unittest
 
@@ -16,7 +17,7 @@ from models.course import Course
 from models.department import Department
 from models.level import Level
 from models.user import User
-from tests.requests_data import course_data, department_data, level_data
+from tests.requests_data import courses_data, departments_data, levels_data
 
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,6 @@ class TestCourseDepartmentRoute(unittest.TestCase):
     """
     POST - /api/v1/courses/<course_id>/departments/<department_id>
     POST - /api/v1/departments/<department_id>/courses/<course_id>
-    GET - /api/v1/courses/<course_id>/departments
     GET - /api/v1/departments/<department_id>/levels/<level_id>/courses
     DELETE - /api/v1/courses/<course_id>/departments/<department_id>
     DELETE - /api/v1/departments/<department_id>/courses/<course_id>
@@ -34,6 +34,7 @@ class TestCourseDepartmentRoute(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """
+        Creates and login an admin user before execution of the test methods.
         """
         cls.app: Flask = create_app()
         cls.client: FlaskClient = cls.app.test_client()
@@ -59,65 +60,72 @@ class TestCourseDepartmentRoute(unittest.TestCase):
             )
             cls.client.set_cookie(cookie_name, session_id)
     
-    def add_courses(self) -> None:
+    
+    def register_levels(self) -> None:
         """
+        Create new levels.
         """
-        self.add_levels()
-        self.course_data = course_data
-        self.course_ids: list[str] = []
+        self.levels = levels_data
+        self.level_ids: list[str] = []
 
-        for index, data in enumerate(self.course_data):
-            data["level_id"] = self.level_ids[index]
-            self.response = self.client.post(
-                f"/api/v1/courses",
-                json=data
+        for level in self.levels:
+            response = self.client.post(
+                "/api/v1/levels",
+                json=level
             )
-            self.course_ids.append(self.response.get_json().get("id"))
+            self.level_ids.append(response.get_json().get("id"))
 
-    def add_departments(self) -> None:
+    def register_departments(self) -> None:
         """
+        Create new departments.
         """
-        self.department_data = department_data
+        self.departments = departments_data
         self.dept_ids: list[str] = []
 
-        for data in self.department_data:
+        for dept in self.departments:
             response = self.client.post(
                 "/api/v1/departments",
-                json=data
+                json=dept
             )
             self.dept_ids.append(response.get_json().get("id"))
     
-    def add_levels(self) -> None:
+    def register_courses(self) -> None:
         """
+        Creates new courses.
         """
-        self.level_data = level_data
-        self.level_ids: list[str] = []
+        self.register_levels()
+        self.courses = courses_data
+        self.course_ids: list[str] = []
 
-        for data in self.level_data:
-            response = self.client.post(
-                "/api/v1/levels",
-                json=data
+        for index, course in enumerate(self.courses):
+            course["level_id"] = self.level_ids[index]
+            self.response = self.client.post(
+                f"/api/v1/courses",
+                json=course
             )
-            self.level_ids.append(response.get_json().get("id"))
+            self.course_ids.append(self.response.get_json().get("id"))
     
     def delete_courses(self):
         """
+        Delete the created courses.
         """
         for course_id in self.course_ids:
             self.client.delete(
                 f"/api/v1/courses/{course_id}"
             )
 
-    def delete_department(self) -> None:
+    def delete_departments(self) -> None:
         """
+        Delete the created departmnets.
         """
         for dept_id in self.dept_ids:
             self.client.delete(
                 f"/api/v1/departments/{dept_id}"
             )
 
-    def delete_level(self) -> None:
+    def delete_levels(self) -> None:
         """
+        Delete the created levels
         """
         for level_id in self.level_ids:
             self.client.delete(
@@ -126,28 +134,32 @@ class TestCourseDepartmentRoute(unittest.TestCase):
     
     def setUp(self) -> None:
         """
+        Adds courses to departments and departments to courses before
+        each test method execution.
         """
-        self.add_courses()
-        self.add_departments()
+        self.register_courses()
+        self.register_departments()
+
         for course_id in self.course_ids:
             for dept_id in self.dept_ids:
                 self.client.post(
                     f"/api/v1/courses/{course_id}/departments/{dept_id}"
                 )
-        
+
         for dept_id in self.dept_ids:
             for course_id in self.course_ids:
                 self.client.post(
                     f"/api/v1/departments/{dept_id}/courses/{course_id}"
                 )
-        
-        
+
     def tearDown(self) -> None:
         """
+        Delete the created courses, departments and levels after each test
+        method execution.
         """
         self.delete_courses()
-        self.delete_department()
-        self.delete_level()
+        self.delete_departments()
+        self.delete_levels()
 
         if storage.count(Course):
             raise ValueError("Courses deletion was not successful.")
@@ -159,6 +171,7 @@ class TestCourseDepartmentRoute(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """
+        Deletes the admin user after executing the class.
         """
         cls.client.delete(
             f"/api/v1/users/{cls.user_id}"
@@ -166,8 +179,9 @@ class TestCourseDepartmentRoute(unittest.TestCase):
         if storage.count(User):
             raise ValueError("Users deletion was not successful")
     
-    def test_add_course_departments(self):
+    def test_add_departments_to_course(self):
         """
+        Test that departments are successfully addded to a course
         """
         for course_id in self.course_ids:
             for dept_id in self.dept_ids:
@@ -176,8 +190,9 @@ class TestCourseDepartmentRoute(unittest.TestCase):
                 )
                 self.assertEqual(response.status_code, 201)
     
-    def test_add_department_courses(self):
+    def test_add_courses_to_department(self):
         """
+        Test that courses are successfully added to a department.
         """
         for dept_id in self.dept_ids:
             for course_id in self.course_ids:
@@ -185,35 +200,61 @@ class TestCourseDepartmentRoute(unittest.TestCase):
                     f"/api/v1/departments/{dept_id}/courses/{course_id}"
                 )
                 self.assertEqual(response.status_code, 201)
-
-    def test_get_course_departments(self):
+    
+    def test_get_courses_by_department_and_level(self):
         """
-        """
-        response = self.client.get(
-            f"/api/v1/courses/{self.course_ids[0]}/departments"
-        )
-        self.assertEqual(response.status_code, 200)
-        
-    def test_get_department_level_courses(self):
-        """
+        Test the retrieval of courses offered by a specific department and
+        level and optionally filter by semester.
         """
         response = self.client.get(
             f"/api/v1/departments/{self.dept_ids[0]}"
             f"/levels/{self.level_ids[0]}/courses?semester=first"
         )
         self.assertEqual(response.status_code, 200)
-        import json
-        logger.debug(json.dumps(response.get_json(), indent=4))
+        
 
-    def test_delete_course_department(self):
+    def test_delete_department_from_course(self):
         """
+        Tests that a department is successfully removed from a course.
         """
-        pass
+        department = cast(
+            Department, storage.get_obj_by_id(Department, self.dept_ids[0])
+        ).dept_name
 
-    def test_delete_department_course(self):
+        self.assertIn(
+            department,
+            self.client.get(f"/api/v1/courses/{self.course_ids[0]}")
+            .get_json()
+            .get("departments")
+        )
+
+        response = self.client.delete(
+            f"/api/v1/courses/{self.course_ids[0]}/departments/{self.dept_ids[0]}"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(department, response.get_json().get("departments"))
+
+    def test_delete_course_from_department(self):
         """
+        Test that a course is successfully removed from a department.
         """
-        pass
+        department = cast(
+            Department, storage.get_obj_by_id(Department, self.dept_ids[0])
+        ).dept_name
+
+        self.assertIn(
+            department,
+            self.client.get(f"/api/v1/courses/{self.course_ids[0]}")
+            .get_json()
+            .get("departments")
+        )
+
+        response = self.client.delete(
+            f"/api/v1/departments/{self.dept_ids[0]}/courses/{self.course_ids[0]}/"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(department, response.get_json().get("departments"))
+        
   
 
 if __name__ == "__main__":
