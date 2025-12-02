@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Defines the Feedback model for the system."""
+"""Defines feedback model for the system."""
 
 
 from sqlalchemy import String, Enum, ForeignKey
@@ -40,10 +40,9 @@ class Feedback(BaseModel, Base):
     admin_id = mapped_column(
         String(36), ForeignKey("admins.id", ondelete="SET NULL")
     )
-
     added_by = relationship(
-        "User", back_populates="feedbacks_added", viewonly=True
+        "User", back_populates="feedbacks_added"
     )
     reviewed_by = relationship(
-        "Admin", back_populates="feedbacks_reviewed", viewonly=True
+        "Admin", back_populates="feedbacks_reviewed"
     )
