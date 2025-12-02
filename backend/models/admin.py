@@ -25,7 +25,7 @@ class Admin(BaseModel, Base):
 
     is_super_admin = mapped_column(Boolean, nullable=False, default=False)
     user_id = mapped_column(
-        String(36), ForeignKey("users.id"), unique=True, nullable=False
+        String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
 
     user = relationship(
@@ -65,6 +65,12 @@ class Admin(BaseModel, Base):
     reports_reviewed = relationship(
         "Report",
         back_populates="reviewed_by"
+    )
+    from models.notification import notification_reads
+    notifications = relationship(
+        "Notification",
+        secondary="notification_reads",
+        back_populates="admin",
     )
 
 
@@ -109,14 +115,14 @@ class AdminPermission(BaseModel, Base):
         String(36), ForeignKey("admins.id"), unique=True, nullable=False
     )
     department_id = mapped_column(
-        String(36), ForeignKey("departments.id"),
+        String(36), ForeignKey("departments.id", ondelete="CASCADE"),
         primary_key=True, nullable=False
     )
     level_id = mapped_column(
-        String(36), ForeignKey("levels.id"), primary_key=True, nullable=False
+        String(36), ForeignKey("levels.id", ondelete="CASCADE"), primary_key=True, nullable=False
     )
     permission_id = mapped_column(
-        String(36), ForeignKey("permissions.id"),
+        String(36), ForeignKey("permissions.id", ondelete="CASCADE"),
         primary_key=True, nullable=False
     )
 
