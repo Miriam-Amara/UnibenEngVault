@@ -48,6 +48,7 @@ def issue_user_warning(user_id: str):
 # allow only admins
 @app_views.route(
         "/users/warnings/<int:page_size>/<int:page_num>",
+        strict_slashes=False,
         methods=["GET"]
     )
 @admin_only
@@ -67,6 +68,7 @@ def all_user_warnings(page_size: int, page_num: int):
 # allow only admins
 @app_views.route(
         "/users/<user_id>/warnings",
+        strict_slashes=False,
         methods=["GET"]
     )
 @admin_only
@@ -84,6 +86,7 @@ def get_user_warnings(user_id: str):
 # allow only admins
 @app_views.route(
         "/users/warnings/<user_warning_id>",
+        strict_slashes=False,
         methods=["PUT"]
     )
 @admin_only
@@ -111,6 +114,7 @@ def update_user_warnings(user_warning_id: str):
 # allow only admins
 @app_views.route(
         "/users/warnings/<user_warning_id>",
+        strict_slashes=False,
         methods=["DELETE"]
     )
 @admin_only
