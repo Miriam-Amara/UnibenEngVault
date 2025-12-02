@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 """
-
+Implements routes for CRUD (Create, Read, Update and Delete)
+operations on departments.
 """
 
 
@@ -68,12 +69,13 @@ def get_all_departments():
     page_size: str | None = request.args.get("page_size")
     page_num: str | None = request.args.get("page_num")
     created_at: str | None = request.args.get("created_at")
-    search_str: str | None = request.args.get("search_str")
+    dept_name: str | None = request.args.get("search")
 
-    if search_str:
-        departments = storage.search(
+    if dept_name or created_at:
+        departments = storage.filter(
             Department,
-            search_str,
+            search_str=dept_name,
+            date_str=created_at,
             page_size=page_size,
             page_num=page_num
         )
@@ -81,8 +83,7 @@ def get_all_departments():
         departments = storage.all(
             Department,
             page_size=page_size,
-            page_num=page_num,
-            date_time=created_at
+            page_num=page_num
         )
     if not departments:
         abort(404, description="No department found")
@@ -99,6 +100,7 @@ def get_all_departments():
     )
 def get_department(dept_id: str):
     """
+    Retrieves a department from the database by its id.
     """
     department = get_obj(Department, dept_id)
     if not department:
@@ -116,6 +118,7 @@ def get_department(dept_id: str):
 @admin_only
 def update_department(dept_id: str):
     """
+    Update a department details and save to the database.
     """
     valid_data = validate_request_data(DepartmentUpdate)
     
@@ -141,6 +144,7 @@ def update_department(dept_id: str):
 @admin_only
 def delete_department(dept_id: str):
     """
+    Delete a department from the database using its id.
     """
     department = get_obj(Department, dept_id)
     if not department:
