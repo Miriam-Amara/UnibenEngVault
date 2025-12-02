@@ -4,24 +4,23 @@
 Database storage engine for managing ORM operations with SQLAlchemy.
 """
 
-from datetime import date, datetime
+from datetime import datetime
 from dotenv import load_dotenv
-from typing import Any, Optional, Sequence, Type, TypeVar
+from typing import Any, Optional, Sequence, Type, TypeVar, cast
 from sqlalchemy import  create_engine, select, and_, func
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.sql import Select
 import logging
 
 from models.basemodel import BaseModel, Base
 from models.admin import Admin, Permission, AdminPermission
-from models.course import Course, Semester, course_departments  # type: ignore
+from models.course import Course, Semester, course_departments
 from models.department import Department
 from models.feedback import Feedback
 from models.file import File
 from models.help import Help
 from models.level import Level
-from models.notification import (
-    Notification, notification_reads, NotificationScope # type: ignore
-)
+from models.notification import Notification, notification_reads
 from models.report import Report
 from models.tutoriallink import TutorialLink
 from models.user import User
@@ -58,50 +57,46 @@ class DBStorage:
         """Initialize the database engine."""
         self.__engine = create_engine(database_url, pool_pre_ping=True)
 
-
     def all(
         self,
         cls: Type[T],
         page_size: int | str | None = None,
         page_num: int | str | None = None,
-        date_time: str | None = None
     ) -> Sequence[T]:
         """
-        Return all objects or objects of a given class with optional
-        filtering by date and pagination.
+        Returns all objects of a class with optional pagination.
         """
-        if not issubclass(cls, BaseModel):  # type: ignore
+        if not issubclass(cls, BaseModel): # type: ignore
             raise TypeError("Cls must inherit from BaseModel")
-        if page_size and page_num:
-            try:
-                int(page_size)
-                int(page_num)
-            except ValueError:
-                raise ValueError(
-                    "page_size and page_num must be a valid positive integer"
-                )
-    
-        if date_time:
-            try:
-                datetime.fromisoformat(date_time)
-            except ValueError:
-                raise ValueError("date_time must be a valid ISO datetime string")
 
         stmt = select(cls)
 
-        if date_time:
-            date_only: date = datetime.fromisoformat(date_time).date()
-            stmt = stmt.where(func.date(cls.created_at) == date_only)
         if page_size and page_num:
-            stmt = (
-                stmt.offset((int(page_num) - 1) * int(page_size))
-                .limit(int(page_size))
-            )
-        
-        cls_objects = self.__session.scalars(stmt).all()
+            stmt = self.apply_pagination(stmt, page_size, page_num)
 
-        return cls_objects
+        return self.__session.scalars(stmt).all()
+
     
+    def apply_pagination(
+            self,
+            stmt: Select[Any],
+            page_size: str | int,
+            page_num: str | int
+        ):
+        """
+        Apply pagination if provided.
+        """
+        if page_size and page_num:
+            try:
+                page_size = int(page_size)
+                page_num = int(page_num)
+            except ValueError:
+                raise ValueError("page_size and page_num must be positive integers")
+
+            stmt = stmt.offset((int(page_num) - 1) * int(page_size)).limit(int(page_size))
+
+        return stmt
+
 
     def close(self) -> None:
         """Close the current database session."""
@@ -129,6 +124,67 @@ class DBStorage:
     def delete(self, obj: BaseModel) -> None:
         """Delete an object from the current session."""
         self.__session.delete(obj)
+    
+
+    def filter(
+        self,
+        cls: Type[T],
+        search_str: str | None = None,
+        date_str: str | None = None,
+        file_status: str | None = None,
+        page_size: int | str | None = None,
+        page_num: int | str | None = None,
+    ) -> Sequence[T]:
+        """
+        Returns objects of a class filtered optionally by:
+        - search str
+        - date
+        - file status
+        - pagination
+        """
+
+        search_map: dict[Any, Any] = {
+            Course: Course.course_code,
+            User: User.email,
+            File: File.file_name,
+            Department: Department.dept_name,
+            Level: Level.level_name
+        }
+
+        if not issubclass(cls, BaseModel):  # type: ignore
+            raise TypeError("Cls must inherit from BaseModel")
+
+        if search_str and not isinstance(search_str, str):  # type: ignore
+            raise ValueError("search_str must be a string")
+        
+        if file_status and not isinstance(file_status, str):  # type: ignore
+            raise ValueError("file_status must be a string")
+
+        stmt = select(cls)
+        filters: list[Select[Any]] = []
+
+        if search_str:
+            column = cast(Any, search_map.get(cls))
+            filters.append(column.ilike(f"%{search_str}%"))
+
+        if file_status:
+            filters.append(File.status == file_status)  # type: ignore
+
+        if date_str:
+            try:
+                date_only = datetime.fromisoformat(date_str).date()
+            except ValueError:
+                raise ValueError("date_str must be a valid ISO datetime")
+            filters.append(func.date(cls.created_at) == date_only)  # type: ignore
+
+        if filters:
+            stmt = stmt.where(*filters)  # type: ignore
+
+        if page_size and page_num:
+            stmt = self.apply_pagination(stmt, page_size, page_num)
+
+        return self.__session.scalars(stmt).all()
+
 
     def get_obj_by_id(self, cls: Type[T], id: str) -> T | None:
         """
@@ -170,7 +226,7 @@ class DBStorage:
         ) -> Sequence[Course]:
         """
         Returns all courses offered by a department and level optionally
-        filtere by semester.
+        filtered by semester.
         """
         if (not isinstance(department_id, str)  # type: ignore
             or not isinstance(level_id, str)  # type: ignore
@@ -181,7 +237,6 @@ class DBStorage:
             raise ValueError("semester must be either first or second.")
 
         stmt = (select(Course)
-                .select_from(Course)
                 .join(Course.departments)
                 .where(
                     Course.level_id == level_id,
@@ -230,77 +285,6 @@ class DBStorage:
         ).one_or_none()
         return user
 
-
-    def search(
-            self,
-            cls: Type[T],
-            search_str: str,
-            page_size: int | str | None = None,
-            page_num: int | str | None = None,
-        ) -> Sequence[T]:
-        """
-        Search for where objects name matches the search string in the given class.
-        """
-        if not issubclass(cls, BaseModel):  # type: ignore
-            raise TypeError("Cls must inherit from BaseModel")
-        
-        if (
-            not isinstance(search_str, str)  # type: ignore
-            or not search_str.strip()
-        ):
-            raise ValueError("search_str must be an instance of str.")
-        if page_size and page_num:
-            try:
-                int(page_size)
-                int(page_num)
-            except ValueError:
-                raise ValueError(
-                    "page_size and page_num must be a valid positive integer"
-                )
-        
-        if cls is Course:
-            stmt = select(Course).where(Course.course_code.ilike(f"%{search_str}%"))
-        elif cls is User:
-            stmt = select(Course).where(User.email.ilike(f"%{search_str}%"))
-        else:
-            stmt = select(cls).where(cls.name.ilike(f"%{search_str}%")) # type: ignore
-
-        if page_size and page_num:
-            stmt = (
-                stmt.offset((int(page_num) - 1) * int(page_size))
-                .limit(int(page_size))
-            )
-
-        cls_objects = self.__session.scalars(stmt).all()
-        return cls_objects
-
-
-# def get_courses_by_department_and_level(
-    #         self, 
-    #         department_id: str, level_id: str,
-    #         semester: Optional[str]=None
-    #     ) -> Optional[Sequence[BaseModel]]:
-    #     """
-    #     """
-    #     if semester and not isinstance(semester, str): # type: ignore
-    #        return
-        
-    #     if not isinstance(department_id, str) or not isinstance(level_id, str): # type: ignore
-    #         return
-        
-    #     stmt = (
-    #         select(Course)
-    #         .join(course_departments, Course.id == course_departments.c.course_id) # type: ignore
-    #         .where(
-    #             Course.level_id == level_id,
-    #             course_departments.c.department_id == department_id
-    #         )
-    #     )
-    #     if semester:
-    #         stmt = stmt.where(Course.semester == semester)
-        
-    #     courses = self.__session.scalars(stmt).all()
-    #     return courses
     
     # def get_user_notifications(self, user: User) -> Sequence[Any]:
     #     """
@@ -355,47 +339,3 @@ class DBStorage:
     #             .where(course_departments.c.course_id == course_id)
     #         )
     #     return course_department_count
-
-    
-    # def count_courses_by_department_and_level(
-    #         self, level_id: str, semester: str
-    #     ) -> Optional[Sequence[Any]]:
-    #     """
-    #     """
-    #     assert self.__session is not None, "Session has not been initialized"
-
-    #     total_departments = self.count("Department")
-    #     if not total_departments:
-    #         return
-        
-    #     course_dept_counts = (
-    #         select(
-    #             course_departments.c.course_id,
-    #             func.count(course_departments.c.department_id).label("dept_count")
-    #         )
-    #         .group_by(course_departments.c.course_id)
-    #         .subquery()
-    #     )
-
-    #     stmt = (
-    #         select(
-    #             func.count().filter(
-    #                 course_dept_counts.c.dept_count == 1
-    #             ).label("department_specific"),
-    #             func.count().filter(
-    #                 (course_dept_counts.c.dept_count > 1) &
-    #                 (course_dept_counts.c.dept_count < total_departments)
-    #             ).label("shared"),
-    #             func.count().filter(
-    #                 course_dept_counts.c.dept_count == total_departments
-    #             ).label("general"),
-    #         )
-    #         .select_from(Course)
-    #         .join(course_dept_counts, Course.id == course_dept_counts.c.course_id) # type: ignore
-    #         .where(
-    #             Course.level_id == level_id,
-    #             Course.semester == semester
-    #         )
-    #     )
-    #     courses_count = self.__session.scalars(stmt).all()
-    #     return courses_count
