@@ -1,25 +1,17 @@
 #!/usr/bin/env python3
 
-"""Defines the Notification model for the system."""
+"""Defines notification model for the system."""
 
 
 from datetime import datetime
-from sqlalchemy import Table, Column, String, Enum, ForeignKey, DateTime
+from sqlalchemy import Table, Column, String, ForeignKey, DateTime
 from sqlalchemy.orm import mapped_column, relationship
-import enum
 
 from models.basemodel import BaseModel, Base
-# from models.user import User
-
-class NotificationScope(str, enum.Enum):
-    personal = "personal"
-    group = "group"
-    general = "general"
-    admin = "admin"
 
 
 notification_reads = Table(
-    "notifications_reads",
+    "notification_reads",
     Base.metadata,
     Column(
         "notification_id",
@@ -28,9 +20,9 @@ notification_reads = Table(
         primary_key=True
     ),
     Column(
-        "user_id",
+        "admin_id",
         String(36),
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("admins.id", ondelete="CASCADE"),
         primary_key=True,
     ),
     Column(
@@ -55,40 +47,13 @@ class Notification(BaseModel, Base):
 
     __tablename__ = "notifications"
 
-    notification_scope = mapped_column(
-        Enum(NotificationScope, name="notification_scope", create_type=True),
-        nullable=False
-    )
     message = mapped_column(String(2000), nullable=False)
-    department_id = mapped_column(
-        String(36), ForeignKey("departments.id", ondelete="SET NULL")
-    )
-    level_id = mapped_column(
-        String(36), ForeignKey("levels.id", ondelete="SET NULL")
-    )
-    user_id = mapped_column(
-        String(36), ForeignKey("users.id", ondelete="SET NULL")
-    )
-    admin_id = mapped_column(
-        String(36), ForeignKey("admins.id", ondelete="SET NULL")
-    )
-    file_id = mapped_column(
-        String(36), ForeignKey("files.id", ondelete="SET NULL")
-    )
-    report_id = mapped_column(
-        String(36), ForeignKey("reports.id", ondelete="SET NULL")
-    )
-    help_id = mapped_column(
-        String(36), ForeignKey("helps.id", ondelete="SET NULL")
-    )
-    feedback_id = mapped_column(
-        String(36), ForeignKey("feedbacks.id", ondelete="SET NULL")
-    )
 
-    file = relationship("File", backref="notifications", lazy="noload")
-    report = relationship("Report", backref="notifications", lazy="noload")
-    help = relationship("Help", backref="notifications", lazy="noload")
-    feedback = relationship("Feedback", backref="notifications", lazy="noload")
+    admin = relationship(
+        "Admin",
+        secondary="notification_reads",
+        back_populates="notifications",
+    )
     
     # @classmethod
     # def get_notifications(cls, user: User):
