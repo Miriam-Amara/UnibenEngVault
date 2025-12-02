@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-
+Runs app an instance of Flask.
 """
 
 from dotenv import load_dotenv
@@ -10,8 +10,6 @@ from flask_cors import CORS
 from flask import Flask, g, request, abort
 from typing import Optional
 import os
-import sys
-import traceback
 
 from api.v1.views import app_views
 from api.v1.auth.session_db_auth import SessionDBAuth
@@ -22,18 +20,11 @@ from api.v1.utils.error_handlers import (
 from models import storage
 from models.user import User
 
-from api.v1.views.users import create_first_user
-from models.user import User
-
 
 load_dotenv()
 bcrypt = Bcrypt()
 auth = SessionDBAuth()
 
-ALLOWED_ORIGINS = [
-            "https://uniben-eng-vault.vercel.app",
-            "http://localhost:5173"
-        ]
 def verify_auth():
     """ """
     if request.method == 'OPTIONS':
@@ -44,8 +35,6 @@ def verify_auth():
         [
             "/api/v1/stats/", "/api/v1/register/",
             "/api/v1/auth_session/login/",
-            f"/api/v1/departments/{13}/{1}",
-            f"/api/v1/levels/{13}/{1}"
         ]
     ):
         return
@@ -60,12 +49,14 @@ def verify_auth():
 
 def close_db(exception: Optional[BaseException]) -> None:
     """
+    Close database after request.
     """
     storage.close()
 
 
 def create_app(config_name: str | None=None) -> Flask:
     """
+    Creates and returns a Flask instance app.
     """
     app = Flask(__name__)
     
@@ -78,8 +69,8 @@ def create_app(config_name: str | None=None) -> Flask:
     bcrypt.init_app(app) # type: ignore
     CORS(
         app,
-        resources={r"/api/v1/*": {"origins": ALLOWED_ORIGINS,
-        }},
+        origins=["http://localhost:5173", "https://uniben-eng-vault.vercel.app"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization", "X-Custom-Header"],
         supports_credentials=True
     )
@@ -95,41 +86,15 @@ def create_app(config_name: str | None=None) -> Flask:
     app.register_error_handler(413, large_request_error)
     app.register_error_handler(500, server_error)
 
-    if storage.count(User) == 0:
-        create_first_user()
-
-    @app.errorhandler(500)
-    def handle_internal_server_error(e):
-        # This forces the full traceback to print to the console
-        traceback.print_exc(file=sys.stderr)
-
-        # Return a generic response to the browser
-        return "An internal server error occurred. Check server logs for details.", 500
-
-    @app.after_request
-    def force_cors_headers(response):
-        # 1. Get the origin from the request headers
-        origin = request.headers.get('Origin')
-
-        # 2. Check if the requesting origin is in our allowed list
-        if origin and origin in ALLOWED_ORIGINS:
-            # 3. CRITICAL: Set the mandatory credentialed CORS headers
-            response.headers['Access-Control-Allow-Origin'] = origin
-            response.headers['Access-Control-Allow-Credentials'] = 'true'
-            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
-            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-
-        return response
-
     return app
 
 
-config_name = os.getenv("ENV", "development")
+config_name = os.getenv("FLASK_ENV", "development")
 app = create_app(config_name)
 
 
 if __name__ == "__main__":
     host = os.getenv("UNIBENENGVAULT_API_HOST", "0.0.0.0")
     port = int(os.getenv("UNIBENENGVAULT_API_PORT", 5000))
-    debug_mode = bool(os.getenv("DEBUG_MODE", False))
+    debug_mode = bool(os.getenv("FLASK_DEBUG", False))
     app.run(host=host, port=port, threaded=True, debug=debug_mode)
