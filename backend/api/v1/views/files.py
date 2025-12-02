@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 
 """
-
+Implements routes for CRUD (Create, Read, Update and Delete)
+operations on files.
 """
 
 
-from copy import deepcopy
 from dotenv import load_dotenv
-from flask import g, abort, jsonify
+from flask import g, abort, jsonify, request
 from typing import Any, cast
 import logging
 
 from api.v1.views import app_views
 from api.v1.auth.authorization import admin_only
 from api.v1.utils.utility import get_obj, DatabaseOp
-from api.v1.utils.data_validations import validate_request_data, FileUpdate
-from api.v1.utils.file_utils import FileUpload, get_files_by_status
-from models.course import Course
+from api.v1.utils.file_utils import FileManager, FileUpload
+from models import storage
 from models.file import File
 from models.notification import Notification
+from models.admin import Admin
 from models.user import User
 
 
@@ -28,94 +28,138 @@ load_dotenv()
 
 def get_file_dict(file: File) -> dict[str, Any]:
     """
+    Returns a json serializable dict of the file object.
     """
-    file_dict = deepcopy(file.to_dict())
-    new_file_dict: dict[str, Any] = {}
-    new_file_dict["id"] = file_dict.pop("id", None)
-    new_file_dict["file_name"] = file_dict.pop("file_name", None)
-    new_file_dict["status"] = file_dict.pop("status", None)
-    return new_file_dict
+    if not file:
+        return
+    
+    file_dict = file.to_dict()
+
+    file_dict["course"] = file.course.course_code
+    file_dict["added_by"] = file.added_by.email
+    file_dict.pop("temp_filepath", None)
+    file_dict.pop("permanent_filepath", None)
+    file_dict.pop("__class__", None)
+
+    if file.approved_by:
+        file_dict["approved_by"] = file.approved_by.user.email
+
+    return file_dict
+
+
+def handle_approved_files(file: File, uploader: FileUpload):
+    """
+    Move file to permanent S3 bucket if approved.
+    """
+    new_path: str | None = uploader.upload_file_to_s3_perm(
+            file.temp_filepath
+        )
+    if new_path:
+        file.permanent_filepath = new_path
+    else:
+        file.status = "pending"
+
+
+def handle_rejected_files(file: File, uploader: FileUpload, db: DatabaseOp):
+    """
+    Delete file completely if rejected.
+    """
+    path: str = file.temp_filepath or file.permanent_filepath
+    try:
+        uploader.delete_file(path)
+        db.delete(file)
+        db.commit()
+    except Exception:
+        return
+
 
 
 @app_views.route(
-        "/courses/<course_id>/files",
+        "/files",
         strict_slashes=False,
         methods=["POST"]
     )
-def upload_file(course_id: str):
+def add_file():
     """
+    Uploads to temporary s3 bucket waiting for approval of an admin.
     """
     user = cast(User, g.current_user)
 
-    course = get_obj(Course, course_id)
-    if not course:
-        abort(404, description="Course does not exist.")
-    
     file_upload = FileUpload()
-    file_info = file_upload.get_file_metadata(course)
-    file_metadata = file_info["file_metadata"]
-    file_metadata["added_by"] = user
+    file_data = file_upload.get_file_and_metadata()
 
-    file_record = File(**file_metadata)
+    file_metadata = file_data["file_metadata"]
+    file_metadata["user_id"] = user.id
+
+    file = File(**file_metadata)
     db = DatabaseOp()
-    db.save(file_record)    
+    db.save(file)    
     
     # upload to s3 bucket
-    file_obj = file_info["file_obj"]
-    file_upload.upload_file_to_s3_temp(file_obj, course, file_record.temp_filepath)
+    file_obj = file_data["file_obj"]
+    file_upload.upload_file_to_s3_temp(file_obj, file.temp_filepath)
 
     # notify admins
     db = DatabaseOp()
     notification_data: dict[str, str] = {
-        "message": f"new file pending review - {file_record.file_name}",
+        "message": f"new file pending review - {file.file_name}",
         "notification_scope": "admin",
     }
     notification = Notification(**notification_data)
     db.save(notification)
 
-    file_dict: dict[str, str] = get_file_dict(file_record)
+    file_dict: dict[str, str] = get_file_dict(file)
     return jsonify(file_dict), 201
 
 
 # allow only admins
 @app_views.route(
-        "/files/<status>/<int:page_size>/<int:page_num>",
+        "/files",
         strict_slashes=False,
         methods=["GET"]
 )
 @admin_only
-def get_all_files_by_status(status: str, page_size: int, page_num: int):
+def get_all_files():
     """
+    Returns all files in database optionally filtered by:
+    - file name
+    - file status
+    - date created
+    - pagination
     """
+    page_size = request.args.get("page_size")
+    page_num = request.args.get("page_num")
+    created_at = request.args.get("date_time")
+    file_name = request.args.get("search")
+    file_status = request.args.get("file_status")
+    
+    if created_at or file_name or file_status:
+        files = storage.filter(
+            File,
+            search_str=file_name,
+            file_status=file_status,
+            date_str=created_at,
+            page_num=page_num,
+            page_size=page_size
+        )
+    else:
+        files = storage.all(
+            File,
+            page_num=page_num,
+            page_size=page_size
+        )
+    
+    all_files = [get_file_dict(file) for file in files]
 
-    files = get_files_by_status(
-        status, page_size, page_num
-    )
-    return jsonify(files), 200
+    
+    return jsonify(all_files), 200
 
 
-@app_views.route(
-        "/courses/<course_id>/files/approved",
-        strict_slashes=False,
-        methods=["GET"]
-)
-def get_approved_course_files(course_id: str):
+@app_views.route("/files/<file_id>", strict_slashes=False, methods=["GET"])
+def get_file(file_id: str):
     """
-    """
-    course = get_obj(Course, course_id)
-    if not course:
-        abort(404, description="Course does not exist.")
-
-    course_files: list[dict[str, str]] = [
-        get_file_dict(file) 
-        for file in course.files if file.status.value == "approved"
-    ]
-    return jsonify(course_files), 200
-
-
-@app_views.route("/<file_id>", strict_slashes=False, methods=["GET"])
-def serve_file(file_id: str):
-    """
+    Returns file metadata and a presigned url to allow users
+    to download or view file.
     """
     file = get_obj(File, file_id)
     if not file:
@@ -126,8 +170,11 @@ def serve_file(file_id: str):
         url = file_upload.get_presigned_url(file.temp_filepath)
     else:
         url = file_upload.get_presigned_url(file.permanent_filepath)
-    logger.debug(url)
-    return jsonify({"url": url}), 200
+    
+    file_dict = get_file_dict(file)
+    file_dict["url"] = url
+
+    return jsonify(file_dict), 200
 
 
 # allow only admins
@@ -139,30 +186,33 @@ def serve_file(file_id: str):
 @admin_only
 def update_file_metadata(file_id: str):
     """
+    Updates a file metadata and save in database.
+    Moves file to permanent s3 bucket if file status is approved. Or 
+    Deletes file if file status is rejected.
     """
+    admin = cast(Admin, g.current_user.admin)
+    uploader = FileUpload()
+    db = DatabaseOp()
+
     file = get_obj(File, file_id)
     if not file:
         abort(400, description="File does not exist")
-    
-    logger.debug(f"In update route")
-    valid_metadata= validate_request_data(FileUpdate)
-    logger.debug(f"valid metadata: {valid_metadata}")
-    for attr, value in valid_metadata.items():
+
+    file_manager = FileManager()
+    metadata = file_manager.validate_update_file_request()
+    metadata["admin_id"] = admin.id
+
+    for attr, value in metadata.items():
         setattr(file, attr, value)
     
     # move to permanent s3 storage
-    file_upload = FileUpload()
-    if file.status.value == "approved":
-        perm_filepath: str | None = file_upload.upload_file_to_s3_perm(
-            file.temp_filepath
-        )
-        if perm_filepath:
-            file.permanent_filepath = perm_filepath
-        else:
-            file.status = "pending"
+    if file.status == "approved":
+        handle_approved_files(file, uploader)
+        db.save(file)
 
-    db = DatabaseOp()
-    db.save(file)
+    # delete file
+    if file.status == "rejected":
+        handle_rejected_files(file, uploader, db)
 
     file_dict: dict[str, str] = get_file_dict(file)
     return jsonify(file_dict), 200
