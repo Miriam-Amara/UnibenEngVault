@@ -101,7 +101,7 @@ class TestDepartmentRoute(unittest.TestCase):
         Test that department is created and added to the database successfully.
         """
         for department in self.add_dept_responses:
-            self.assertIn("name", department)
+            self.assertIn("dept_name", department)
             self.assertIn("dept_code", department)
             self.assertIn("num_of_courses", department)
             self.assertIn("num_of_users", department)
@@ -135,12 +135,12 @@ class TestDepartmentRoute(unittest.TestCase):
         """
         response = self.client.get(
             "api/v1/departments",
-            query_string={"search_str": "me"}
+            query_string={"search": "me"}
         )
 
         self.assertEqual(response.status_code, 200)
         for department in response.get_json():
-            self.assertIn("me", department["name"])
+            self.assertIn("me", department["dept_name"])
     
     def test_get_department(self):
         """
@@ -149,7 +149,7 @@ class TestDepartmentRoute(unittest.TestCase):
         response = self.client.get(f"/api/v1/departments/{self.dept_ids[0]}")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("name", response.get_json())
+        self.assertIn("dept_name", response.get_json())
         self.assertIn("dept_code", response.get_json())
         self.assertIn("num_of_users", response.get_json())
         self.assertIn("num_of_courses", response.get_json())
@@ -160,12 +160,12 @@ class TestDepartmentRoute(unittest.TestCase):
         """
         response = self.client.put(
             f"/api/v1/departments/{self.dept_ids[0]}",
-            json={"name": "Medical Engineering"}
+            json={"dept_name": "Medical Engineering"}
         )
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.get_json().get("name"),
+            response.get_json().get("dept_name"),
             "medical engineering"
         )
 

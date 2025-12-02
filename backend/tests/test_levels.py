@@ -96,7 +96,7 @@ class TestLevelRoute(unittest.TestCase):
         Test that level is created successfully.
         """
         self.assertEqual(self.response.status_code, 201)
-        self.assertIn("name", self.response.get_json())
+        self.assertIn("level_name", self.response.get_json())
     
     def test_get_all_levels(self):
         """
@@ -125,7 +125,7 @@ class TestLevelRoute(unittest.TestCase):
         response = self.client.get(f"/api/v1/levels/{self.level_ids[0]}")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("name", response.get_json())
+        self.assertIn("level_name", response.get_json())
         self.assertIn("no_of_courses_in_level", response.get_json())
         self.assertIn("no_of_users_in_level", response.get_json())
         self.assertNotIn("__class__", response.get_json())
