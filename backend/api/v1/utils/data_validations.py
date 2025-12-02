@@ -16,7 +16,8 @@ from pydantic import (
     model_validator,
     field_validator,
 )
-from typing import Annotated, Any, Optional, Type
+from typing import Annotated, Any, Optional, Type, Tuple
+from werkzeug.datastructures import FileStorage
 import json
 import logging
 
@@ -165,7 +166,7 @@ class DepartmentCreate(BaseModel):
     """
     Validation class for creating departments.
     """
-    name: Annotated[
+    dept_name: Annotated[
         str,
         StringConstraints(
             pattern=r".*\bengineering$",
@@ -197,7 +198,7 @@ class DepartmentUpdate(BaseModel):
     """
     Validation class for updating department requests.
     """
-    name: Optional[Annotated[
+    dept_name: Optional[Annotated[
         str,
         StringConstraints(
             pattern=r".*\bengineering$",
@@ -228,6 +229,14 @@ class FileCreate(BaseModel):
     """
     Validation class for file creation.
     """
+    course_id: Annotated[
+        str,
+        StringConstraints(
+            min_length=36,
+            max_length=36,
+            strip_whitespace=True
+        )
+    ]
     file_type: Annotated[
         str,
         StringConstraints(strip_whitespace=True)
@@ -250,7 +259,7 @@ class FileCreate(BaseModel):
         if v.lower() not in valid_file_types:
             raise ValueError(
             "file type must be any of these: lecture material, note,"
-            "past question, past questions"
+            " past question, past questions"
         )
         return v.lower()
 
@@ -258,6 +267,14 @@ class FileUpdate(BaseModel):
     """
     Validation class for updating files.
     """
+    course_id: Optional[Annotated[
+        str,
+        StringConstraints(
+            min_length=36,
+            max_length=36,
+            strip_whitespace=True
+        )
+    ]] = None
     file_type: Optional[Annotated[
         str,
         StringConstraints(strip_whitespace=True)
@@ -294,7 +311,7 @@ class FileUpdate(BaseModel):
         if v.lower() not in valid_file_types:
             raise ValueError(
             "file type must be any of these: lecture material, note,"
-            "past question, past questions"
+            " past question, past questions"
         )
         return v.lower()
     
@@ -303,9 +320,9 @@ class LevelCreate(BaseModel):
     """
     Validation class for creating levels.
     """
-    name: Annotated[int, PositiveInt]
+    level_name: Annotated[int, PositiveInt]
 
-    @field_validator("name")
+    @field_validator("level_name")
     @classmethod
     def validate_level(cls, v: int) -> int:
         valid_levels = [100, 200, 300, 400, 500, 600]
@@ -537,18 +554,32 @@ def get_request_data() -> dict[str, Any]:
     return request_data
 
 
-def get_file_metadata() -> dict[str, Any]:
+def validate_form_data(
+        validation_cls: Type[BaseModel]
+    ) -> Tuple[dict[str, Any], FileStorage | None]:
     """
-    Returns file metadata - file type and session.
+    Validates file metadata if validation_cls is either FileCreate or
+    FileUpadate.
+
+    Returns:
+        - file metadata
+        - file object
     """
-    try:
-        file_metadata: dict[str, Any] = json.loads(request.form["metadata"])
-    except KeyError:
-        abort(400, description="Missing key - metadata")
-    except json.JSONDecodeError:
-        abort(400, description="Not a valid JSON")
+    file_metadata = request.form.to_dict()
+    file_obj = request.files.get("file")
+
+    if not file_metadata and not file_obj:
+        file_metadata = get_request_data()
     
-    return file_metadata
+    try:
+        valid_data = validation_cls(**file_metadata)
+    except ValidationError as e:
+        abort(400, description=e.errors())
+
+    if not valid_data.model_dump(exclude_none=True) and not file_obj:
+        abort(400, description="Request data cannot be empty")
+    return valid_data.model_dump(exclude_unset=True), file_obj
+    
 
 
 def validate_request_data(
@@ -563,11 +594,7 @@ def validate_request_data(
         )
         abort(500)
 
-    if validation_cls is FileCreate or validation_cls is FileUpdate:
-        request_data = get_file_metadata()
-    else:
-        request_data = get_request_data()
-
+    request_data = get_request_data()
     try:
         valid_data: BaseModel = validation_cls(**request_data)
     except ValidationError as e:
