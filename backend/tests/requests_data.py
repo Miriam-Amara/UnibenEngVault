@@ -6,7 +6,7 @@
 
 from typing import Any
 
-user_data: list[dict[str, Any]] = [
+users_data: list[dict[str, Any]] = [
     {"email": "firstuser@gmail.com", "password": "Firstuser1234", "is_admin": True},
     {"email": "seconduser@gmail.com", "password": "Seconduser1234"},
     {"email": "thirduser@gmail.com", "password": "Thirduser1234"},
@@ -14,7 +14,7 @@ user_data: list[dict[str, Any]] = [
     {"email": "fifthuser@gmail.com", "password": "Fifthuser1234"},
 ]
 
-department_data: list[dict[str, str]] = [
+departments_data: list[dict[str, str]] = [
     {"dept_name": "agricultural engineering", "dept_code": "age"},
     {"dept_name": "COMPUTER ENGINEERING", "dept_code": "cpe"},
     {"dept_name": "Chemical Engineering", "dept_code": "che"},
@@ -30,21 +30,28 @@ department_data: list[dict[str, str]] = [
     {"dept_name": "structural engineering", "dept_code": "ste"}
 ]
 
-level_data = [
-    {"name": 100},
-    {"name": 200},
-    {"name": 300},
-    {"name": 400},
-    {"name": 500},
+levels_data = [
+    {"level_name": 100},
+    {"level_name": 200},
+    {"level_name": 300},
+    {"level_name": 400},
+    {"level_name": 500},
 ]
 
-course_data: list[dict[str, Any]] = [
+courses_data: list[dict[str, Any]] = [
     {
         "course_code": "IDE231",
         "semester": "FIRST",
         "credit_load": 2,
         "title": "Engineering Statistics",
         "outline": "Engineering Statistics",
+    },
+    {
+        "course_code": "IDE561",
+        "semester": "Second",
+        "credit_load": 3,
+        "title": "Operations research",
+        "outline": "Operations research",
     },
     {
         "course_code": "CVE212",
@@ -59,13 +66,6 @@ course_data: list[dict[str, Any]] = [
         "credit_load": 2,
         "title": "MECHANICAL ENGINEERING COURSE",
         "outline": "MECHANICAL ENGINEERING COURSE",
-    },
-    {
-        "course_code": "EMA282",
-        "semester": "FIRST",
-        "credit_load": 4,
-        "title": "Engineering mathematics",
-        "outline": "Engineering mathematics",
     },
     {
         "course_code": "PRE245",
