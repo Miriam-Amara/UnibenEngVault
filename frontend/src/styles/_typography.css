@@ -1,0 +1,48 @@
+
+/* ---------------- TYPOGRAPHY UTILITIES ---------------- */
+
+/* TEXT COLOR */
+.text-grey-light { color: var(--text-grey-light); }
+.text-grey-dark { color: var(--text-grey-dark); }
+.text-error { color: var(--text-error); }
+.text-warn { color: var(--text-warn); }
+
+/* FONT SIZE */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-h5 { font-size: var(--text-h5); }
+.text-h4 { font-size: var(--text-h4); }
+.text-h3 { font-size: var(--text-h3); }
+.text-h2 { font-size: var(--text-h2); }
+.text-h1 { font-size: var(--text-h1); }
+
+/* FONT WEIGHT */
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+
+/* FONT FAMILY */
+.font-sans { font-family: var(--font-sans); }
+
+/* LINE HEIGHT */
+.leading-tight { line-height: var(--leading-tight); }
+
+/* LETTER SPACING */
+.tracking-tight { letter-spacing: var(--tracking-tight); }
+
+/* TEXT ALIGNMENT */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-justify { text-align: justify; }
+
+/* TEXT DECORATION */
+.underline { text-decoration: underline; }
+.line-through { text-decoration: line-through; }
+.no-underline { text-decoration: none; }
+
+/* TEXT TRANSFORM */
+.uppercase { text-transform: uppercase; }
+.lowercase { text-transform: lowercase; }
+.capitalize { text-transform: capitalize; }
