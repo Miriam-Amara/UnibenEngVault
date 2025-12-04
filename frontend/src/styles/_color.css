@@ -1,0 +1,106 @@
+
+/* ---------------------- BACKGROUND COLOR UTILITIES ---------------------- */
+
+.bg-primary-light    { background-color: var(--color-primary-light); }
+.bg-primary          { background-color: var(--color-primary); }
+.bg-primary-dark     { background-color: var(--color-primary-dark); }
+
+.bg-secondary-light  { background-color: var(--color-secondary-light); }
+.bg-secondary        { background-color: var(--color-secondary); }
+.bg-secondary-dark   { background-color: var(--color-secondary-dark); }
+
+.bg-grey             { background-color: var(--color-grey); }
+.bg-grey-light       { background-color: var(--color-grey-light); }
+.bg-grey-dark        { background-color: var(--color-grey-dark); }
+
+.bg-error            { background-color: var(--color-error); }
+.bg-warn             { background-color: var(--color-warn); }
+
+
+/* HOVER BACKGROUND COLORS */
+.hover-bg-primary-light:hover    { background-color: var(--color-primary-light); }
+.hover-bg-primary:hover          { background-color: var(--color-primary); }
+.hover-bg-primary-dark:hover     { background-color: var(--color-primary-dark); }
+
+.hover-bg-secondary-light:hover  { background-color: var(--color-secondary-light); }
+.hover-bg-secondary:hover        { background-color: var(--color-secondary); }
+.hover-bg-secondary-dark:hover   { background-color: var(--color-secondary-dark); }
+
+.hover-bg-grey:hover             { background-color: var(--color-grey); }
+.hover-bg-grey-light:hover       { background-color: var(--color-grey-light); }
+.hover-bg-grey-dark:hover        { background-color: var(--color-grey-dark); }
+
+.hover-bg-error:hover            { background-color: var(--color-error); }
+.hover-bg-warn:hover             { background-color: var(--color-warn); }
+
+
+/* OPACITY */
+.opacity-0   { opacity: 0; }
+.opacity-25  { opacity: 0.25; }
+.opacity-50  { opacity: 0.5; }
+.opacity-75  { opacity: 0.75; }
+.opacity-100 { opacity: 1; }
+
+
+/* VISIBILITY */
+.visible   { visibility: visible; }
+.invisible { visibility: hidden; }
+
+
+
+/* ---------------------- RGBA (BACKGROUND COLORS WITH OPACITY) ---------------------- */
+
+/* ---------- PRIMARY ---------- */
+.bg-primary-25  { background-color: rgba(128, 122, 216, 0.25); }
+.bg-primary-50  { background-color: rgba(128, 122, 216, 0.5); }
+.bg-primary-75  { background-color: rgba(128, 122, 216, 0.75); }
+
+/* PRIMARY LIGHT */
+.bg-primary-light-25  { background-color: rgba(204, 202, 239, 0.25); }
+.bg-primary-light-50  { background-color: rgba(204, 202, 239, 0.5); }
+.bg-primary-light-75  { background-color: rgba(204, 202, 239, 0.75); }
+
+/* PRIMARY DARK */
+.bg-primary-dark-25  { background-color: rgba(26, 24, 43, 0.25); }
+.bg-primary-dark-50  { background-color: rgba(26, 24, 43, 0.5); }
+.bg-primary-dark-75  { background-color: rgba(26, 24, 43, 0.75); }
+
+/* ---------- SECONDARY ---------- */
+.bg-secondary-25  { background-color: rgba(246, 126, 125, 0.25); }
+.bg-secondary-50  { background-color: rgba(246, 126, 125, 0.5); }
+.bg-secondary-75  { background-color: rgba(246, 126, 125, 0.75); }
+
+/* SECONDARY LIGHT */
+.bg-secondary-light-25  { background-color: rgba(253, 229, 229, 0.25); }
+.bg-secondary-light-50  { background-color: rgba(253, 229, 229, 0.5); }
+.bg-secondary-light-75  { background-color: rgba(253, 229, 229, 0.75); }
+
+/* SECONDARY DARK */
+.bg-secondary-dark-25  { background-color: rgba(123, 63, 63, 0.25); }
+.bg-secondary-dark-50  { background-color: rgba(123, 63, 63, 0.5); }
+.bg-secondary-dark-75  { background-color: rgba(123, 63, 63, 0.75); }
+
+/* ---------- GREY ----------  */
+.bg-grey-25  { background-color: rgba(11, 3, 45, 0.25); }
+.bg-grey-50  { background-color: rgba(11, 3, 45, 0.5); }
+.bg-grey-75  { background-color: rgba(11, 3, 45, 0.75); }
+
+/* GREY LIGHT */
+.bg-grey-light-25  { background-color: rgba(231, 230, 234, 0.25); }
+.bg-grey-light-50  { background-color: rgba(231, 230, 234, 0.5); }
+.bg-grey-light-75  { background-color: rgba(231, 230, 234, 0.75); }
+
+/* GREY DARK */
+.bg-grey-dark-25  { background-color: rgba(4, 1, 18, 0.25); }
+.bg-grey-dark-50  { background-color: rgba(4, 1, 18, 0.5); }
+.bg-grey-dark-75  { background-color: rgba(4, 1, 18, 0.75); }
+
+/* ---------- ERROR ----------  */
+.bg-error-25  { background-color: rgba(230, 57, 70, 0.25); }
+.bg-error-50  { background-color: rgba(230, 57, 70, 0.5); }
+.bg-error-75  { background-color: rgba(230, 57, 70, 0.75); }
+
+/* ---------- WARN ---------- */
+.bg-warn-25  { background-color: rgba(255, 185, 151, 0.25); }
+.bg-warn-50  { background-color: rgba(255, 185, 151, 0.5); }
+.bg-warn-75  { background-color: rgba(255, 185, 151, 0.75); }
