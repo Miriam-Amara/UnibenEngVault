@@ -1,0 +1,31 @@
+/* -------- OBJECT FIT -------- */
+.object-contain { object-fit: contain; }
+.object-cover { object-fit: cover; }
+.object-fill { object-fit: fill; }
+.object-none { object-fit: none; }
+.object-scale-down { object-fit: scale-down; }
+
+/* -------- OBJECT POSITION -------- */
+.object-top { object-position: top; }
+.object-bottom { object-position: bottom; }
+.object-center { object-position: center; }
+.object-left { object-position: left; }
+.object-right { object-position: right; }
+
+/* -------- BACKGROUND SIZE -------- */
+.bg-contain { background-size: contain; }
+.bg-cover { background-size: cover; }
+.bg-auto { background-size: auto; }
+
+/* -------- BACKGROUND POSITION -------- */
+.bg-top { background-position: top; }
+.bg-bottom { background-position: bottom; }
+.bg-center { background-position: center; }
+.bg-left { background-position: left; }
+.bg-right { background-position: right; }
+
+/* -------- BACKGROUND REPEAT -------- */
+.bg-no-repeat { background-repeat: no-repeat; }
+.bg-repeat { background-repeat: repeat; }
+.bg-repeat-x { background-repeat: repeat-x; }
+.bg-repeat-y { background-repeat: repeat-y; }
