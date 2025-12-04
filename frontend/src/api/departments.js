@@ -1,7 +1,7 @@
 /* */
 
 import api from "./api";
-import { showToast } from "../utility/toast";
+import { showToast } from "../components/ui/Toast";
 
 
 export async function  addDepartmentApi({department_data}) {
@@ -50,8 +50,10 @@ export async function fetchAllDepartmentsApi({
     return response?.data
   }
   catch (error) {
-    if (error.message)
-      showToast(error?.response?.data?.error || "Error fetching all departments.", "error");
+    if (error.message) {
+      const err_message = "Error fetching all departments.";
+      showToast(error?.response?.data?.error || err_message, "error");
+    }
     console.error("Error fetching all departments: ", error);
     throw error;
   }

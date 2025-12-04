@@ -1,7 +1,7 @@
 /* */
 
 import api from "./api";
-import { showToast } from "../utility/toast";
+import { showToast } from "../components/ui/Toast";
 
 
 export async function addDepartmentToCourseApi({course_id, department_id}) {
@@ -12,8 +12,10 @@ export async function addDepartmentToCourseApi({course_id, department_id}) {
     return response?.data;
   }
   catch (error) {
-    if (error.message)
-      showToast(error?.response?.data?.error || "Error adding department to course", "error");
+    if (error.message) {
+      const err_message = "Error adding department to course";
+      showToast(error?.response?.data?.error || err_message, "error");
+    }
     console.error("Error adding department to course: ", error);
     throw error;
   }
@@ -28,15 +30,19 @@ export async function addCourseToDepartmentApi({department_id, course_id}) {
     return response?.data;
   }
   catch (error) {
-    if (error.message)
-      showToast(error?.response?.data?.error || "Error adding course to department", "error");
+    if (error.message) {
+      const err_message = "Error adding course to department";
+      showToast(error?.response?.data?.error || err_message, "error");
+    }
     console.error("Error adding course to department: ", error);
     throw error;
   }
 }
 
 
-export async function fetchCoursesByDepartmentAndLevelApi({department_id, level_id, semester}) {
+export async function fetchCoursesByDepartmentAndLevelApi({
+  department_id, level_id, semester
+}) {
   try {
     const response = await api.get(
       `/departments/${department_id}/levels/${level_id}/courses`,
@@ -44,23 +50,29 @@ export async function fetchCoursesByDepartmentAndLevelApi({department_id, level_
     );
     return response?.data;
   } catch (error) {
-      if (error.message)
-      showToast(error?.response?.data?.error || "Error fetching department - level courses", "error");
+      if (error.message) {
+        const err_message = "Error fetching department - level courses";
+        showToast(error?.response?.data?.error || err_message, "error");
+      }
     console.error("Error fetching department - level courses: ", error);
     throw error;
   }
 }
 
 
-export async function deleteDepartmentFromCourseApi({course_id, department_id}) {
+export async function deleteDepartmentFromCourseApi({
+  course_id, department_id
+}) {
   try {
     const response = await api.delete(
       `/courses/${course_id}/departments/${department_id}`
     );
     return response?.data;
   } catch (error) {
-    if (error.message)
-      showToast(error?.response?.data?.error || "Error deleting department from course.", "error");
+    if (error.message){
+      const err_message = "Error deleting department from course.";
+      showToast(error?.response?.data?.error || err_message, "error");
+    }
     console.error("Error deleting department from course: ", error);
     throw error;
   }
@@ -74,8 +86,10 @@ export async function deleteCourseFromDepartmentApi({course_id, department_id}) 
     );
     return response?.data;
   } catch (error) {
-    if (error.message)
-      showToast(error?.response?.data?.error || "Error deleting course from department.", "error");
+    if (error.message) {
+      const err_message = "Error deleting course from department.";
+      showToast(error?.response?.data?.error || err_message, "error");
+    }
     console.error("Error deleting course from department: ", error);
     throw error;
   }

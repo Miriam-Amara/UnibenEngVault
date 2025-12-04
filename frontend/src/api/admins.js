@@ -1,7 +1,7 @@
 /* */
 
 import api from "./api";
-import {showToast} from "../utility/toast";
+import { showToast } from "../components/ui/Toast";
 
 
 export async function updateAdminApi({admin_id, admin_data}) {

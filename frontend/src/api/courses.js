@@ -1,7 +1,7 @@
 /* */
 
 import api from "./api";
-import { showToast } from "../utility/toast";
+import { showToast } from "../components/ui/Toast";
 
 
 export async function  addCourseApi({course_data}) {
@@ -32,7 +32,9 @@ export async function updateCourseApi({course_id, course_data}) {
 }
 
 
-export async function fetchAllCoursesApi({page_size, page_num, created_at, search_course_code}) {
+export async function fetchAllCoursesApi({
+  page_size, page_num, created_at, search_course_code
+}) {
   try {
     const response = await api.get(
       "/courses",
@@ -48,8 +50,10 @@ export async function fetchAllCoursesApi({page_size, page_num, created_at, searc
     return response?.data
   }
   catch (error) {
-    if (error.message)
-      showToast(error?.response?.data?.error || "Error fetching all courses.", "error");
+    if (error.message) {
+      const err_message = "Error fetching all courses.";
+      showToast(error?.response?.data?.error || err_message, "error");
+    }
     console.error("Error fetching all courses: ", error);
     throw error;
   }
