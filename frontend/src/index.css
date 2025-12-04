@@ -1,51 +1,137 @@
 
 
 :root{
-  /* Colors */
-  --color-primary: #807AD8;
-  --color-primary-light: #CDCBED;
-  --color-secondary: #07024C;
-  --color-grey: #B0B3C3;
-  --color-black: #000;
-  --color-white: #fff;
-  --color-error: #E63946;
-  --color-warn: #B22222;
 
+  /* ---------------------- COLOR SYSTEM ---------------------- */
+  --color-primary-light: #cccaef;
+  --color-primary: #807AD8;
+  --color-primary-dark: #1a182b;
+
+  --color-secondary-light: #fde5e5;
+  --color-secondary: #f67e7d;
+  --color-secondary-dark: #7b3f3f;
+
+  --color-grey: #0b032d;
+  --color-grey-light: #e7e6ea;
+  --color-grey-dark: #040112;
+
+  --color-error: #E63946;
+  --color-warn: #ffb997;
+
+
+/* ---------------------- FONT SYSTEM ---------------------- */
 
   /* FONT SIZE */
-  --text-xs: 1.0rem;
-  --text-sm: 1.2rem;
-  --text-base: 1.6rem;
-  --text-lg: 2.0rem;
+  --text-xs: 1.2rem;
+  --text-sm: 1.6rem;
+  --text-base: 2.0rem;
   --text-h5: 2.4rem;
-  --text-h4: 2.8rem;
-  --text-h3: 3.2rem;
-  --text-h2: 3.6rem;
-  --text-h1: 4.0rem;
+  --text-h4: 3.2rem;
+  --text-h3: 4.0rem;
+  --text-h2: 4.8rem;
+  --text-h1: 6.2rem;
 
   /* FONT-WEIGHT */
   --font-weight-normal: 400;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* SPACING SCALE (1.25 ratio) */
-  --space-xxs: 0.4rem;
-  --space-xs: 0.6rem;
-  --space-sm: 0.8rem;
-  --space-md: 1.0rem;
-  --space-lg: 1.25rem;
-  --space-xl: 1.6rem;
-  --space-2xl: 2.0rem;
-  --space-3xl: 2.5rem;
-  --space-4xl: 3.2rem;
-  --space-5xl: 4.0rem;
-  --space-6xl: 5.0rem;
+   /* FONT FAMILY */
+  --font-sans: "Poppins", sans-serif;
+
+  /* FONT COLOR */
+  --text-grey-light: var(--color-grey-light);
+  --text-grey-dark: var(--color-grey-dark);
+  --text-error: var(--color-error);
+  --text-warn: var(--color-warn);
+
+   /* LINE HEIGHT */
+  --leading-tight: 1.2;
+
+  /* LETTER SPACING */
+  --tracking-tight: -2px;
+
+
+  
+  /* ---------------------- BORDER SYSTEM ---------------------- */
+  --border-1: 1px;
+  --border-2: 2px;
+  --border-3: 3px;
+  --border-4: 4px;
+  --border-5: 5px;
+
+  --radius-none: 0;
+  --radius-5: 5px;
+  --radius-10: 10px;
+  --radius-25p: 25%;   /* percentage */
+  --radius-50p: 50%;   /* percentage */
+
+
+  /* ---------------------- SPACING SYSTEM ---------------------- */
+
+  /* 1rem = 10px */
+  --space-xxs: 0.2rem;
+  --space-xs: 0.3rem;
+  --space-sm: 0.4rem;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.0rem;
+  --space-5: 2.5rem;
+  --space-6: 3.0rem;
+  --space-7: 3.5rem;
+  --space-8: 4.0rem;
+  --space-9: 4.5rem;
+  --space-10: 5.0rem;
+  --space-11: 5.5rem;
+  --space-12: 6.0rem;
+  --space-13: 7.0rem;
+  --space-14: 8.0rem;
+  --space-15: 9.0rem;
+  --space-16: 10rem;
+  --space-17: 12.5rem;
+  --space-18: 15.0rem;
+  --space-19: 20.0rem;
+  --space-20: 25.0rem;
+  --space-21: 30.0rem;
+  --space-22: 40.0rem;
+  --space-23: 50.0rem;
+  --space-24: 100.0rem;
+  --space-25: 125.0rem;
+  --space-26: 150.0rem;
+
+  /* PERCENTAGE WIDTH */
+  --w-25: 25%;
+  --w-50: 50%;
+  --w-75: 75%;
+  --w-95: 95%;
+  --w-100: 100%;
+
+  /* PERCENTAGE HEIGHT */
+  --h-25: 25%;
+  --h-50: 50%;
+  --h-75: 75%;
+  --h-95: 95%;
+  --h-100: 100%;
+
+  /* VIEWPORT SIZE */
+  --vw-100: 100vw;
+  --vh-100: 100vh;
+
+  /* AUTO */
+  --auto: auto;
+
 }
 
-#root{
+/* #root{
   height: 100vh;
   background-image: url("./src/assets/background_desktop.png");
   background-size: contain;
+} */
+
+
+html{
+  font-size: 62.5%;  /* 62.5% of 16px(1rem browser) => 1rem = 10px */
 }
 
 *{
@@ -56,15 +142,11 @@
   text-decoration: none;
 }
 
-html{
-  font-size: 62.5%;  /* 1rem = 10px */
-}
-
 body{
-  color: var(--color-black);
   font-size: var(--text-base);
   font-weight: var(--font-weight-normal);
-  font-family: "Poppins", sans-serif;
+  font-family: var(--font-sans);
+  color: var(--color-grey-dark);
 }
 
 h1{
@@ -74,7 +156,7 @@ h1{
 
 h2{
   font-size: var(--text-h2);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
 }
 
 h3{
@@ -84,52 +166,33 @@ h3{
 
 h4{
   font-size: var(--text-h4);
-  font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-semibold);
 }
 
 h5{
   font-size: var(--text-h5);
-  font-weight: var(--font-weight-normal);
-}
-
-/* 24rem = 384px */
-@media (min-width: 24rem) {
-  html {
-    font-size: 40%; /* 1rem = 6.4px */
-  }
-  /* .sidebar-nav{
-    gap: var(--space-xl);
-  }
-
-  .body-container{
-    grid-template-columns: 0.5fr 1fr;
-    column-gap: var(--space-xl);
-  } */
+  font-weight: var(--font-weight-semibold);
 }
 
 
-/* 45.5rem = 728px */
-@media (min-width: 45.5rem) {
-  html {
-    font-size: 56.25%; /* 1rem = 9px */
-  }
-}
 
-
-@media (min-width: 62.5rem /* 62.5 x 16px = 1000px */) {
-  html {
-    font-size: 50%; /* 1rem = 8px */
-  }
-}
-
-@media (min-width: 75rem /* 1200px */) {
+/* 1200px */
+@media (max-width: 75rem) {
   html {
     font-size: 62.5%; /* 1rem = 10px */
   }
 }
 
-@media (min-width: 90rem /* 1520px */) {
+/* 62.5 x 16px = 1000px */
+@media (max-width: 62.5rem) {
   html {
-    font-size: 75%; /* 1rem = 12px */
+    font-size: 50%; /* 1rem = 8px */
+  }
+}
+
+/* 24rem = 384px */
+@media (max-width: 24rem) {
+  html {
+    font-size: 40%; /* 1rem = 6.4px */
   }
 }
