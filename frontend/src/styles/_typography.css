@@ -2,8 +2,11 @@
 /* ---------------- TYPOGRAPHY UTILITIES ---------------- */
 
 /* TEXT COLOR */
+.text-primary-dark { color: var(--text-primary-dark); }
+.text-primary { color: var(--text-primary); }
 .text-grey-light { color: var(--text-grey-light); }
 .text-grey-dark { color: var(--text-grey-dark); }
+.text-white { color: var(--text-white); }
 .text-error { color: var(--text-error); }
 .text-warn { color: var(--text-warn); }
 
@@ -26,10 +29,11 @@
 .font-sans { font-family: var(--font-sans); }
 
 /* LINE HEIGHT */
-.leading-tight { line-height: var(--leading-tight); }
+.leading-tight { line-height: var(--leading-tight); } /* 1.2px */
+.leading-normal { line-height: var(--leading-normal); } /* 1.5px */
 
 /* LETTER SPACING */
-.tracking-tight { letter-spacing: var(--tracking-tight); }
+.tracking-tight { letter-spacing: var(--tracking-tight); } /* -2px */
 
 /* TEXT ALIGNMENT */
 .text-left { text-align: left; }
