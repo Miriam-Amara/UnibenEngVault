@@ -13,6 +13,8 @@
 .bg-grey-light       { background-color: var(--color-grey-light); }
 .bg-grey-dark        { background-color: var(--color-grey-dark); }
 
+.bg-white            { background-color: var(--color-white); }
+
 .bg-error            { background-color: var(--color-error); }
 .bg-warn             { background-color: var(--color-warn); }
 
@@ -104,3 +106,63 @@
 .bg-warn-25  { background-color: rgba(255, 185, 151, 0.25); }
 .bg-warn-50  { background-color: rgba(255, 185, 151, 0.5); }
 .bg-warn-75  { background-color: rgba(255, 185, 151, 0.75); }
+
+
+
+/* ---------------------- FULL COLOR SHADOW UTILITIES ---------------------- */
+
+/* PRIMARY */
+.shadow-primary-light-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-primary-light); }
+.shadow-primary-light-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-primary-light); }
+.shadow-primary-light-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-primary-light); }
+
+.shadow-primary-sm { box-shadow: var(--space-3) var(--space-2) var(--shadow-primary); }
+.shadow-primary-md { box-shadow: var(--space-6) var(--space-3) 0 var(--shadow-primary); }
+.shadow-primary-lg { box-shadow: var(--space-8) var(--space-6) 0 var(--shadow-primary); }
+
+/* for homepage image */
+.shadow-primary-sm-top { box-shadow: var(--space-1) -0.5rem 0 var(--shadow-primary); }
+.shadow-primary-md-top { box-shadow: var(--space-3) -1rem 0 var(--shadow-primary); }
+.shadow-primary-lg-top { box-shadow: var(--space-8) -2rem 0 var(--shadow-primary); }
+
+/* for homepage icons */
+.shadow-primary-t-icon { box-shadow: var(--space-1) -5px 0 var(--shadow-primary); }
+
+.shadow-primary-dark-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-primary-dark); }
+.shadow-primary-dark-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-primary-dark); }
+.shadow-primary-dark-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-primary-dark); }
+
+/* SECONDARY */
+.shadow-secondary-light-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-secondary-light); }
+.shadow-secondary-light-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-secondary-light); }
+.shadow-secondary-light-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-secondary-light); }
+
+.shadow-secondary-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-secondary); }
+.shadow-secondary-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-secondary); }
+.shadow-secondary-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-secondary); }
+
+.shadow-secondary-dark-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-secondary-dark); }
+.shadow-secondary-dark-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-secondary-dark); }
+.shadow-secondary-dark-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-secondary-dark); }
+
+/* GREYS */
+.shadow-grey-light-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-grey-light); }
+.shadow-grey-light-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-grey-light); }
+.shadow-grey-light-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-grey-light); }
+
+.shadow-grey-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-grey); }
+.shadow-grey-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-grey); }
+.shadow-grey-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-grey); }
+
+.shadow-grey-dark-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-grey-dark); }
+.shadow-grey-dark-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-grey-dark); }
+.shadow-grey-dark-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-grey-dark); }
+
+/* STATUS */
+.shadow-error-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-error); }
+.shadow-error-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-error); }
+.shadow-error-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-error); }
+
+.shadow-warn-sm { box-shadow: 0 var(--space-2) var(--space-3) var(--shadow-warn); }
+.shadow-warn-md { box-shadow: 0 var(--space-3) var(--space-6) var(--shadow-warn); }
+.shadow-warn-lg { box-shadow: 0 var(--space-6) var(--space-8) var(--shadow-warn); }
