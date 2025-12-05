@@ -9,8 +9,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     env:
-      working-directory: backend
       ENV: test
       POSTGRES_USER: testuser
       POSTGRES_PASSWORD: testpass
@@ -40,10 +42,10 @@ jobs:
           --health-retries=5
   
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10.12'
   
@@ -66,43 +68,43 @@ jobs:
         export PYTHONPATH=$PYTHONPATH:$(pwd)
         pytest
 
-  deploy:
-    name: Deploy UnibenEngVault
-    runs-on: ubuntu-latest
-    needs: test
+  # deploy:
+  #   name: Deploy UnibenEngVault
+  #   runs-on: ubuntu-latest
+  #   needs: test
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #     - name: Setup SSH
+  #       uses: webfactory/ssh-agent@v0.9.1
+  #       with:
+  #         ssh-private-key:
 
-      - name: Deploy to Droplet
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'EOF'
-            echo "Pulling latest code..."
-            cd /root/UnibenEngVault
-            git pull origin main
+  #     - name: Deploy to Droplet
+  #       run: |
+  #         ssh -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'EOF'
+  #           echo "Pulling latest code..."
+  #           cd /root/UnibenEngVault
+  #           git pull origin main
 
-            echo "Checking Docker service status..."
-            if ! systemctl is-active --quiet docker; then
-              echo "Docker is not running. Attempting to start..."
-              systemctl start docker
-            fi
+  #           echo "Checking Docker service status..."
+  #           if ! systemctl is-active --quiet docker; then
+  #             echo "Docker is not running. Attempting to start..."
+  #             systemctl start docker
+  #           fi
 
-            echo "Docker service status:" 
-            systemctl status docker --no-pager | head -n 10
+  #           echo "Docker service status:" 
+  #           systemctl status docker --no-pager | head -n 10
 
-            echo "Testing Docker daemon access..."
-            if ! docker ps > /dev/null 2>&1; then
-              echo "ERROR: Docker daemon is unreachable. Aborting deployment."
-              exit 1
-            fi
+  #           echo "Testing Docker daemon access..."
+  #           if ! docker ps > /dev/null 2>&1; then
+  #             echo "ERROR: Docker daemon is unreachable. Aborting deployment."
+  #             exit 1
+  #           fi
 
-            echo "Bringing up containers with Docker Compose..."
-            docker compose down
-            docker compose up -d --build
-          EOF
+  #           echo "Bringing up containers with Docker Compose..."
+  #           docker compose down
+  #           docker compose up -d --build
+  #         EOF
