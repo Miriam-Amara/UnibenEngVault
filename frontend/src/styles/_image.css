@@ -12,6 +12,10 @@
 .object-left { object-position: left; }
 .object-right { object-position: right; }
 
+/* -------- BACKGROUND IMAGE -------- */
+.bg-img-desktop { background-image: url("../assets/background_desktop.png"); }
+.bg-img-mobile { background-image: url("../assets/background_mobile.png"); }
+
 /* -------- BACKGROUND SIZE -------- */
 .bg-contain { background-size: contain; }
 .bg-cover { background-size: cover; }
