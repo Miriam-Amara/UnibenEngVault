@@ -2,6 +2,8 @@
  * 
  */
 
+  import { useNavigate } from "react-router-dom";
+
   import { Button } from "../../components/ui/Button";
   import unibenEngineeringImg from "../../assets/uniben_engineering.jpg";
   import bookShelvesImg from "../../assets/book_shelves.png";
@@ -15,6 +17,10 @@
 
 
 export default function HomePage() {
+  const navigate = useNavigate();
+  const navigateToRegister = () => navigate("/register");
+  const navigateToLogin = () => navigate("/login");
+  
   return(
     <div className="w-100 h-screen bg-img-desktop bg-contain">
       {/* -------------------- HEADER -------------------- */}
@@ -25,14 +31,14 @@ export default function HomePage() {
             type="button"
             variant="outline"
             size="md"
-            onClick={""}
+            onClick={navigateToLogin}
             children="Login"
           />
           <Button
             type="button"
             variant="primary"
             size="md"
-            onClick={""}
+            onClick={navigateToRegister}
             children="Register"
           />
         </div>
@@ -183,7 +189,7 @@ export default function HomePage() {
               type="button"
               variant="secondary"
               size="lg"
-              onClick={""}
+              onClick={navigateToRegister}
               children="START STUDYING NOW"
             />
           </section>
