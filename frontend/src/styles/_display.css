@@ -123,6 +123,50 @@
 .gap-16 { gap: var(--space-16); }
 
 
+/* ---------- COL GAP ---------- */
+.col-gap-xxs { column-gap: var(--space-xxs); }
+.col-gap-xs { column-gap: var(--space-xs); }
+.col-gap-sm { column-gap: var(--space-sm); }
+.col-gap-1 { column-gap: var(--space-1); }
+.col-gap-2 { column-gap: var(--space-2); }
+.col-gap-3 { column-gap: var(--space-3); }
+.col-gap-4 { column-gap: var(--space-4); }
+.col-gap-5 { column-gap: var(--space-5); }
+.col-gap-6 { column-gap: var(--space-6); }
+.col-gap-7 { column-gap: var(--space-7); }
+.col-gap-8 { column-gap: var(--space-8); }
+.col-gap-9 { column-gap: var(--space-9); }
+.col-gap-10 { column-gap: var(--space-10); }
+.col-gap-11 { column-gap: var(--space-11); }
+.col-gap-12 { column-gap: var(--space-12); }
+.col-gap-13 { column-gap: var(--space-13); }
+.col-gap-14 { column-gap: var(--space-14); }
+.col-gap-15 { column-gap: var(--space-15); }
+.col-gap-16 { column-gap: var(--space-16); }
+
+
+/* ---------- ROW GAP ---------- */
+.row-gap-xxs { row-gap: var(--space-xxs); }
+.row-gap-xs { row-gap: var(--space-xs); }
+.row-gap-sm { row-gap: var(--space-sm); }
+.row-gap-1 { row-gap: var(--space-1); }
+.row-gap-2 { row-gap: var(--space-2); }
+.row-gap-3 { row-gap: var(--space-3); }
+.row-gap-4 { row-gap: var(--space-4); }
+.row-gap-5 { row-gap: var(--space-5); }
+.row-gap-6 { row-gap: var(--space-6); }
+.row-gap-7 { row-gap: var(--space-7); }
+.row-gap-8 { row-gap: var(--space-8); }
+.row-gap-9 { row-gap: var(--space-9); }
+.row-gap-10 { row-gap: var(--space-10); }
+.row-gap-11 { row-gap: var(--space-11); }
+.row-gap-12 { row-gap: var(--space-12); }
+.row-gap-13 { row-gap: var(--space-13); }
+.row-gap-14 { row-gap: var(--space-14); }
+.row-gap-15 { row-gap: var(--space-15); }
+.row-gap-16 { row-gap: var(--space-16); }
+
+
 
 /* ---------------------- OVERFLOW UTILITIES ---------------------- */
 
@@ -140,3 +184,9 @@
 .overflow-y-hidden { overflow-y: hidden; }
 .overflow-y-visible { overflow-y: visible; }
 .overflow-y-scroll { overflow-y: scroll; }
+
+
+
+/* ---------------------- CURSOR UTILITIES ---------------------- */
+
+.cursor-pointer { cursor: pointer; }
