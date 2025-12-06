@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { loginValidationSchema } from "../../utility/forms_input_validations.js";
-import { loginApi } from "../../api/users.js";
+import { loginApi, fetchUserApi } from "../../api/users.js";
+import { useAuth } from "./AuthContext.jsx";
 import hidePasswordIcon from "../../assets/password_hide_icon.png";
 import showPasswordIcon from "../../assets/password_show_icon.png";
 
@@ -33,7 +34,9 @@ export const HidePasswordImg = () => (
 
 
 export default function LoginPage() {
-    const [ formData, setFormData ] = useState({
+
+  const { login } = useAuth();
+  const [ formData, setFormData ] = useState({
     email: "",
     password: "",
   });
@@ -49,10 +52,15 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const validData = await loginValidationSchema.validate(formData, { abortEarly: false });
-      const loggedUser = await loginApi(validData);
+      const validData = await loginValidationSchema.validate(
+        formData, { abortEarly: false }
+      );
+      const loginSuccess = await loginApi(validData);
 
-      if (loggedUser) {
+      if (loginSuccess) {
+        const user = await fetchUserApi("me");
+
+        login(user);
         navigate("/profile");
         setFormData({
           email: "",
@@ -133,7 +141,6 @@ export default function LoginPage() {
             variant="primary"
             size="lg"
             className="text-h5"
-            onClick={""}
             children="Login"
           />
         </form>
