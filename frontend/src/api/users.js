@@ -4,7 +4,7 @@ import api from "./api";
 import { showToast } from "../components/ui/Toast";
 
 
-export async function  registerUserApi({user_data}) {
+export async function  registerUserApi(user_data) {
   try {
     const response = await api.post("/register", user_data);
     return response?.data
@@ -17,8 +17,20 @@ export async function  registerUserApi({user_data}) {
   }
 }
 
+export async function  loginApi(user_data) {
+  try {
+    const response = await api.post("/auth_session/login", user_data);
+    return response?.data
+  }
+  catch (error) {
+    if (error.message)
+      showToast(error?.response?.data?.error || "Error in user login.", "error");
+    console.error("Error login user: ", error);
+    throw error;
+  }
+}
 
-export async function updateUserApi({user_id, user_data}) {
+export async function updateUserApi(user_id, user_data) {
   try {
     const response = await api.put(`/users/${user_id}`, user_data);
     return response?.data
