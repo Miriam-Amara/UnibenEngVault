@@ -1,52 +1,79 @@
 
-
 :root{
 
   /* ---------------------- COLOR SYSTEM ---------------------- */
   --color-primary-light: #cccaef;
   --color-primary: #807AD8;
-  --color-primary-dark: #1a182b;
+  --color-primary-dark: #403d6c;
 
   --color-secondary-light: #fde5e5;
-  --color-secondary: #f67e7d;
+  --color-secondary: #ac5858;
   --color-secondary-dark: #7b3f3f;
 
   --color-grey: #0b032d;
   --color-grey-light: #e7e6ea;
   --color-grey-dark: #040112;
+  --color-white: #fff;
 
   --color-error: #E63946;
   --color-warn: #ffb997;
+
+  /* ---------------------- SHADOW COLOR VARIABLES ---------------------- */
+  /* PRIMARY SHADOWS */
+  --shadow-primary-light: rgba(204, 202, 239, 1);   /* #cccaef */
+  --shadow-primary: rgba(128, 122, 216, 1);         /* #807AD8 */
+  --shadow-primary-dark: rgba(64, 61, 108, 1);      /* #403d6c */
+
+  --shadow-primary-light-50: rgba(204, 202, 239, 0.50);   /* #cccaef */
+  --shadow-primary-50: rgba(128, 122, 216, 0.50);         /* #807AD8 */
+  --shadow-primary-dark-50: rgba(64, 61, 108, 0.50);      /* #403d6c */
+
+  /* SECONDARY SHADOWS */
+  --shadow-secondary-light: rgba(253, 229, 229, 0.50); /* #fde5e5 */
+  --shadow-secondary: rgba(246, 126, 125, 0.50);       /* #f67e7d */
+  --shadow-secondary-dark: rgba(123, 63, 63, 0.50);    /* #7b3f3f */
+
+  /* GREY SHADOWS */
+  --shadow-grey-light: rgba(231, 230, 234, 0.30);      /* #e7e6ea */
+  --shadow-grey: rgba(11, 3, 45, 0.30);                /* #0b032d */
+  --shadow-grey-dark: rgba(4, 1, 18, 0.30);            /* #040112 */
+
+  /* STATUS SHADOWS */
+  --shadow-error: rgba(230, 57, 70, 0.30);             /* #E63946 */
+  --shadow-warn: rgba(255, 185, 151, 0.30);            /* #ffb997 */
 
 
 /* ---------------------- FONT SYSTEM ---------------------- */
 
   /* FONT SIZE */
-  --text-xs: 1.2rem;
-  --text-sm: 1.6rem;
-  --text-base: 2.0rem;
-  --text-h5: 2.4rem;
-  --text-h4: 3.2rem;
-  --text-h3: 4.0rem;
-  --text-h2: 4.8rem;
-  --text-h1: 6.2rem;
+  --text-sm: 1.2rem;
+  --text-base: 1.6rem;
+  --text-h5: 2.0rem;
+  --text-h4: 2.4rem;
+  --text-h3: 3.2rem;
+  --text-h2: 4.0rem;
+  --text-h1: 4.8rem;
 
   /* FONT-WEIGHT */
   --font-weight-normal: 400;
   --font-weight-semibold: 600;
-  --font-weight-bold: 700;
+  --font-weight-bold: 800;
 
    /* FONT FAMILY */
   --font-sans: "Poppins", sans-serif;
 
   /* FONT COLOR */
+  --text-primary: var(--color-primary);
+  --text-primary-dark: var(--color-primary-dark);
   --text-grey-light: var(--color-grey-light);
   --text-grey-dark: var(--color-grey-dark);
+  --text-white: var(--color-white);
   --text-error: var(--color-error);
   --text-warn: var(--color-warn);
 
    /* LINE HEIGHT */
   --leading-tight: 1.2;
+  --leading-normal: 1.5;
 
   /* LETTER SPACING */
   --tracking-tight: -2px;
@@ -61,8 +88,10 @@
   --border-5: 5px;
 
   --radius-none: 0;
-  --radius-5: 5px;
-  --radius-10: 10px;
+  --radius-5: 0.5rem;
+  --radius-10: 1rem;
+  --radius-15: 1.5rem;
+  --radius-20: 2.8rem;
   --radius-25p: 25%;   /* percentage */
   --radius-50p: 50%;   /* percentage */
 
@@ -94,23 +123,27 @@
   --space-19: 20.0rem;
   --space-20: 25.0rem;
   --space-21: 30.0rem;
-  --space-22: 40.0rem;
-  --space-23: 50.0rem;
-  --space-24: 100.0rem;
-  --space-25: 125.0rem;
-  --space-26: 150.0rem;
+  --space-22: 35.0rem;
+  --space-23: 40.0rem;
+  --space-24: 45.0rem;
+  --space-25: 50.0rem;
+  --space-26: 55.0rem;
+  --space-27: 100.0rem;
 
   /* PERCENTAGE WIDTH */
-  --w-25: 25%;
+  /* --w-25: 25%; */
   --w-50: 50%;
   --w-75: 75%;
+  --w-85: 85%;
   --w-95: 95%;
+  --w-95p: 99.8%;
   --w-100: 100%;
 
   /* PERCENTAGE HEIGHT */
   --h-25: 25%;
   --h-50: 50%;
   --h-75: 75%;
+  --h-85: 85%;
   --h-95: 95%;
   --h-100: 100%;
 
@@ -123,15 +156,9 @@
 
 }
 
-/* #root{
-  height: 100vh;
-  background-image: url("./src/assets/background_desktop.png");
-  background-size: contain;
-} */
-
 
 html{
-  font-size: 62.5%;  /* 62.5% of 16px(1rem browser) => 1rem = 10px */
+  font-size: 62.5%; /* 62.5% of 16px(1rem browser) => 1rem = 10px */
 }
 
 *{
@@ -152,26 +179,36 @@ body{
 h1{
   font-size: var(--text-h1);
   font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
 }
 
 h2{
   font-size: var(--text-h2);
   font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
 }
 
 h3{
   font-size: var(--text-h3);
   font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
 }
 
 h4{
   font-size: var(--text-h4);
   font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
 }
 
 h5{
   font-size: var(--text-h5);
   font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
 }
 
 
@@ -181,18 +218,111 @@ h5{
   html {
     font-size: 62.5%; /* 1rem = 10px */
   }
+
+  input::placeholder { font-size: var(--text-base); }
+  select { font-size: var(--text-base); }
 }
 
-/* 62.5 x 16px = 1000px */
+/* 1000px (62.5 x 16px) */
 @media (max-width: 62.5rem) {
   html {
     font-size: 50%; /* 1rem = 8px */
   }
+
+  section.auth-form { padding: var(--space-2) var(--space-16); }
+
+  input::placeholder { font-size: var(--text-base); }
+  select { font-size: var(--text-base); }
 }
 
-/* 24rem = 384px */
-@media (max-width: 24rem) {
+/* 800px */
+@media (max-width: 50rem) {
   html {
-    font-size: 40%; /* 1rem = 6.4px */
+    font-size: 44%; /* 1rem = 7.04px */
   }
+
+  section.auth-section, section.auth-form { padding: var(--space-2) var(--space-13); }
+  p.auth-section { padding-right: var(--space-8); }
+
+  input::placeholder { font-size: var(--text-base); }
+  select { font-size: var(--text-base); }
 }
+
+/* 600px */
+@media (max-width: 37.5rem) {
+  html { font-size: 44%; /* 1rem = 7.04px */ }
+
+  h1 { font-size: var(--text-h2); letter-spacing: 1.4; }
+  h2 { font-size: var(--text-h3); letter-spacing: 1.4; }
+  h3 { font-size: var(--text-h4); letter-spacing: normal; }
+  h4 { font-size: var(--text-h5); letter-spacing: normal; }
+  h5 { font-size: var(--text-base); letter-spacing: normal; }
+
+  img.hero-section { height: var(--space-21); max-width: var(--space-23); }
+
+  section.auth-section { padding: var(--space-2) var(--space-2) var(--space-2) var(--space-12); }
+  section.auth-form {padding: var(--space-2) var(--space-11); }
+  p.auth-section { padding-right: var(--space-5); }
+  h3.auth-section { margin-bottom: var(--space-8); }
+
+  input::placeholder { font-size: var(--text-base); }
+  select { font-size: var(--text-base); }
+}
+
+/* 450.4px */
+@media (max-width: 28.15rem) {
+  html { font-size: 37.5%; }/* 1rem = 6px */
+  h1 { font-size: var(--text-h2); letter-spacing: normal; }
+  h2 { font-size: var(--text-h3); letter-spacing: normal; }
+  h3 { font-size: var(--text-h4); letter-spacing: normal; }
+  h4 { font-size: var(--text-h5); letter-spacing: normal; }
+  h5 { font-size: var(--text-base); letter-spacing: normal; }
+  
+  section.auth-section{ padding: var(--space-2) var(--space-6); }
+  section.auth-form { padding: var(--space-2) var(--space-8); }
+
+  input::placeholder { font-size: var(--text-base); }
+  select { font-size: var(--text-base); }
+}
+
+/* 350px */
+@media (max-width: 21.875rem) {
+  html { font-size: 34.5%; } /* 1rem = 5.52px */
+  h1 { font-size: var(--text-h2); letter-spacing: normal; }
+  h2 { font-size: var(--text-h3); letter-spacing: normal; }
+  h3 { font-size: var(--text-h4); letter-spacing: normal; }
+  h4 { font-size: var(--text-h5); letter-spacing: normal; }
+  h5 { font-size: var(--text-base); letter-spacing: normal; }
+
+  section.auth-section { display: none; }
+  section.auth-form {
+    width: var(--w-100);
+    padding: var(--space-2) var(--space-15);
+  }
+  form.auth-form { gap: var(--space-5); }
+
+  input::placeholder { font-size: var(--text-base); }
+  select { font-size: var(--text-base); }
+}
+
+
+/* 250px */
+@media (max-width: 15.625rem) {
+  html { font-size: 34.5%; } /* 1rem = 5.52px */
+  h1 { font-size: var(--text-h2); letter-spacing: normal; }
+  h2 { font-size: var(--text-h3); letter-spacing: normal; }
+  h3 { font-size: var(--text-h4); letter-spacing: normal; }
+  h4 { font-size: var(--text-h5); letter-spacing: normal; }
+  h5 { font-size: var(--text-base); letter-spacing: normal; }
+
+  section.auth-section { display: none; }
+  section.auth-form {
+    width: var(--w-100);
+    padding: var(--space-2) var(--space-10);
+  }
+  form.auth-form { gap: var(--space-5); }
+
+  input::placeholder { font-size: var(--text-base); }
+  select { font-size: var(--text-base); }
+}
+
