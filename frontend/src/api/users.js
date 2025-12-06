@@ -17,6 +17,7 @@ export async function  registerUserApi(user_data) {
   }
 }
 
+
 export async function  loginApi(user_data) {
   try {
     const response = await api.post("/auth_session/login", user_data);
@@ -29,6 +30,21 @@ export async function  loginApi(user_data) {
     throw error;
   }
 }
+
+
+export async function  logoutApi() {
+  try {
+    const response = await api.post("/auth_session/logout");
+    return response?.data
+  }
+  catch (error) {
+    if (error.message)
+      showToast(error?.response?.data?.error || "Error in user logout.", "error");
+    console.error("Error in user logout: ", error);
+    throw error;
+  }
+}
+
 
 export async function updateUserApi(user_id, user_data) {
   try {
@@ -94,7 +110,7 @@ export async function fetchUsersByDepartmentAndLevel({
 }
 
 
-export async function fetchUserApi({user_id}) {
+export async function fetchUserApi(user_id) {
   try {
     const response = await api.get(`/users/${user_id}`);
     return response?.data
