@@ -52,6 +52,8 @@
 
 /* ---------------------- RGBA (BACKGROUND COLORS WITH OPACITY) ---------------------- */
 
+.bg-transparent { background-color: rgba(0, 0, 0, 0); }
+
 /* ---------- PRIMARY ---------- */
 .bg-primary-25  { background-color: rgba(128, 122, 216, 0.25); }
 .bg-primary-50  { background-color: rgba(128, 122, 216, 0.5); }
