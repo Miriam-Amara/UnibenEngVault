@@ -35,6 +35,11 @@
 .hover-bg-error:hover            { background-color: var(--color-error); }
 .hover-bg-warn:hover             { background-color: var(--color-warn); }
 
+/* ---------- HOVER TRANSPARENT BACKGROUND COLORS ----------  */
+.hover-bg-grey-25:hover  { background-color: rgba(11, 3, 45, 0.25); }
+.hover-bg-grey-50:hover  { background-color: rgba(11, 3, 45, 0.5); }
+.hover-bg-grey-75:hover  { background-color: rgba(11, 3, 45, 0.75); }
+
 
 /* OPACITY */
 .opacity-0   { opacity: 0; }
