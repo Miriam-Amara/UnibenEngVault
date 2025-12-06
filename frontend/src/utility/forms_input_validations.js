@@ -129,13 +129,13 @@ export const userValidationSchema = yup.object({
       .matches(/[0-9]/, "Password must contain at least one number")
       .matches(/[A-Z]/, "Password must contain at least one uppercase")
       .matches(/[a-z]/, "Password must contain at least one lowercase"),
-  is_admin: yup.string()
-    .required("Is admin required.")
+  confirm_password: yup.string()
+    .required("Confirm password is required.")
+    .oneOf([yup.ref('password')], "Passwords must match."),
+  is_admin: yup.boolean()
     .oneOf([true, false], "Is admin must be either: true or false."),
   department_id: yup.string()
-    .required("Department id is required.")
-    .length(36, "Department id must be exactly 36 characters."),
+    .required("Department id is required."),
   level_id: yup.string()
-    .required("Department id is required.")
-    .length(36, "Department id must be exactly 36 characters."),
-})
+    .required("Level id is required.")
+});
