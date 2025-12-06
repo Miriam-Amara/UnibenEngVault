@@ -12,13 +12,14 @@ export function Button({
   children
 }) {
 
-  const base = "border-0 rounded-10 cursor-pointer";
+  const base = "border-0 rounded-10 flex justify-center items-center cursor-pointer";
 
   const variants = {
     primary: "text-white font-semibold bg-primary hover-bg-primary-dark",
     secondary: "text-white font-semibold bg-secondary hover-bg-secondary-dark shadow-secondary-dark-sm",
     danger: "",
-    outline: "text-primary font-semibold border bg-white hover-bg-primary-light",
+    outline: "text-primary font-semibold border bg-white hover-bg-grey-light",
+    icon: "",
   }
 
   const sizes = {
