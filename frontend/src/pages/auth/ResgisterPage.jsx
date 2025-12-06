@@ -56,7 +56,7 @@ export default function ResgisterPage() {
     try {
       const allDepartments = await fetchAllDepartmentsApi();
       const options = allDepartments ? allDepartments.map((department) => ({
-        value: department.id, label: department.name
+        value: department.id, label: department.dept_name
       })) : [];
 
       setDepartments(options);
@@ -70,7 +70,7 @@ export default function ResgisterPage() {
     try {
       const allLevels = await fetchAllLevelsApi();
       const options = allLevels ? allLevels.map((level) => ({
-        value: level.id, label: level.name
+        value: level.id, label: level.level_name
       })) : [];
 
       setLevels(options);
@@ -237,7 +237,6 @@ export default function ResgisterPage() {
             variant="primary"
             size="lg"
             className="text-h5"
-            onClick={""}
             children="Register"
           />
         </form>
