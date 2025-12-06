@@ -211,3 +211,7 @@
 .min-h-25 { min-height: var(--space-25); } /* 50.0rem = 500px */
 .min-h-26 { min-height: var(--space-26); } /* 55.0rem = 550px */
 .min-h-27 { min-height: var(--space-27); } /* 100.0rem = 1000px */
+
+
+.min-h-full   { min-height: var(--h-100); }    /* 100% */
+.min-h-screen { min-height: var(--vh-100); }  /* 100vh */
