@@ -4,7 +4,7 @@ import api from "./api";
 import { showToast } from "../components/ui/Toast";
 
 
-export async function  addLevelApi({level_data}) {
+export async function  addLevelApi(level_data) {
   try {
     const response = await api.post("/levels", level_data);
     return response?.data
@@ -18,18 +18,18 @@ export async function  addLevelApi({level_data}) {
 }
 
 
-export async function fetchAllLevelsApi({
-  page_size, page_num, created_at, search_level_name
-}) {
+export async function fetchAllLevelsApi(
+  page_size="", page_num="", created_at="", search_level_name=""
+) {
   try {
     const response = await api.get(
       "/levels",
       {params:
         {
-          page_size: page_size || null,
-          page_num: page_num || null,
-          date_time: created_at || null,
-          search: search_level_name || null,
+          page_size: page_size,
+          page_num: page_num,
+          date_time: created_at,
+          search: search_level_name,
         },
       }
     );
@@ -44,7 +44,7 @@ export async function fetchAllLevelsApi({
 }
 
 
-export async function fetchLevelApi({level_id}) {
+export async function fetchLevelApi(level_id) {
   try {
     const response = await api.get(`/levels/${level_id}`);
     return response?.data
@@ -58,7 +58,7 @@ export async function fetchLevelApi({level_id}) {
 }
 
 
-export async function deleteLevelApi({level_id}) {
+export async function deleteLevelApi(level_id) {
   try {
     await api.delete(`/levels/${level_id}`);
   }

@@ -4,7 +4,7 @@ import api from "./api";
 import { showToast } from "../components/ui/Toast";
 
 
-export async function  addDepartmentApi({department_data}) {
+export async function  addDepartmentApi(department_data) {
   try {
     const response = await api.post("/departments", department_data);
     return response?.data
@@ -18,7 +18,7 @@ export async function  addDepartmentApi({department_data}) {
 }
 
 
-export async function updateDepartmentApi({department_id, department_data}) {
+export async function updateDepartmentApi(department_id, department_data) {
   try {
     const response = await api.put(`/departments/${department_id}`, department_data);
     return response?.data
@@ -32,18 +32,18 @@ export async function updateDepartmentApi({department_id, department_data}) {
 }
 
 
-export async function fetchAllDepartmentsApi({
-  page_size, page_num, created_at, search_dept_name
-}) {
+export async function fetchAllDepartmentsApi(
+  page_size="", page_num="", created_at="", search_dept_name=""
+) {
   try {
     const response = await api.get(
       "/departments",
       {params:
         {
-          page_size: page_size || null,
-          page_num: page_num || null,
-          date_time: created_at || null,
-          search: search_dept_name || null,
+          page_size: page_size,
+          page_num: page_num,
+          date_time: created_at,
+          search: search_dept_name,
         },
       }
     );
@@ -60,7 +60,7 @@ export async function fetchAllDepartmentsApi({
 }
 
 
-export async function fetchDepartmentApi({department_id}) {
+export async function fetchDepartmentApi(department_id) {
   try {
     const response = await api.get(`/departments/${department_id}`);
     return response?.data
@@ -74,7 +74,7 @@ export async function fetchDepartmentApi({department_id}) {
 }
 
 
-export async function deleteDepartmentApi({department_id}) {
+export async function deleteDepartmentApi(department_id) {
   try {
     await api.delete(`/departments/${department_id}`);
   }
