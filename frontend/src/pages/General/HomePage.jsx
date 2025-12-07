@@ -92,7 +92,7 @@ export default function HomePage() {
               <img
                 src={studyIcon}
                 alt="Study"
-                className="max-w-11 mb-5 bg-white p-2 border rounded-br-10 shadow-primary-t-icon"
+                className="max-w-11 mb-5 bg-white p-2 border-primary rounded-br-10 shadow-primary-t-icon"
               />
               <h5 className="text-primary-dark mb-1">Study</h5>
               <p className="px-7">
@@ -105,7 +105,7 @@ export default function HomePage() {
               <img
                 src={profileIcon}
                 alt="Profile"
-                className="max-w-11 mb-5 bg-white p-2 border rounded-br-10 shadow-primary-t-icon"
+                className="max-w-11 mb-5 bg-white p-2 border-primary rounded-br-10 shadow-primary-t-icon"
               />
               <h5 className="text-primary-dark mb-1">Profile</h5>
               <p className="px-7">
@@ -118,7 +118,7 @@ export default function HomePage() {
               <img
                 src={searchIcon}
                 alt="search"
-                className="max-w-11 mb-5 bg-white p-2 border rounded-br-10 shadow-primary-t-icon"
+                className="max-w-11 mb-5 bg-white p-2 border-primary rounded-br-10 shadow-primary-t-icon"
               />
               <h5 className="text-primary-dark mb-1">Search</h5>
               <p className="px-7">
@@ -131,7 +131,7 @@ export default function HomePage() {
               <img
                 src={solutionIcon}
                 alt="solution"
-                className="max-w-11 mb-5 bg-white p-2 border rounded-br-10 shadow-primary-t-icon"
+                className="max-w-11 mb-5 bg-white p-2 border-primary rounded-br-10 shadow-primary-t-icon"
               />
               <h5 className="text-primary-dark mb-1">Solutions</h5>
               <p className="px-7">
@@ -144,7 +144,7 @@ export default function HomePage() {
               <img
                 src={reportIcon}
                 alt="report"
-                className="max-w-11 mb-5 bg-white p-2 border rounded-br-10 shadow-primary-t-icon"
+                className="max-w-11 mb-5 bg-white p-2 border-primary rounded-br-10 shadow-primary-t-icon"
               />
               <h5 className="text-primary-dark mb-1">Report</h5>
               <p className="px-7">
