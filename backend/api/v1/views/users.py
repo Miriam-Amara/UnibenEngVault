@@ -54,12 +54,12 @@ def register_users():
 
     valid_data = validate_request_data(UserCreate)
 
-    if valid_data["department_id"]:
+    if valid_data.get("department_id"):
         department = get_obj(Department, valid_data["department_id"])
         if not department:
             abort(404, description="Department does not exist.")
 
-    if valid_data["level_id"]:
+    if valid_data.get("level_id"):
         level = get_obj(Level, valid_data["level_id"])
         if not level:
             abort(404, description="Level does not exist.")
