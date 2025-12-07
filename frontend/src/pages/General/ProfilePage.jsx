@@ -15,11 +15,13 @@ import StudentLayout from "../../components/layout/StudentLayout";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { Button } from "../../components/ui/Button";
+import profileImg from "../../assets/user_filled_colored_icon.png";
+import closeIcon from "../../assets/close_icon.png";
 
 
 
 function ProfilePageView(userData) {
-  const [ user, setUser ] = useState({userData});
+  const [ user, setUser ] = useState(userData.userData);
   const [ editForm, setEditForm ] = useState(false);
   const [ errors, setErrors ] = useState({});
   const [ viewDetails, setViewDetails ] = useState(false);
@@ -56,15 +58,6 @@ function ProfilePageView(userData) {
     }
   };
 
-  // const fetchUser = async () => {
-  //   try {
-  //     const userData = await fetchUserApi()
-  //     setUser(userData ?? [])
-  //   } catch (error) {
-  //     console.error("Error fetching user: ", error);
-  //   }
-  // }
-
   useEffect(() => {
     if (editForm) {
       console.log("Edit form: ", editForm);
@@ -100,13 +93,32 @@ function ProfilePageView(userData) {
     <>
       
       {/* ------------------------- INFO SECTION ------------------------- */}
-      <section>
-        <img
-          src=""
-          alt=""
-        />
+      <section
+        className="h-18 py-5 px-10 mb-5 rounded-10 bg-primary-light flex justify-between profile-info-section"
+      >
+        <div
+          className="w-15 h-15 mr-5 bg-white rounded-50 flex justify-center items-center profile-info-section"
+        >
+          <img
+            src={ profileImg }
+            alt="profile Image"
+            className="w-75"
+          />
+        </div>
+
+        <div
+          className="mr-auto flex flex-col justify-center items-end"
+        >
+          <div className="flex items-center gap-1">
+            <div className="h-2 w-2 bg-primary-dark rounded-50"></div>
+            <p className="text-sm">{ user.is_active ? "Active" : "Not active"}</p>
+          </div>
+          <p className="text-sm">Admin</p>
+        </div>
         
-        <div>
+        <div
+          className="mr-5 flex flex-col gap-2 profile-btn"
+        >
           <Button
             type="button"
             variant="primary"
@@ -124,63 +136,100 @@ function ProfilePageView(userData) {
             onClick={ () => { setEditForm(true); } }
             children="Edit profile"
           />
-
-          <Button
-            type="button"
-            variant="danger"
-            size="md"
-            className=""
-            children="Close Account"
-          />
         </div>
+
+        <Button
+          type="button"
+          variant="danger"
+          size="md"
+          className="self-start"
+          children="Close Account"
+        />
         
         {viewDetails &&
-        <div>
-          <p>Email: </p>
+        <div
+          className="h-screen w-screen bg-grey-dark-75 absolute top-0 left-0 flex justify-center items-center"
+        >
+          <div
+            className="w-75 max-w-23 h-50 min-h-21 p-5 bg-grey-light rounded-10 flex flex-col justify-center"
+          >
+            <div
+              onClick={ () => {setViewDetails(false);} }
+              className="w-3 ml-auto cursor-pointer"
+            >
+              <img
+                src={ closeIcon }
+                alt="close"
+                className="w-100"
+              />
+            </div>
+            <p>Active: { user.is_active ? "Yes" : "No" }</p>
+            <p>Date Created: { new Date(user.created_at).toLocaleDateString() }</p>
+            <p>Last Updated: { new Date(user.updated_at).toLocaleDateString() }</p>
+            <br />
+            <p>Email: { user.email }</p>
+            <p>Department: { user.dept_name } { user?.dept_code }</p>
+            <p>Level: { user.level_name }</p>
+            <br />
+            <p>Number of files added: { user.course_files_added }</p>
+            <p>Warnings: { user.warnings_count }</p>
+            
+          </div>
         </div>
         }
       </section>
 
       {/* ------------------------- FORM SECTION ------------------------- */}
-      <section>
-        <form onSubmit={ handleSubmit }>
-            <div>
-              <label>Email</label>
+      <section
+        className=" p-5 rounded-10 bg-primary-light"
+      >
+        <form
+          onSubmit={ handleSubmit }
+          className="w-25 flex flex-col gap-5 profile-form"  
+        >
+            <div
+              className="flex gap-5"
+            >
+              <label className="w-50 profile-form">Email: </label>
               <Input
                 type="email"
                 name="email"
                 value={ user.email }
                 onChange={ handleChange }
-                className=""
+                disabled={ editForm ? false : true }
+                className="border-1"
               />
               {errors.email && <p>{ errors.email }</p>}
             </div>
 
-            <div>
-              <label>Department</label>
-              {departments ?
+            <div
+              className="flex gap-5"
+            >
+              <label className="w-50 profile-form">Department: </label>
+              {departments.length !== 0 ?
               <Select
                 name="department_id"
                 value={ user.department_id }
                 options={ departments }
                 onChange={ handleChange }
                 className=""
-                disabled={ false }
               /> :
               
               <Input
                 type="dept_name"
                 name="dept_name"
-                value={ user.dept_name }
+                value={ user?.dept_name ?? "No department" }
                 className=""
                 disabled={ true }
               />}
               {errors.department_id && <p>{ errors.department_id }</p>}
             </div>
 
-            <div>
-              <label>Level</label>
-              {levels ?
+            <div
+              className="flex gap-5"
+            >
+              <label className="w-50 profile-form">Level: </label>
+              {levels.length !== 0 ?
               <Select
                 name="level"
                 id={ user.id }
@@ -188,35 +237,53 @@ function ProfilePageView(userData) {
                 options={ levels }
                 onChange={ handleChange }
                 className=""
-                disabled={ false }
               /> :
               
-              <Select
-                name="department"
-                value={ user.level_name }
-                options={ [{ value: user.id , label: user.level_name }] }
+              <Input
+                type="level_name"
+                name="level_name"
+                value={ user?.level_name ?? "No level" }
+                className=""
+                disabled={ true }
               />}
             </div>
 
-            {editForm &&
-            <Button
-              type="submit"
-              variant="primary"
-              size="sm"
-              className=""
-              onClick={ () => {setEditForm(false);} }
-              children="Save"
-            />}
+            <div
+              className="flex gap-5"
+            >
+              <label className="w-50 profile-form">Acount Created: </label>
+              <Input
+                type="text"
+                name="created_at"
+                value={ new Date(user.created_at).toLocaleDateString() }
+                className="border-1"
+                disabled = { true }
+              />
+            </div>
 
-            {editForm &&
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              className=""
-              onClick={ () => {setEditForm(false);} }
-              children="Cancel"
-            />}
+            <div
+              className="h-6 flex gap-2"
+            >
+              {editForm &&
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                className=""
+                onClick={ () => {setEditForm(false);} }
+                children="Save"
+              />}
+
+              {editForm &&
+              <Button
+                type="button"
+                variant="outline"
+                size="md"
+                className="text-error"
+                onClick={ () => {setEditForm(false);} }
+                children="Cancel"
+              />}
+            </div>
         </form>
       </section>
     </>
@@ -225,13 +292,14 @@ function ProfilePageView(userData) {
 
 
 export default function ProfilePage() {
-  const user = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   if (!user)
     navigate("/");
+  
 
-  if (user.is_admin) {
+  if (user?.is_admin) {
     return (
       <>
       <AdminLayout
