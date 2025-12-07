@@ -16,16 +16,21 @@ export function Button({
 
   const variants = {
     primary: "text-white font-semibold bg-primary hover-bg-primary-dark",
-    secondary: "text-white font-semibold bg-secondary hover-bg-secondary-dark shadow-secondary-dark-sm",
-    danger: "",
+    secondary: "text-white font-semibold bg-secondary hover-bg-secondary-dark",
+    danger: "font-semibold bg-warn hover-bg-secondary-dark",
     outline: "text-primary font-semibold border bg-white hover-bg-grey-light",
     icon: "",
   }
 
+  const shadow = {
+    primary: "",
+    secondary: "shadow-secondary-dark-sm"
+  }
+
   const sizes = {
     sm: "",
-    md: "py-2 px-10",
-    lg: "py-3 px-15"
+    md: "btn-md",
+    lg: `py-3 px-15 ${shadow[variant]}`
   }
 
   return(
