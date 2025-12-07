@@ -9,6 +9,7 @@ export function Input({
   value,
   placeholder = "",
   onChange,
+  disabled, 
   className = "",
 }) {
 
@@ -20,6 +21,7 @@ export function Input({
       name={name}
       value={value}
       placeholder={placeholder}
+      disabled={ disabled }
       onChange={onChange}
       className={`w-100 py-1 px-3 d-block bg-transparent ${className}`}
     />
