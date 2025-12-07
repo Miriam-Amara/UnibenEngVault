@@ -130,8 +130,16 @@
   --space-26: 55.0rem;
   --space-27: 100.0rem;
 
+  /* PERCENTAGE SPACE */
+  --space-25p: 25%;
+  --space-50: 50%;
+  --space-75: 75%;
+  --space-85: 85%;
+  --space-95: 95%;
+  --space-100: 100%;
+
   /* PERCENTAGE WIDTH */
-  /* --w-25: 25%; */
+  --w-25p: 25%;
   --w-50: 50%;
   --w-75: 75%;
   --w-85: 85%;
@@ -140,7 +148,7 @@
   --w-100: 100%;
 
   /* PERCENTAGE HEIGHT */
-  --h-25: 25%;
+  --h-25p: 25%;
   --h-50: 50%;
   --h-75: 75%;
   --h-85: 85%;
@@ -200,16 +208,15 @@ h3{
 h4{
   font-size: var(--text-h4);
   font-weight: var(--font-weight-semibold);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-tight);
 }
 
 h5{
   font-size: var(--text-h5);
   font-weight: var(--font-weight-semibold);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-tight);
 }
+
+.btn-sm { padding: var(--space-1) var(--space-2); }
+.btn-md { padding: var(--space-2) var(--space-4); }
 
 
 
@@ -223,17 +230,21 @@ h5{
   select { font-size: var(--text-base); }
 }
 
+
 /* 1000px (62.5 x 16px) */
 @media (max-width: 62.5rem) {
   html {
     font-size: 50%; /* 1rem = 8px */
   }
 
-  section.auth-form { padding: var(--space-2) var(--space-16); }
-
+  /* --------- UI COMPONENTS --------- */
   input::placeholder { font-size: var(--text-base); }
   select { font-size: var(--text-base); }
+
+  /* ---------- REGISTER AND LOGIN PAGE ---------- */
+  section.auth-form { padding: var(--space-2) var(--space-16); }
 }
+
 
 /* 800px */
 @media (max-width: 50rem) {
@@ -241,12 +252,18 @@ h5{
     font-size: 44%; /* 1rem = 7.04px */
   }
 
+  /* --------- UI COMPONENTS --------- */
+  .btn-md {padding: var(--space-1) var(--space-2); }
+
+  /* ---------- REGISTER AND LOGIN PAGE ---------- */
   section.auth-section, section.auth-form { padding: var(--space-2) var(--space-13); }
   p.auth-section { padding-right: var(--space-8); }
 
-  input::placeholder { font-size: var(--text-base); }
-  select { font-size: var(--text-base); }
+  /* ---------- PROFILE PAGE ---------- */
+  div.profile-btn {margin-right: var(--space-2);}
+
 }
+
 
 /* 600px */
 @media (max-width: 37.5rem) {
@@ -255,74 +272,75 @@ h5{
   h1 { font-size: var(--text-h2); letter-spacing: 1.4; }
   h2 { font-size: var(--text-h3); letter-spacing: 1.4; }
   h3 { font-size: var(--text-h4); letter-spacing: normal; }
-  h4 { font-size: var(--text-h5); letter-spacing: normal; }
-  h5 { font-size: var(--text-base); letter-spacing: normal; }
 
+  /* ---------- HOME PAGE ---------- */
   img.hero-section { height: var(--space-21); max-width: var(--space-23); }
 
-  section.auth-section { padding: var(--space-2) var(--space-2) var(--space-2) var(--space-12); }
+  /* ---------- REGISTER AND LOGIN PAGE ---------- */
+  section.auth-section {
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-12);
+  }
   section.auth-form {padding: var(--space-2) var(--space-11); }
   p.auth-section { padding-right: var(--space-5); }
   h3.auth-section { margin-bottom: var(--space-8); }
 
-  input::placeholder { font-size: var(--text-base); }
-  select { font-size: var(--text-base); }
+  /* ---------- PROFILE PAGE ---------- */
+  section.profile-info-section { padding: var(--space-5) var(--space-3); }
+  .sidebar {
+    padding-top: var(--space-5);
+    position: absolute;
+    background-color: var(--color-white);
+    box-shadow: var(--space-1) 0 0 var(--shadow-grey-dark);
+  }
 }
+
 
 /* 450.4px */
 @media (max-width: 28.15rem) {
   html { font-size: 37.5%; }/* 1rem = 6px */
   h1 { font-size: var(--text-h2); letter-spacing: normal; }
   h2 { font-size: var(--text-h3); letter-spacing: normal; }
-  h3 { font-size: var(--text-h4); letter-spacing: normal; }
-  h4 { font-size: var(--text-h5); letter-spacing: normal; }
-  h5 { font-size: var(--text-base); letter-spacing: normal; }
-  
+
   section.auth-section{ padding: var(--space-2) var(--space-6); }
   section.auth-form { padding: var(--space-2) var(--space-8); }
 
-  input::placeholder { font-size: var(--text-base); }
-  select { font-size: var(--text-base); }
+  /* ---------- PROFILE PAGE ---------- */
+  .btn-md { font-size: var(--text-base); }
+  section.profile-info-section {
+    height: var(--space-16);
+    padding: var(--space-3) var(--space-3);
+  }
+  div.profile-info-section { height: var(--space-10); width: var(--space-10); }
+  form.profile-form { width: var(--space-75); }
 }
+
 
 /* 350px */
 @media (max-width: 21.875rem) {
   html { font-size: 34.5%; } /* 1rem = 5.52px */
-  h1 { font-size: var(--text-h2); letter-spacing: normal; }
-  h2 { font-size: var(--text-h3); letter-spacing: normal; }
-  h3 { font-size: var(--text-h4); letter-spacing: normal; }
-  h4 { font-size: var(--text-h5); letter-spacing: normal; }
-  h5 { font-size: var(--text-base); letter-spacing: normal; }
 
+  /* ---------- REGISTER AND LOGIN PAGE ---------- */
   section.auth-section { display: none; }
   section.auth-form {
     width: var(--w-100);
     padding: var(--space-2) var(--space-15);
   }
   form.auth-form { gap: var(--space-5); }
+  
+  /* ---------- DESKTOP ADMIN & STUDENT LAYOUT ---------- */
+  div.layout { max-width: var(--w-85);}
 
-  input::placeholder { font-size: var(--text-base); }
-  select { font-size: var(--text-base); }
+  /* ---------- PROFILE PAGE ---------- */
+  .btn-md { font-size: var(--text-sm); }
+  div.profile-info-section { display: none; }
+
 }
 
 
 /* 250px */
 @media (max-width: 15.625rem) {
-  html { font-size: 34.5%; } /* 1rem = 5.52px */
-  h1 { font-size: var(--text-h2); letter-spacing: normal; }
-  h2 { font-size: var(--text-h3); letter-spacing: normal; }
-  h3 { font-size: var(--text-h4); letter-spacing: normal; }
-  h4 { font-size: var(--text-h5); letter-spacing: normal; }
-  h5 { font-size: var(--text-base); letter-spacing: normal; }
-
-  section.auth-section { display: none; }
-  section.auth-form {
-    width: var(--w-100);
-    padding: var(--space-2) var(--space-10);
-  }
-  form.auth-form { gap: var(--space-5); }
-
-  input::placeholder { font-size: var(--text-base); }
-  select { font-size: var(--text-base); }
+  
+  /* ---------- REGISTER AND LOGIN PAGE ---------- */
+  section.auth-form { padding: var(--space-2) var(--space-10); }
 }
 
