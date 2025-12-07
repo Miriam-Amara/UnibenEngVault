@@ -9,7 +9,7 @@ export function Input({
   value,
   placeholder = "",
   onChange,
-  disabled, 
+  disabled=false, 
   className = "",
 }) {
 
