@@ -3,7 +3,6 @@
  */
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { userValidationSchema } from "../../utility/forms_input_validations";
 import { updateUserApi } from "../../api/users";
@@ -30,9 +29,9 @@ function ProfilePageView(userData) {
   const [ levels, setLevels ] = useState([]);
 
   
-  const fetchAllDepartments = async () => {
+  const fetchAllDepartments = async (params={}) => {
     try {
-      const allDepartments = await fetchAllDepartmentsApi();
+      const allDepartments = await fetchAllDepartmentsApi(params);
       const options = allDepartments ? allDepartments.map((department) => ({
         value: department.id, label: department.name
       })) : [];
@@ -60,7 +59,6 @@ function ProfilePageView(userData) {
 
   useEffect(() => {
     if (editForm) {
-      console.log("Edit form: ", editForm);
       fetchAllDepartments();
       fetchAllLevels();
     }
@@ -111,7 +109,7 @@ function ProfilePageView(userData) {
         >
           <div className="flex items-center gap-1">
             <div className="h-2 w-2 bg-primary-dark rounded-50"></div>
-            <p className="text-sm">{ user.is_active ? "Active" : "Not active"}</p>
+            <p className="text-sm">{ user?.is_active ? "Active" : "Not active"}</p>
           </div>
           <p className="text-sm">Admin</p>
         </div>
@@ -163,16 +161,16 @@ function ProfilePageView(userData) {
                 className="w-100"
               />
             </div>
-            <p>Active: { user.is_active ? "Yes" : "No" }</p>
-            <p>Date Created: { new Date(user.created_at).toLocaleDateString() }</p>
-            <p>Last Updated: { new Date(user.updated_at).toLocaleDateString() }</p>
+            <p>Active: { user?.is_active ? "Yes" : "No" }</p>
+            <p>Date Created: { new Date(user?.created_at).toLocaleDateString() }</p>
+            <p>Last Updated: { new Date(user?.updated_at).toLocaleDateString() }</p>
             <br />
-            <p>Email: { user.email }</p>
-            <p>Department: { user.dept_name } { user?.dept_code }</p>
-            <p>Level: { user.level_name }</p>
+            <p>Email: { user?.email }</p>
+            <p>Department: { user?.dept_name } { user?.dept_code }</p>
+            <p>Level: { user?.level_name }</p>
             <br />
-            <p>Number of files added: { user.course_files_added }</p>
-            <p>Warnings: { user.warnings_count }</p>
+            <p>Number of files added: { user?.course_files_added }</p>
+            <p>Warnings: { user?.warnings_count }</p>
             
           </div>
         </div>
@@ -194,12 +192,12 @@ function ProfilePageView(userData) {
               <Input
                 type="email"
                 name="email"
-                value={ user.email }
+                value={ user?.email }
                 onChange={ handleChange }
                 disabled={ editForm ? false : true }
                 className="border-1"
               />
-              {errors.email && <p>{ errors.email }</p>}
+              {errors?.email && <p>{ errors.email }</p>}
             </div>
 
             <div
@@ -222,7 +220,7 @@ function ProfilePageView(userData) {
                 className=""
                 disabled={ true }
               />}
-              {errors.department_id && <p>{ errors.department_id }</p>}
+              {errors?.department_id && <p>{ errors.department_id }</p>}
             </div>
 
             <div
@@ -255,7 +253,7 @@ function ProfilePageView(userData) {
               <Input
                 type="text"
                 name="created_at"
-                value={ new Date(user.created_at).toLocaleDateString() }
+                value={ new Date(user?.created_at).toLocaleDateString() }
                 className="border-1"
                 disabled = { true }
               />
@@ -292,12 +290,13 @@ function ProfilePageView(userData) {
 
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
-  if (!user)
-    navigate("/");
-  
+  if (loading) {
+    return(
+      <p>Loading...</p>
+    );
+  }
 
   if (user?.is_admin) {
     return (
