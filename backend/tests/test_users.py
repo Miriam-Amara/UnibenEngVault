@@ -201,6 +201,7 @@ class TestUserRoute(unittest.TestCase):
         self.assertIn("helps_added", user_data)
         self.assertIn("reports_added", user_data)
         self.assertNotIn("password", user_data)
+        self.assertNotIn("__class__", user_data)
 
     def test_get_user_by_me(self):
         """
