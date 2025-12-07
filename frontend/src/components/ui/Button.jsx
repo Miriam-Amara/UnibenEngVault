@@ -17,9 +17,9 @@ export function Button({
   const variants = {
     primary: "text-white font-semibold bg-primary hover-bg-primary-dark",
     secondary: "text-white font-semibold bg-secondary hover-bg-secondary-dark",
-    danger: "font-semibold bg-warn hover-bg-secondary-dark",
-    outline: "text-primary font-semibold border bg-white hover-bg-grey-light",
-    icon: "",
+    danger: "text-white font-semibold bg-error hover-bg-secondary-dark",
+    outline: "text-primary font-semibold border-primary bg-white hover-bg-grey-light",
+    icon: "bg-white",
   }
 
   const shadow = {
@@ -28,7 +28,7 @@ export function Button({
   }
 
   const sizes = {
-    sm: "",
+    sm: "btn-sm",
     md: "btn-md",
     lg: `py-3 px-15 ${shadow[variant]}`
   }
