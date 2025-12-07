@@ -31,7 +31,7 @@ def get_user_dict(user: User) -> dict[str, Any]:
     Returns a json serializable dict for the given user object.
     """
     user_dict = user.to_dict()
-    user_dict.pop("__User__", None)
+    user_dict.pop("__Class__", None)
 
     if user.department:
         user_dict["department"] = user.department.dept_code.upper()
