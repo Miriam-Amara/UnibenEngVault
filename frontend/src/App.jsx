@@ -5,6 +5,7 @@ import HomePage from "./pages/General/HomePage";
 import ResgisterPage from "./pages/auth/ResgisterPage";
 import LoginPage from "./pages/auth/LoginPage";
 import ProfilePage from "./pages/General/ProfilePage";
+import DepartmentPage from "./pages/admin/DepartmentsPage";
 
 function App() {
   return(
@@ -14,6 +15,12 @@ function App() {
         <Route path="/register" element={<ResgisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+
+        <Route path="/departments" element={
+          <AdminRoute>
+            <DepartmentPage />
+          </AdminRoute>}
+        />
       </Routes>
     </AuthProvider>
   );
