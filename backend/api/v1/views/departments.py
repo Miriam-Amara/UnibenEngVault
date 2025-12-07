@@ -35,6 +35,8 @@ def get_department_dict(department: Department) -> dict[str, Any]:
     dept_dict = department.to_dict()
     dept_dict["num_of_users"] = num_of_users_in_dept
     dept_dict["num_of_courses"] = num_of_courses_offered
+    dept_dict.pop("courses", None)
+    dept_dict.pop("users", None)
     dept_dict.pop("__class__", None)
     return dept_dict
 
