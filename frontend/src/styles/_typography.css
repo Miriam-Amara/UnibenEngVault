@@ -4,6 +4,7 @@
 /* TEXT COLOR */
 .text-primary-dark { color: var(--text-primary-dark); }
 .text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--color-secondary); }
 .text-grey-light { color: var(--text-grey-light); }
 .text-grey-dark { color: var(--text-grey-dark); }
 .text-white { color: var(--text-white); }
