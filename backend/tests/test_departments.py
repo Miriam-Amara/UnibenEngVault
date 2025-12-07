@@ -158,6 +158,9 @@ class TestDepartmentRoute(unittest.TestCase):
         self.assertIn("dept_code", response.get_json())
         self.assertIn("num_of_users", response.get_json())
         self.assertIn("num_of_courses", response.get_json())
+        self.assertIn("users", response.get_json())
+        self.assertIn("courses", response.get_json())
+        self.assertIn("__class__", response.get_json())
 
     def test_update_department(self):
         """
