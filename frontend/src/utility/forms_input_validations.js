@@ -35,7 +35,7 @@ export const departmentValidationSchema = yup.object({
     .matches(/.*\bengineering$/i, "Department name must end with engineering."),
   dept_code: yup.string()
     .required("Department code is required.")
-    .length("Department code must be exactly 3 characters."),
+    .length(3, "Department code must be exactly 3 characters."),
 })
 
 
