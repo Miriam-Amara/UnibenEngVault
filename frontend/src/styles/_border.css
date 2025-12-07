@@ -90,6 +90,10 @@
 .border-dotted { border-style: dotted; }
 .border-none { border-style: none; }
 
+.border-collapse { border-collapse: collapse; }
+
+.outline-none { outline: none; box-shadow: none; }
+
 
 /* --- BORDER COLOR --- */
 .border-primary-light { border-color: var(--color-primary-light); }
@@ -110,7 +114,8 @@
 
 
 /* ----------- DEFAULT BORDER UTILITY ----------- */
-.border { border-width: var(--border-1); border-style: solid; border-color: var(--color-primary); }
+.border-primary { border-width: var(--border-1); border-style: solid; border-color: var(--color-primary); }
+.border { border-width: var(--border-1); border-style: solid; border-color: var(--color-grey-light); }
 
 .border-t { border-top-width: var(--border-1); border-top-style: solid; border-top-color: var(--color-primary); }
 .border-b { border-bottom-width: var(--border-1); border-bottom-style: solid; border-bottom-color: var(--color-primary); }
@@ -125,8 +130,6 @@
   border-top-width: var(--border-1); border-top-style: solid; border-top-color: var(--color-primary);
   border-bottom-width: var(--border-1); border-bottom-style: solid; border-bottom-color: var(--color-primary);
 }
-
-.outline-none { outline: none; box-shadow: none; }
 
 
 /* ----------- BORDER RADIUS ----------- */
