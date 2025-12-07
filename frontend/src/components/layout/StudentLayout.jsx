@@ -35,12 +35,12 @@ export default function StudentLayout({
         {/* -------------------- SIDEBAR -------------------- */}
         <Sidebar
           showSidebar={showSidebar}
-          className="w-18 max-w-20 ml-3 pl-5"
+          className="w-18 h-screen max-w-20 ml-3 pl-5 sidebar"
        />
         
         {/* -------------------- MAIN SECTION -------------------- */}
         <div
-          className="w-75 mx-8"
+          className="flex-grow w-75 max-w-85 mx-auto layout"
         >
           { Page }
         </div>
