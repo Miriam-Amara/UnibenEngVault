@@ -14,6 +14,9 @@
 .z-50 { z-index: 50; }
 .z-auto { z-index: auto; }
 
+/* ---------------- TRANSFORM UTILITIES ---------------- */
+.translate { transform: translate(-50%, -50%); }
+
 /* ---------------- POSITION OFFSET UTILITIES ---------------- */
 /* TOP */
 .top-0 { top: 0; }                             /* 0 */
@@ -45,6 +48,14 @@
 .top-26 { top: var(--space-26); }             /* 55rem (550px) */
 .top-26 { top: var(--space-27); }             /* 100rem (1000px) */
 
+/* PERCENTAGE */
+.top-25p { top: var(--space-25p); }
+.top-50 { top: var(--space-50); }
+.top-75 { top: var(--space-75); }
+.top-85 { top: var(--space-85); }
+.top-95 { top: var(--space-95); }
+.top-100 { top: var(--space-100); }
+
 
 /* BOTTOM */
 .bottom-0 { bottom: 0; }                       /* 0 */
@@ -58,6 +69,15 @@
 .bottom-8 { bottom: var(--space-8); }         /* 4rem (40px) */
 .bottom-9 { bottom: var(--space-9); }         /* 4.5rem (45px) */
 .bottom-10 { bottom: var(--space-10); }       /* 5rem (50px) */
+
+/* PERCENTAGE */
+.bottom-25p { bottom: var(--space-25p); }
+.bottom-50 { bottom: var(--space-50); }
+.bottom-75 { bottom: var(--space-75); }
+.bottom-85 { bottom: var(--space-85); }
+.bottom-95 { bottom: var(--space-95); }
+.bottom-100 { bottom: var(--space-100); }
+
 
 /* LEFT */
 .left-0 { left: 0; }                           /* 0 */
@@ -89,6 +109,15 @@
 .left-26 { left: var(--space-26); }           /* 55rem (550px) */
 .left-27 { left: var(--space-27); }           /* 100rem (1000px) */
 
+/* PERCENTAGE */
+.left-25p { left: var(--space-25p); }
+.left-50 { left: var(--space-50); }
+.left-75 { left: var(--space-75); }
+.left-85 { left: var(--space-85); }
+.left-95 { left: var(--space-95); }
+.left-100 { left: var(--space-100); }
+
+
 /* RIGHT */
 .right-0 { right: 0; }                         /* 0 */
 .right-1 { right: var(--space-1); }           /* 0.5rem (5px) */
@@ -119,3 +148,11 @@
 .right-26 { right: var(--space-26); }         /* 55rem (550px) */
 .right-27 { right: var(--space-27); }         /* 100rem (1000px) */
 
+
+/* PERCENTAGE */
+.right-25p { right: var(--space-25p); }
+.right-50 { right: var(--space-50); }
+.right-75 { right: var(--space-75); }
+.right-85 { right: var(--space-85); }
+.right-95 { right: var(--space-95); }
+.right-100 { right: var(--space-100); }
