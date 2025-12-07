@@ -31,7 +31,7 @@ export default function Header({
 
   return(
     <header
-      className={`h-10 w-screen py-1 px-5 bg-primary flex items-center ${className}`}
+      className={`h-10 py-1 px-5 bg-primary flex items-center ${className}`}
     >
       <img
         src={ sidebarIcon }
