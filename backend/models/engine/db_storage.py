@@ -173,9 +173,9 @@ class DBStorage:
 
         if date_str:
             try:
-                date_only = datetime.fromisoformat(date_str).date()
+                date_only = datetime.strptime(date_str, "%Y-%m-%d").date()
             except ValueError:
-                raise ValueError("date_str must be a valid ISO datetime")
+                raise ValueError("date_str must be in the format YYYY-MM-DD")
             filters.append(
                 func.date(cls.created_at) == date_only  # type: ignore
             )
