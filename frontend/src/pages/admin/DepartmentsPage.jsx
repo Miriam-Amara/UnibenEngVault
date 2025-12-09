@@ -61,8 +61,18 @@ function DepartmentPageView({ setShowModal }) {
   };
 
   useEffect(() => {
-    fetchAllDepartments();
+    const timeout = setTimeout(() => {
+      fetchAllDepartments();
+    }, 500) // 500ms
+
+    return () => clearTimeout(timeout);
   }, [search]);
+
+  useEffect(() => {
+    if (confirmDelete) {
+      confirmDepartmentDelete();
+    }
+  }, [confirmDelete]);
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -145,23 +155,27 @@ function DepartmentPageView({ setShowModal }) {
     setShowModal(true);
   }
 
-  const handleDelete = async (row) => {
-    setDepartment(row);
-    setShowConfirmDialog(true);
-    setShowModal(true);
-
-    try {
-      confirmDelete && await deleteDepartmentApi(department.id);
-      setConfirmDelete(false);
-    } catch (error) {
+  const handleDelete = (row) => {
+      setDepartment(row);
+      setShowConfirmDialog(true);
+      setShowModal(true);
+    };
+  
+    const confirmDepartmentDelete = async () => {
+      try {
+        await deleteDepartmentApi(department.id);
+        await fetchAllDepartments();
+        setShowConfirmDialog(false);
+        setShowModal(false);
+        setConfirmDelete(false);
+      } catch (error) {
         ShowToast(
           `Failed to delete ${department.dept_name}`,
-          "error",
+          "error"
         );
-        console.error("Failed to delete department: ", error);
-    }
-  }
-
+        console.error("Failed to delete level: ", error);
+      }
+    };
 
   return (
     <>
@@ -288,22 +302,20 @@ function DepartmentPageView({ setShowModal }) {
 
 
         {/* ---------- TABLE ---------- */}
-        {departments.length !== 0 &&
-          <Table
-            columns={ columns }
-            data={ departments }
-            onClickView={ handleView }
-            onClickEdit={ handleEdit }
-            onClickDelete={ handleDelete }
-          />
-        }
+        <Table
+          columns={ columns }
+          data={ departments }
+          onClickView={ handleView }
+          onClickEdit={ handleEdit }
+          onClickDelete={ handleDelete }
+        />
 
         {/* ---------- TABLE ---------- */}
         {showConfirmDialog &&
           <ConfirmDialog
             message={ `Are you sure you want to delete ${department.dept_name}?`}
             onConfirm={ () => {setConfirmDelete(true);} }
-            onCancel={ () => {setShowConfirmDialog(false);} }
+            onCancel={ () => {setShowConfirmDialog(false); setConfirmDelete(false);} }
           />
         }
 
