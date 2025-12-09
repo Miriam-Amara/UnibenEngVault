@@ -2,6 +2,9 @@
  * 
  */
 
+
+import { useNavigate } from "react-router-dom";
+
 import { logoutApi } from "../../api/users";
 import { useAuth } from "../../pages/auth/AuthContext";
 import { Button } from "../ui/Button";
@@ -16,13 +19,15 @@ export default function Header({
 }) {
 
   const { user, logout } = useAuth();
-
-  console.log("user info: ", user );
+  const navigate = useNavigate();
+  
   const handleLogout = async () => {
     try {
       await logoutApi();
-      logout();
 
+      logout();
+      navigate("/login");
+      
     } catch (error) {
       console.error("Error in logout: ", error)
     }
