@@ -46,7 +46,7 @@ def login():
 
 
 @app_views.route(
-        "/auth_session/logout", strict_slashes=False, methods=["DELETE"]
+        "/auth_session/logout", strict_slashes=False, methods=["POST"]
 )
 def logout():
     """
