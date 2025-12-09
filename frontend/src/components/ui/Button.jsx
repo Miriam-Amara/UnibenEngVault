@@ -43,3 +43,15 @@ export function Button({
     </button>
   );
 }
+
+export function ButtonIcon({ children, onClick, className }) {
+  return (
+    <button
+      type="button"
+      onClick={ onClick }
+      className={ `p-1 border-0 bg-white flex justify-center items-center cursor-pointer ${className}` }
+    >
+      { children }      
+    </button>
+  );
+}
