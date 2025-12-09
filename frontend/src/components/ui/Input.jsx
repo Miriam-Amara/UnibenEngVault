@@ -9,10 +9,15 @@ export function Input({
   value,
   placeholder = "",
   onChange,
-  disabled=false, 
+  disabled=false,
+  size,
   className = "",
 }) {
 
+  const sizes = {
+    sm: "px-1 py-1",
+    lg: "py-1 px-3"
+  }
 
   return (
     <input
@@ -23,7 +28,7 @@ export function Input({
       placeholder={placeholder}
       disabled={ disabled }
       onChange={onChange}
-      className={`w-100 py-1 px-3 d-block bg-transparent ${className}`}
+      className={`w-100 ${size ? sizes[size] : "py-1 px-3"} border-grey d-block bg-transparent ${className}`}
     />
   );
 }
