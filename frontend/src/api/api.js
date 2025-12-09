@@ -15,7 +15,8 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const skipRedirect = error.config?.skipAuthRedirect;
+    if (error.response && error.response.status === 401 && !skipRedirect) {
       window.location.href = "/login";
     }
     return Promise.reject(error);
