@@ -43,6 +43,8 @@ def verify_auth():
             "/api/v1/stats/",
             "/api/v1/register/",
             "/api/v1/auth_session/login/",
+            "/api/v1/departments/",
+            "/api/v1/levels/"
         ],
     ):
         return
