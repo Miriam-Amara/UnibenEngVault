@@ -37,9 +37,9 @@ function LevelPageView({ setShowModal }) {
 
   const columns = [{ label: "Level", key: "level_name" }]
 
-  const fetchAllLevels = async () => {
+  const fetchAllLevels = async (params={}) => {
     try {
-      const allLevels = await fetchAllLevelsApi({ });
+      const allLevels = await fetchAllLevelsApi({ params });
       setLevels(allLevels ?? [])
     } catch (error) {
         ShowToast(
