@@ -17,14 +17,20 @@ export function AuthProvider({ children }) {
   const [ user, setUser ] = useState(null);
   const [ loading, setLoading ] = useState(true);
 
-  const login = (userData) => setUser(userData);
+  const login = (userData) => {setUser(userData); setLoading(false);}
   const logout = () => setUser(null);
 
   const fetchMe = async () => {
-    const userData = await fetchUserApi("me");
-    setUser(userData ?? {})
-    setLoading(false);
-  }
+    try {
+      const userData = await fetchUserApi("me");
+      
+      setUser(userData);
+      setLoading(false);
+
+    } catch {
+      setUser(null);
+    }
+  };
 
   useEffect(() => {fetchMe()},[]);
 
