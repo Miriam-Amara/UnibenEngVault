@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 
-import { userValidationSchema } from "../../utility/forms_input_validations";
+import { updateUserValidationSchema } from "../../utility/forms_input_validations";
 import { updateUserApi } from "../../api/users";
 import { fetchAllDepartmentsApi  } from "../../api/departments";
 import { fetchAllLevelsApi } from "../../api/levels";
@@ -28,12 +28,13 @@ function ProfilePageView(userData) {
   const [ departments, setDepartments ] = useState([]);
   const [ levels, setLevels ] = useState([]);
 
+  console.log("user", user);
   
   const fetchAllDepartments = async (params={}) => {
     try {
       const allDepartments = await fetchAllDepartmentsApi(params);
       const options = allDepartments ? allDepartments.map((department) => ({
-        value: department.id, label: department.name
+        value: department.id, label: department.dept_name
       })) : [];
 
       setDepartments(options);
@@ -43,11 +44,11 @@ function ProfilePageView(userData) {
     }
   };
 
-  const fetchAllLevels = async () => {
+  const fetchAllLevels = async (params={}) => {
     try {
-      const allLevels = await fetchAllLevelsApi();
+      const allLevels = await fetchAllLevelsApi(params);
       const options = allLevels ? allLevels.map((level) => ({
-        value: level.id, label: level.name
+        value: level.id, label: level.level_name
       })) : [];
 
       setLevels(options);
@@ -64,17 +65,40 @@ function ProfilePageView(userData) {
     }
   }, [editForm]);
 
+  useEffect(() => {
+    setUser(userData.userData);
+  }, [userData]);
+
+
   const handleChange = (e) => {
     const { name, value } = e.target
-    setUser((prev) => ({ prev, [name]: value }))
+    setUser((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleCancel = () => {
+    setEditForm(false);
+    setErrors({});
+    setDepartments([]);
+    setLevels([]);
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const validData = await userValidationSchema.validate(user, { abortEarly: false });
+      const formData = {
+        email: user?.email,
+        department_id: user?.department_id,
+        level_id: user?.level_id,
+        is_admin: user?.is_admin
+      }
+      const validData = await updateUserValidationSchema.validate(
+        formData, { abortEarly: false }
+      );
       const updatedUserData = await updateUserApi(user.id, validData);
       setUser(updatedUserData ?? []);
+      setEditForm(false);
+      setDepartments([]);
+      setLevels([]);
 
     } catch (error) {
       if (error.inner) {
@@ -82,6 +106,7 @@ function ProfilePageView(userData) {
         for (const err of error.inner)
           newErrors[err.path] = err.message;
         setErrors(newErrors);
+        console.log("error.inner: ", newErrors);
       }
       console.error("Error submitting form: ", error);
     }  
@@ -166,7 +191,7 @@ function ProfilePageView(userData) {
             <p>Last Updated: { new Date(user?.updated_at).toLocaleDateString() }</p>
             <br />
             <p>Email: { user?.email }</p>
-            <p>Department: { user?.dept_name } { user?.dept_code }</p>
+            <p>Department: { user?.dept_name } - { user?.department }</p>
             <p>Level: { user?.level_name }</p>
             <br />
             <p>Number of files added: { user?.course_files_added }</p>
@@ -189,74 +214,59 @@ function ProfilePageView(userData) {
               className="flex gap-5"
             >
               <label className="w-50 profile-form">Email: </label>
-              <Input
-                type="email"
-                name="email"
-                value={ user?.email }
-                onChange={ handleChange }
-                disabled={ editForm ? false : true }
-                className="border-1"
-              />
-              {errors?.email && <p>{ errors.email }</p>}
+              {editForm ?
+              <>
+                <Input
+                  type="email"
+                  name="email"
+                  value={ user?.email }
+                  onChange={ handleChange }
+                  disabled={ editForm ? false : true }
+                  className="border-1"
+                />
+                {errors?.email && <p className="text-sm text-error">{ errors.email }</p>}
+              </> :
+              <p>{ user?.email }</p>}
             </div>
 
             <div
               className="flex gap-5"
             >
               <label className="w-50 profile-form">Department: </label>
-              {departments.length !== 0 ?
+              {editForm ?
               <Select
+                id="department_id"
                 name="department_id"
-                value={ user.department_id }
+                value={ user?.department_id } 
                 options={ departments }
                 onChange={ handleChange }
                 className=""
               /> :
               
-              <Input
-                type="dept_name"
-                name="dept_name"
-                value={ user?.dept_name ?? "No department" }
-                className=""
-                disabled={ true }
-              />}
-              {errors?.department_id && <p>{ errors.department_id }</p>}
+              <p>{ user?.department }</p>}
             </div>
 
             <div
               className="flex gap-5"
             >
               <label className="w-50 profile-form">Level: </label>
-              {levels.length !== 0 ?
+              {editForm ?
               <Select
-                name="level"
-                id={ user.id }
-                value={ user.level_name }
+                id="level_id"
+                name="level_id"
+                value={ user?.level_id }
                 options={ levels }
                 onChange={ handleChange }
                 className=""
               /> :
-              
-              <Input
-                type="level_name"
-                name="level_name"
-                value={ user?.level_name ?? "No level" }
-                className=""
-                disabled={ true }
-              />}
+              <p>{ user?.level }</p>}
             </div>
 
             <div
               className="flex gap-5"
             >
-              <label className="w-50 profile-form">Acount Created: </label>
-              <Input
-                type="text"
-                name="created_at"
-                value={ new Date(user?.created_at).toLocaleDateString() }
-                className="border-1"
-                disabled = { true }
-              />
+              <label className="w-50 profile-form">Date Created:</label>
+              <p>{ new Date(user?.created_at).toLocaleDateString() }</p>
             </div>
 
             <div
@@ -267,8 +277,6 @@ function ProfilePageView(userData) {
                 type="submit"
                 variant="primary"
                 size="md"
-                className=""
-                onClick={ () => {setEditForm(false);} }
                 children="Save"
               />}
 
@@ -278,7 +286,7 @@ function ProfilePageView(userData) {
                 variant="outline"
                 size="md"
                 className="text-error"
-                onClick={ () => {setEditForm(false);} }
+                onClick={ handleCancel }
                 children="Cancel"
               />}
             </div>
@@ -293,12 +301,14 @@ export default function ProfilePage() {
   const { user, loading } = useAuth();
 
   if (loading) {
+    console.log("User in profile page loading: ", user);
     return(
       <p>Loading...</p>
     );
   }
 
   if (user?.is_admin) {
+    console.log("User in profile page user?.is_admin: ", user);
     return (
       <>
       <AdminLayout
