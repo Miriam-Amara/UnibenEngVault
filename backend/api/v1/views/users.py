@@ -35,6 +35,7 @@ def get_user_dict(user: User) -> dict[str, Any]:
 
     if user.department:
         user_dict["department"] = user.department.dept_code.upper()
+        user_dict["dept_name"] = user.department.dept_name
     if user.level:
         user_dict["level"] = user.level.level_name
     user_dict["course_files_added"] = len(user.course_files_added)
@@ -89,7 +90,7 @@ def get_all_users():
     """
     page_size: str | None = request.args.get("page_size")
     page_num: str | None = request.args.get("page_num")
-    created_at: str | None = request.args.get("created_at")
+    created_at: str | None = request.args.get("date")
     email_str: str | None = request.args.get("search")
 
     if email_str or created_at:
