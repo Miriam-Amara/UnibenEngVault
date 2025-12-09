@@ -139,3 +139,17 @@ export const userValidationSchema = yup.object({
   level_id: yup.string()
     .required("Level id is required.")
 });
+
+
+export const updateUserValidationSchema = yup.object({
+  email: yup.string()
+    .email("Invalid email format.")
+    .required("Email is required.")
+    .max(100, "Maximum of 100 characters"),
+  is_admin: yup.boolean()
+    .oneOf([true, false], "Is admin must be either: true or false."),
+  department_id: yup.string()
+    .required("Department id is required."),
+  level_id: yup.string()
+    .required("Level id is required.")
+});
