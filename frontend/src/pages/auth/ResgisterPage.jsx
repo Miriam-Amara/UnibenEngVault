@@ -52,9 +52,9 @@ export default function ResgisterPage() {
   const [ levels, setLevels ] = useState([]);
 
 
-  const fetchAllDepartments = async () => {
+  const fetchAllDepartments = async (params={}) => {
     try {
-      const allDepartments = await fetchAllDepartmentsApi();
+      const allDepartments = await fetchAllDepartmentsApi(params);
       const options = allDepartments ? allDepartments.map((department) => ({
         value: department.id, label: department.dept_name
       })) : [];
@@ -66,9 +66,9 @@ export default function ResgisterPage() {
     }
   };
 
-  const fetchAllLevels = async () => {
+  const fetchAllLevels = async (params={}) => {
     try {
-      const allLevels = await fetchAllLevelsApi();
+      const allLevels = await fetchAllLevelsApi(params);
       const options = allLevels ? allLevels.map((level) => ({
         value: level.id, label: level.level_name
       })) : [];
