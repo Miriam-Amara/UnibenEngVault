@@ -123,7 +123,7 @@ def get_all_files():
     """
     page_size = request.args.get("page_size")
     page_num = request.args.get("page_num")
-    created_at = request.args.get("date_time")
+    created_at = request.args.get("date")
     file_name = request.args.get("search")
     file_status = request.args.get("file_status")
 

@@ -79,7 +79,7 @@ def get_all_courses():
     """
     page_size: str | None = request.args.get("page_size")
     page_num: str | None = request.args.get("page_num")
-    created_at: str | None = request.args.get("created_at")
+    created_at: str | None = request.args.get("date")
     course_code: str | None = request.args.get("search")
 
     if course_code or created_at:
